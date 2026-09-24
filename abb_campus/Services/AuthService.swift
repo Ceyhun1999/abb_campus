@@ -1,49 +1,57 @@
 import Foundation
 
 protocol AuthService {
+
     func login(
         email: String,
-        password: String
+        password: String,
+        role: UserRole
     ) async throws -> LoginResponse
+
+    func me(
+        token: String
+    ) async throws -> User
 }
 
 final class DefaultAuthService: AuthService {
 
-    private let networkService: NetworkService
-    private let encoder: JSONEncoder
+    private let networkService: any NetworkService
 
     init(
-        networkService: NetworkService,
-        encoder: JSONEncoder = JSONEncoder()
+        networkService: any NetworkService = DefaultNetworkService()
     ) {
         self.networkService = networkService
-        self.encoder = encoder
     }
 
     func login(
         email: String,
-        password: String
+        password: String,
+        role: UserRole
     ) async throws -> LoginResponse {
 
-        let loginRequest = LoginRequest(
+        let request = LoginRequest(
             email: email,
-            password: password
+            password: password,
+            role: role
         )
 
-        let body: Data
-
-        do {
-            body = try encoder.encode(loginRequest)
-        } catch {
-            throw NetworkError.encodingError(error)
-        }
-
-        let endpoint = Endpoint(
-            path: "/auth/login",
-            method: .post,
-            body: body
-        )
+        let endpoint = AuthEndpoint.login(request)
 
         return try await networkService.request(endpoint)
+    }
+
+    func me(
+        token: String
+    ) async throws -> User {
+
+        let endpoint = AuthEndpoint.me(
+            token: token
+        )
+
+        let response: MeResponse = try await networkService.request(
+            endpoint
+        )
+
+        return response.data
     }
 }

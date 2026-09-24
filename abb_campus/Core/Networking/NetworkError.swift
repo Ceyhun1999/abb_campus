@@ -1,20 +1,15 @@
 import Foundation
 
-enum NetworkError: Error {
+enum NetworkError: LocalizedError {
     case invalidURL
     case invalidResponse
-    case encodingError(Error)
-    case decodingError(Error)
     case serverError(
         statusCode: Int,
-        response: APIErrorResponse?
+        message: String?
     )
+    case decodingError
+    case encodingError
     case unknown(Error)
-}
-
-// MARK: - LocalizedError
-
-extension NetworkError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
@@ -22,20 +17,19 @@ extension NetworkError: LocalizedError {
             return "URL düzgün deyil."
 
         case .invalidResponse:
-            return "Serverdən düzgün cavab alınmadı."
+            return "Server cavabı düzgün deyil."
 
-        case .encodingError:
-            return "Məlumat göndərilmək üçün hazırlana bilmədi."
+        case .serverError(let statusCode, let message):
+            return message ?? "Server xətası: \(statusCode)"
 
         case .decodingError:
-            return "Server cavabı oxuna bilmədi."
+            return "Məlumat oxunarkən xəta baş verdi."
 
-        case .serverError(_, let response):
-            return response?.firstErrorMessage
-                ?? "Server xətası baş verdi."
+        case .encodingError:
+            return "Məlumat hazırlanarkən xəta baş verdi."
 
-        case .unknown:
-            return "Naməlum xəta baş verdi."
+        case .unknown(let error):
+            return error.localizedDescription
         }
     }
 }

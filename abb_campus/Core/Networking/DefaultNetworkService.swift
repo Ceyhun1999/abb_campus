@@ -2,53 +2,49 @@ import Foundation
 
 final class DefaultNetworkService: NetworkService {
 
-    private let baseURL: URL
     private let session: URLSession
-    private let decoder: JSONDecoder
 
-    init(
-        baseURL: URL = URL(string: "https://campus.jeywastudio.com/api")!,
-        session: URLSession = .shared,
-        decoder: JSONDecoder = JSONDecoder()
-    ) {
-        self.baseURL = baseURL
+    init(session: URLSession = .shared) {
         self.session = session
-        self.decoder = decoder
     }
 
     func request<T: Decodable>(
-        _ endpoint: Endpoint
+        _ endpoint: any Endpoint
     ) async throws -> T {
 
-        let request = try endpoint.makeRequest(baseURL: baseURL)
-
         do {
+            let request = try endpoint.makeRequest()
+
             let (data, response) = try await session.data(for: request)
 
             guard let httpResponse = response as? HTTPURLResponse else {
                 throw NetworkError.invalidResponse
             }
 
-            guard 200...299 ~= httpResponse.statusCode else {
-                let apiError = try? decoder.decode(
+            guard (200...299).contains(httpResponse.statusCode) else {
+
+                let apiError = try? JSONDecoder().decode(
                     APIErrorResponse.self,
                     from: data
                 )
 
                 throw NetworkError.serverError(
                     statusCode: httpResponse.statusCode,
-                    response: apiError
+                    message: apiError?.firstErrorMessage
                 )
             }
 
             do {
-                return try decoder.decode(T.self, from: data)
+                return try JSONDecoder().decode(
+                    T.self,
+                    from: data
+                )
             } catch {
-                throw NetworkError.decodingError(error)
+                throw NetworkError.decodingError
             }
 
-        } catch let error as NetworkError {
-            throw error
+        } catch let networkError as NetworkError {
+            throw networkError
 
         } catch {
             throw NetworkError.unknown(error)

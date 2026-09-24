@@ -5,36 +5,50 @@ import Observation
 @Observable
 final class LoginViewModel {
 
-    var email = ""
-    var password = ""
-
-    var isLoading = false
+    var email: String = "student@abb.local"
+    var password: String = "Password123!"
+    var isLoading: Bool = false
     var errorMessage: String?
 
-    var loginData: LoginData?
+    private let authenticationState: AuthenticationState
+    private let authService: any AuthService
 
-    let selectedRole: UserRole
-
-    private let authService: AuthService
-
-    init(selectedRole: UserRole, authService: AuthService) {
-        self.selectedRole = selectedRole
+    init(
+        authenticationState: AuthenticationState,
+        authService: any AuthService = DefaultAuthService()
+    ) {
+        self.authenticationState = authenticationState
         self.authService = authService
     }
 
-    var isLoginEnabled: Bool {
-        !email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-            && !password.isEmpty && !isLoading
-    }
-
     func login() async {
-        errorMessage = nil
 
-        guard isLoginEnabled else {
-            errorMessage = "E-poçt və şifrəni daxil edin."
+        guard !ValidationHelper.isEmpty(email) else {
+            errorMessage = ValidationMessage.emptyEmail
             return
         }
 
+        guard ValidationHelper.isValidEmail(email) else {
+            errorMessage = ValidationMessage.invalidEmail
+            return
+        }
+
+        guard !ValidationHelper.isEmpty(password) else {
+            errorMessage = ValidationMessage.emptyPassword
+            return
+        }
+
+        guard ValidationHelper.isValidPassword(password) else {
+            errorMessage = ValidationMessage.shortPassword
+            return
+        }
+
+        guard let role = authenticationState.selectedRole else {
+            errorMessage = "Rol seçilməyib."
+            return
+        }
+
+        errorMessage = nil
         isLoading = true
 
         defer {
@@ -42,21 +56,19 @@ final class LoginViewModel {
         }
 
         do {
-            let response = try await authService.login(
+            let loginResult = try await authService.login(
                 email: email,
-                password: password
+                password: password,
+                role: role
             )
 
-            guard response.data.user.role == selectedRole else {
-                errorMessage = "Seçilmiş rol hesabın rolu ilə uyğun gəlmir."
-                return
-            }
-
-            loginData = response.data
+            try authenticationState.startSession(
+                user: loginResult.data.user,
+                token: loginResult.data.token
+            )
 
         } catch {
             errorMessage = error.localizedDescription
         }
     }
-
 }

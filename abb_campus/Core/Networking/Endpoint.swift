@@ -1,27 +1,45 @@
 import Foundation
 
-struct Endpoint {
+protocol Endpoint {
 
-    let path: String
-    let method: HTTPMethod
+    var baseUrl: String { get }
 
-    var queryItems: [URLQueryItem] = []
-    var headers: [String: String] = [:]
-    var body: Data?
+    var path: String { get }
 
-    func makeRequest(baseURL: URL) throws -> URLRequest {
-        guard var components = URLComponents(
-            url: baseURL,
-            resolvingAgainstBaseURL: false
-        ) else {
+    var method: HTTPMethod { get }
+
+    var headers: [String: String]? { get }
+    
+    var queryItems: [URLQueryItem]? { get }
+
+    var httpBody: (any Encodable)? { get }
+}
+
+extension Endpoint {
+    var headers: [String: String]? {
+        nil
+    }
+
+    var queryItems: [URLQueryItem]? {
+        nil
+    }
+
+    var httpBody: (any Encodable)? {
+        nil
+    }
+}
+
+extension Endpoint {
+
+    func makeRequest() throws -> URLRequest {
+     
+        guard var components = URLComponents(string: baseUrl) else {
             throw NetworkError.invalidURL
         }
+        
+        components.path = path
 
-        components.path += path
-
-        if !queryItems.isEmpty {
-            components.queryItems = queryItems
-        }
+        components.queryItems = queryItems
 
         guard let url = components.url else {
             throw NetworkError.invalidURL
@@ -30,25 +48,20 @@ struct Endpoint {
         var request = URLRequest(url: url)
 
         request.httpMethod = method.rawValue
-        request.httpBody = body
 
-        request.setValue(
-            "application/json",
-            forHTTPHeaderField: "Accept"
-        )
-
-        if body != nil {
-            request.setValue(
-                "application/json",
-                forHTTPHeaderField: "Content-Type"
-            )
-        }
-
-        headers.forEach { key, value in
+        headers?.forEach { key, value in
             request.setValue(
                 value,
                 forHTTPHeaderField: key
             )
+        }
+
+        if let httpBody {
+            do {
+                request.httpBody = try JSONEncoder().encode(httpBody)
+            } catch {
+                throw NetworkError.encodingError
+            }
         }
 
         return request

@@ -2,6 +2,25 @@ import SwiftUI
 
 struct AuthenticationView: View {
 
+    @Environment(AuthenticationState.self) private var authenticationState
+
+    var body: some View {
+        RoleSelectionView(authenticationState: authenticationState)
+    }
+}
+
+struct RoleSelectionView: View {
+    @State private var viewModel: RoleSelectionViewModel
+    @State private var showLogin: Bool = false
+
+    init(authenticationState: AuthenticationState) {
+        _viewModel = State(
+            initialValue: RoleSelectionViewModel(
+                authenticationState: authenticationState
+            )
+        )
+    }
+
     var body: some View {
         ZStack {
             Color(.systemBackground)
@@ -18,6 +37,9 @@ struct AuthenticationView: View {
 
                 footerView
             }
+        }
+        .navigationDestination(isPresented: $showLogin) {
+            LoginView()
         }
     }
 
@@ -49,11 +71,17 @@ struct AuthenticationView: View {
     private var roleCardsView: some View {
         VStack(spacing: 16) {
             ForEach(UserRole.allCases) { role in
-                RoleCardView(
-                    icon: role.icon,
-                    title: role.title,
-                    subtitle: role.subtitle
-                )
+                Button {
+                    viewModel.selectRole(role)
+                    showLogin = true
+                } label: {
+                    RoleCardView(
+                        icon: role.icon,
+                        title: role.title,
+                        subtitle: role.subtitle
+                    )
+                }
+                .buttonStyle(.plain)
             }
         }
         .padding(.horizontal, 20)
@@ -131,7 +159,4 @@ struct AuthenticationView: View {
         }
     }
 }
-
-#Preview {
-    AuthenticationView()
-}
+ 

@@ -21,6 +21,10 @@ enum UserRole: String, Codable, CaseIterable, Identifiable {
             return "İşçi"
         }
     }
+    
+    var loginTitle: String {
+        "\(title) girişi"
+    }
 
     var subtitle: String {
         switch self {

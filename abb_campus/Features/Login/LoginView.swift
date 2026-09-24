@@ -2,14 +2,35 @@ import SwiftUI
 
 struct LoginView: View {
 
-    let icon: String
-    let title: String
-    let subtitle: String
-
-    @State private var email = ""
-    @State private var password = ""
+    @Environment(AuthenticationState.self)
+    private var authenticationState
 
     var body: some View {
+        LoginContentView(
+            authenticationState: authenticationState
+        )
+    }
+}
+
+private struct LoginContentView: View {
+
+    let authenticationState: AuthenticationState
+
+    @State private var loginVM: LoginViewModel
+
+    init(authenticationState: AuthenticationState) {
+        self.authenticationState = authenticationState
+
+        _loginVM = State(
+            initialValue: LoginViewModel(
+                authenticationState: authenticationState
+            )
+        )
+    }
+
+    var body: some View {
+        @Bindable var loginVM = loginVM
+
         ZStack {
             Color(.systemBackground)
                 .ignoresSafeArea()
@@ -19,8 +40,13 @@ struct LoginView: View {
             VStack(spacing: 0) {
                 headerView
 
-                loginFieldsView
-                    .padding(.top, 36)
+                loginFieldsView(
+                    email: $loginVM.email,
+                    password: $loginVM.password
+                )
+                .padding(.top, 36)
+
+                errorText
 
                 forgotPasswordButton
                     .padding(.top, 14)
@@ -40,6 +66,12 @@ struct LoginView: View {
         }
     }
 
+    // MARK: - Role
+
+    private var selectedRole: UserRole? {
+        authenticationState.selectedRole
+    }
+
     // MARK: - Header
 
     private var headerView: some View {
@@ -50,12 +82,12 @@ struct LoginView: View {
             roleIconView
                 .padding(.top, 30)
 
-            Text(title)
+            Text(selectedRole?.loginTitle ?? "")
                 .font(.custom("Manrope-Bold", size: 34))
                 .tracking(-0.5)
                 .padding(.top, 22)
 
-            Text(subtitle)
+            Text("Hesabınıza daxil olun")
                 .font(.custom("Manrope-Regular", size: 18))
                 .foregroundStyle(.secondary)
                 .padding(.top, 6)
@@ -70,29 +102,50 @@ struct LoginView: View {
                 .fill(Color.blue.opacity(0.08))
                 .frame(width: 116, height: 116)
 
-            Image(systemName: icon)
-                .font(.system(size: 46, weight: .semibold))
-                .foregroundStyle(.blue)
+            Image(
+                systemName: selectedRole?.icon ?? "person.fill"
+            )
+            .font(.system(size: 46, weight: .semibold))
+            .foregroundStyle(.blue)
         }
     }
 
     // MARK: - Login Fields
 
-    private var loginFieldsView: some View {
+    private func loginFieldsView(
+        email: Binding<String>,
+        password: Binding<String>
+    ) -> some View {
         VStack(spacing: 14) {
             AuthTextField(
                 icon: "envelope",
                 placeholder: "E-poçt",
-                text: $email,
+                text: email,
                 keyboardType: .emailAddress
             )
 
             AuthTextField(
                 icon: "lock",
                 placeholder: "Şifrə",
-                text: $password,
+                text: password,
                 isSecure: true
             )
+        }
+    }
+
+    // MARK: - Error
+
+    @ViewBuilder
+    private var errorText: some View {
+        if let errorMessage = loginVM.errorMessage {
+            Text(errorMessage)
+                .font(.custom("Manrope-Regular", size: 14))
+                .foregroundStyle(.red)
+                .frame(
+                    maxWidth: .infinity,
+                    alignment: .center
+                )
+                .padding(.top, 8)
         }
     }
 
@@ -106,7 +159,10 @@ struct LoginView: View {
                 .font(.custom("Manrope-SemiBold", size: 15))
                 .foregroundStyle(.blue)
         }
-        .frame(maxWidth: .infinity, alignment: .trailing)
+        .frame(
+            maxWidth: .infinity,
+            alignment: .trailing
+        )
         .buttonStyle(.plain)
     }
 
@@ -114,19 +170,35 @@ struct LoginView: View {
 
     private var loginButton: some View {
         Button {
-            print("Login")
+            Task {
+                await loginVM.login()
+            }
         } label: {
-            Text("Daxil ol")
-                .font(.custom("Manrope-SemiBold", size: 17))
-                .foregroundStyle(.white)
-                .frame(maxWidth: .infinity)
-                .frame(height: 58)
-                .background(.blue)
-                .clipShape(
-                    RoundedRectangle(cornerRadius: 16)
-                )
+            Group {
+                if loginVM.isLoading {
+                    ProgressView()
+                        .tint(.white)
+                } else {
+                    Text("Daxil ol")
+                        .font(
+                            .custom(
+                                "Manrope-SemiBold",
+                                size: 17
+                            )
+                        )
+                }
+            }
+            .foregroundStyle(.white)
+            .frame(maxWidth: .infinity)
+            .frame(height: 58)
+            .background(.blue)
+            .clipShape(
+                RoundedRectangle(cornerRadius: 16)
+            )
         }
         .buttonStyle(.plain)
+        .disabled(loginVM.isLoading)
+        .opacity(loginVM.isLoading ? 0.7 : 1)
     }
 
     // MARK: - Divider
@@ -166,19 +238,10 @@ struct LoginView: View {
             )
         }
         .padding(16)
-        .background(
-            Color.blue.opacity(0.06)
-        )
+        .background(Color.blue.opacity(0.06))
         .clipShape(
             RoundedRectangle(cornerRadius: 16)
         )
     }
 }
 
-#Preview {
-    LoginView(
-        icon: "graduationcap.fill",
-        title: "Tələbə girişi",
-        subtitle: "Hesabınıza daxil olun"
-    )
-}
