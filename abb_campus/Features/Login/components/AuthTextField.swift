@@ -47,14 +47,22 @@ struct AuthTextField: View {
 
     @ViewBuilder
     private var inputField: some View {
-        if isSecure && !isPasswordVisible {
-            SecureField(placeholder, text: $text)
-        } else {
-            TextField(placeholder, text: $text)
-                .keyboardType(keyboardType)
-                .textInputAutocapitalization(.never)
-                .autocorrectionDisabled()
+        Group {
+            if isSecure && !isPasswordVisible {
+                SecureField(placeholder, text: $text)
+            } else {
+                TextField(placeholder, text: $text)
+            }
         }
+        .keyboardType(effectiveKeyboardType)
+        .textInputAutocapitalization(.never)
+        .autocorrectionDisabled()
+    }
+
+    /// Passwords are Latin-only, so secure fields always get an ASCII keyboard
+    /// even when the device language is Azerbaijani or Russian.
+    private var effectiveKeyboardType: UIKeyboardType {
+        isSecure ? .asciiCapable : keyboardType
     }
 
     private var passwordVisibilityButton: some View {
