@@ -1,36 +1,43 @@
 import SwiftUI
 
 struct StudentTabView: View {
+
+    @Environment(AuthenticationState.self) private var authenticationState
+
     var body: some View {
         TabView {
-            StudentHomeView()
-                .tabItem {
-                    Label("Ana səhifə", systemImage: "house.fill")
-                }
+            StudentHomeView(
+                viewModel: StudentHomeViewModel(
+                    authenticationState: authenticationState
+                )
+            )
+            .tabItem {
+                Label("Ana səhifə", systemImage: "house.fill")
+            }
 
             StudentGradesView()
                 .tabItem {
                     Label("Qiymətlər", systemImage: "chart.bar.fill")
                 }
-            
+
             StudentScheduleView()
                 .tabItem {
                     Label("Cədvəl", systemImage: "calendar")
                 }
-            
+
             StudentNotificationsView()
                 .tabItem {
                     Label("Bildirişlər", systemImage: "bell.fill")
                 }
-            
-            StudentProfileView()
-                .tabItem {
-                    Label("Profil", systemImage: "person.fill")
-                }
+
+            ProfileView(
+                viewModel: ProfileViewModel(
+                    authenticationState: authenticationState
+                )
+            )
+            .tabItem {
+                Label("Profil", systemImage: "person.fill")
+            }
         }
     }
-}
-
-#Preview {
-    StudentTabView()
 }
