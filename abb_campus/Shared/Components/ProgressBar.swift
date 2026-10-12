@@ -1,30 +1,32 @@
 import SwiftUI
 
 struct ProgressBar: View {
-    
+
     let color: Color
-    let progress: CGFloat
-    
+    let progress: Double
+
     var body: some View {
         GeometryReader { geometry in
             ZStack(alignment: .leading) {
                 Capsule()
-                    .fill(
-                        Color(
-                            red: 240 / 255,
-                            green: 242 / 255,
-                            blue: 245 / 255
-                        )
-                    )
+                    .fill(.progressTrack)
 
                 Capsule()
                     .fill(color)
                     .frame(
-                        width: geometry.size.width * progress
+                        width: geometry.size.width * clampedProgress
                     )
             }
         }
         .frame(height: 8)
-
     }
+
+    private var clampedProgress: Double {
+        min(max(progress, 0), 1)
+    }
+}
+
+#Preview {
+    ProgressBar(color: .gradeGreen, progress: 0.7)
+        .padding()
 }

@@ -10,6 +10,7 @@ struct SectionHeaderView: View {
         HStack {
             Text(title)
                 .font(.manropeBold(20))
+                .foregroundStyle(.textPrimary)
 
             Spacer()
 

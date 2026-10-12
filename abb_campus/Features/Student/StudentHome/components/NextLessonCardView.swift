@@ -45,13 +45,7 @@ struct NextLessonCardView: View {
         }
         .padding(20)
         .frame(maxWidth: .infinity)
-        .background(
-            Color(
-                red: 96 / 255,
-                green: 122 / 255,
-                blue: 217 / 255
-            )
-        )
+        .background(.brandBlue)
         .clipShape(
             RoundedRectangle(cornerRadius: 22)
         )
