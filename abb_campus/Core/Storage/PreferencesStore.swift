@@ -1,13 +1,16 @@
 import Foundation
 
 protocol PreferencesStore: AnyObject {
-    var lastLoginEmail: String? { get set }
+    func lastLoginEmail(for role: UserRole) -> String?
+    func setLastLoginEmail(_ email: String?, for role: UserRole)
 }
 
 final class UserDefaultsPreferencesStore: PreferencesStore {
 
     private enum Key {
-        static let lastLoginEmail = "lastLoginEmail"
+        static func lastLoginEmail(for role: UserRole) -> String {
+            "lastLoginEmail.\(role.rawValue)"
+        }
     }
 
     private let defaults: UserDefaults
@@ -16,12 +19,11 @@ final class UserDefaultsPreferencesStore: PreferencesStore {
         self.defaults = defaults
     }
 
-    var lastLoginEmail: String? {
-        get {
-            defaults.string(forKey: Key.lastLoginEmail)
-        }
-        set {
-            defaults.set(newValue, forKey: Key.lastLoginEmail)
-        }
+    func lastLoginEmail(for role: UserRole) -> String? {
+        defaults.string(forKey: Key.lastLoginEmail(for: role))
+    }
+
+    func setLastLoginEmail(_ email: String?, for role: UserRole) {
+        defaults.set(email, forKey: Key.lastLoginEmail(for: role))
     }
 }

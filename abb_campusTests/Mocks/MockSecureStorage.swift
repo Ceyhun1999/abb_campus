@@ -28,5 +28,14 @@ final class MockSecureStorage: SecureStorage {
 }
 
 final class MockPreferencesStore: PreferencesStore {
-    var lastLoginEmail: String?
+
+    var emails: [UserRole: String] = [:]
+
+    func lastLoginEmail(for role: UserRole) -> String? {
+        emails[role]
+    }
+
+    func setLastLoginEmail(_ email: String?, for role: UserRole) {
+        emails[role] = email
+    }
 }

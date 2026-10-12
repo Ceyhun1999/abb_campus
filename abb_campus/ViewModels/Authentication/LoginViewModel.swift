@@ -23,7 +23,8 @@ final class LoginViewModel {
         self.authenticationState = authenticationState
         self.authService = authService
         self.preferences = preferences
-        self.email = preferences.lastLoginEmail ?? ""
+        self.email = authenticationState.selectedRole
+            .flatMap { preferences.lastLoginEmail(for: $0) } ?? ""
     }
 
     var selectedRole: UserRole? {
@@ -68,7 +69,7 @@ final class LoginViewModel {
                 token: loginResult.data.token
             )
 
-            preferences.lastLoginEmail = trimmedEmail
+            preferences.setLastLoginEmail(trimmedEmail, for: role)
 
         } catch {
             errorMessage = error.localizedDescription

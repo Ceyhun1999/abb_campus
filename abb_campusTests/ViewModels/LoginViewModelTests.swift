@@ -57,12 +57,13 @@ struct LoginViewModelTests {
 
         await sut.login()
 
-        #expect(preferences.lastLoginEmail == "student@abb.local")
+        #expect(preferences.lastLoginEmail(for: .student) == "student@abb.local")
+        #expect(preferences.lastLoginEmail(for: .teacher) == nil)
     }
 
-    @Test("Email field is prefilled from preferences")
+    @Test("Email field is prefilled with the email saved for the selected role")
     func emailPrefilledFromPreferences() {
-        preferences.lastLoginEmail = "saved@abb.local"
+        preferences.setLastLoginEmail("saved@abb.local", for: .student)
 
         let sut = LoginViewModel(
             authenticationState: authenticationState,
@@ -72,6 +73,30 @@ struct LoginViewModelTests {
 
         #expect(sut.email == "saved@abb.local")
         #expect(sut.password.isEmpty)
+    }
+
+    @Test("Another role does not get the student's email")
+    func emailNotSharedBetweenRoles() {
+        preferences.setLastLoginEmail("student@abb.local", for: .student)
+        preferences.setLastLoginEmail("teacher@abb.local", for: .teacher)
+        authenticationState.selectRole(.employee)
+
+        let employeeLogin = LoginViewModel(
+            authenticationState: authenticationState,
+            authService: authService,
+            preferences: preferences
+        )
+
+        authenticationState.selectRole(.teacher)
+
+        let teacherLogin = LoginViewModel(
+            authenticationState: authenticationState,
+            authService: authService,
+            preferences: preferences
+        )
+
+        #expect(employeeLogin.email.isEmpty)
+        #expect(teacherLogin.email == "teacher@abb.local")
     }
 
     // MARK: - Errors
@@ -92,7 +117,7 @@ struct LoginViewModelTests {
         #expect(sut.isLoading == false)
         #expect(authenticationState.isAuthenticated == false)
         #expect(secureStorage.storage.isEmpty)
-        #expect(preferences.lastLoginEmail == nil)
+        #expect(preferences.emails.isEmpty)
     }
 
     @Test("No internet connection shows a readable message")
