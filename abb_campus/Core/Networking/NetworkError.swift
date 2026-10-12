@@ -3,6 +3,8 @@ import Foundation
 enum NetworkError: LocalizedError {
     case invalidURL
     case invalidResponse
+    case noConnection
+    case unauthorized
     case serverError(
         statusCode: Int,
         message: String?
@@ -18,6 +20,12 @@ enum NetworkError: LocalizedError {
 
         case .invalidResponse:
             return "Server cavabı düzgün deyil."
+
+        case .noConnection:
+            return "İnternet bağlantısı yoxdur."
+
+        case .unauthorized:
+            return "Sessiyanın müddəti bitib. Yenidən daxil olun."
 
         case .serverError(let statusCode, let message):
             return message ?? "Server xətası: \(statusCode)"

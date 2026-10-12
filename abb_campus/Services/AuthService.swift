@@ -11,6 +11,10 @@ protocol AuthService {
     func me(
         token: String
     ) async throws -> User
+
+    func logout(
+        token: String
+    ) async throws
 }
 
 final class DefaultAuthService: AuthService {
@@ -53,5 +57,18 @@ final class DefaultAuthService: AuthService {
         )
 
         return response.data
+    }
+
+    func logout(
+        token: String
+    ) async throws {
+
+        let endpoint = AuthEndpoint.logout(
+            token: token
+        )
+
+        let _: MessageResponse = try await networkService.request(
+            endpoint
+        )
     }
 }

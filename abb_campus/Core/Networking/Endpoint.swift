@@ -16,6 +16,10 @@ protocol Endpoint {
 }
 
 extension Endpoint {
+    var baseUrl: String {
+        APIConfiguration.baseURL
+    }
+
     var headers: [String: String]? {
         nil
     }

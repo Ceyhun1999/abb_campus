@@ -21,6 +21,10 @@ final class DefaultNetworkService: NetworkService {
                 throw NetworkError.invalidResponse
             }
 
+            if httpResponse.statusCode == 401 {
+                throw NetworkError.unauthorized
+            }
+
             guard (200...299).contains(httpResponse.statusCode) else {
 
                 let apiError = try? JSONDecoder().decode(
@@ -45,6 +49,11 @@ final class DefaultNetworkService: NetworkService {
 
         } catch let networkError as NetworkError {
             throw networkError
+
+        } catch let urlError as URLError
+                    where urlError.code == .notConnectedToInternet ||
+                          urlError.code == .networkConnectionLost {
+            throw NetworkError.noConnection
 
         } catch {
             throw NetworkError.unknown(error)
