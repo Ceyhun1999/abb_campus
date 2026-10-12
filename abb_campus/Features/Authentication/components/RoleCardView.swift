@@ -34,7 +34,7 @@ struct RoleCardView: View {
                 .font(.manropeRegular(17))
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.leading)
-                .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 }
