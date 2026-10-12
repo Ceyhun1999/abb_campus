@@ -31,6 +31,9 @@ jobs:
           echo "Using simulator $UDID"
           echo "udid=$UDID" >> "$GITHUB_OUTPUT"
 
+      - name: Boot simulator
+        run: xcrun simctl bootstatus "${{ steps.simulator.outputs.udid }}" -b
+
       - name: Build and run tests
         run: |
           set -o pipefail
@@ -38,6 +41,7 @@ jobs:
             -project abb_campus.xcodeproj \
             -scheme abb_campus \
             -destination "id=${{ steps.simulator.outputs.udid }}" \
+            -parallel-testing-enabled NO \
             -resultBundlePath TestResults.xcresult \
             | tee xcodebuild.log \
             | grep -E "Test (case|Case|Suite)|error:|\*\* TEST" || true

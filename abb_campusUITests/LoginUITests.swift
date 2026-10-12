@@ -81,10 +81,19 @@ final class LoginUITests: XCTestCase {
 
     private func openStudentLogin() {
         let studentRole = app.buttons["role_student"]
+        let loginButton = app.buttons["login_button"]
         XCTAssertTrue(studentRole.waitForExistence(timeout: timeout))
-        studentRole.tap()
 
-        XCTAssertTrue(app.buttons["login_button"].waitForExistence(timeout: timeout))
+        // A busy CI simulator can drop the first tap, so retry a few times.
+        for _ in 0..<3 where !loginButton.exists {
+            if studentRole.exists {
+                studentRole.tap()
+            }
+
+            _ = loginButton.waitForExistence(timeout: timeout / 2)
+        }
+
+        XCTAssertTrue(loginButton.exists, "Login screen did not open")
     }
 
     /// After a successful login iOS may show a "Save Password?" prompt
