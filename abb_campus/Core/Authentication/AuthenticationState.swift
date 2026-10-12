@@ -12,15 +12,18 @@ final class AuthenticationState {
 
     private let secureStorage: any SecureStorage
     private let authService: any AuthService
+    private let tokenStore: TokenStore
 
     private let tokenAccount = "authToken"
 
     init(
         secureStorage: any SecureStorage,
-        authService: any AuthService
+        authService: any AuthService,
+        tokenStore: TokenStore = TokenStore()
     ) {
         self.secureStorage = secureStorage
         self.authService = authService
+        self.tokenStore = tokenStore
     }
 
     var isAuthenticated: Bool {
@@ -44,6 +47,7 @@ final class AuthenticationState {
 
         currentUser = user
         self.token = token
+        tokenStore.token = token
     }
 
     func restoreSession() async {
@@ -73,6 +77,7 @@ final class AuthenticationState {
 
             currentUser = user
             token = savedToken
+            tokenStore.token = savedToken
 
         } catch {
             clearSession()
@@ -95,5 +100,6 @@ final class AuthenticationState {
         selectedRole = nil
         currentUser = nil
         token = nil
+        tokenStore.token = nil
     }
 }

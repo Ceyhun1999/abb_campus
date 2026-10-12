@@ -3,9 +3,14 @@ import Foundation
 final class DefaultNetworkService: NetworkService {
 
     private let session: URLSession
+    private let tokenProvider: (any TokenProvider)?
 
-    init(session: URLSession = .shared) {
+    init(
+        session: URLSession = .shared,
+        tokenProvider: (any TokenProvider)? = nil
+    ) {
         self.session = session
+        self.tokenProvider = tokenProvider
     }
 
     func request<T: Decodable>(
@@ -13,7 +18,22 @@ final class DefaultNetworkService: NetworkService {
     ) async throws -> T {
 
         do {
-            let request = try endpoint.makeRequest()
+            var request = try endpoint.makeRequest()
+
+            if endpoint.requiresAuthorization {
+                guard let token = tokenProvider?.token else {
+                    throw NetworkError.unauthorized
+                }
+
+                request.setValue(
+                    "Bearer \(token)",
+                    forHTTPHeaderField: HTTPHeader.authorization
+                )
+                request.setValue(
+                    ContentType.json,
+                    forHTTPHeaderField: HTTPHeader.accept
+                )
+            }
 
             let (data, response) = try await session.data(for: request)
 

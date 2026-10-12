@@ -13,6 +13,11 @@ protocol Endpoint {
     var queryItems: [URLQueryItem]? { get }
 
     var httpBody: (any Encodable)? { get }
+
+    var multipartForm: MultipartFormData? { get }
+
+    /// Requests that need the signed-in user's token get it from the network service.
+    var requiresAuthorization: Bool { get }
 }
 
 extension Endpoint {
@@ -31,6 +36,14 @@ extension Endpoint {
     var httpBody: (any Encodable)? {
         nil
     }
+
+    var multipartForm: MultipartFormData? {
+        nil
+    }
+
+    var requiresAuthorization: Bool {
+        false
+    }
 }
 
 extension Endpoint {
@@ -43,7 +56,7 @@ extension Endpoint {
         
         components.path = path
 
-        components.queryItems = queryItems
+        components.queryItems = queryItems?.isEmpty == true ? nil : queryItems
 
         guard let url = components.url else {
             throw NetworkError.invalidURL
@@ -60,7 +73,13 @@ extension Endpoint {
             )
         }
 
-        if let httpBody {
+        if let multipartForm {
+            request.setValue(
+                multipartForm.contentType,
+                forHTTPHeaderField: HTTPHeader.contentType
+            )
+            request.httpBody = multipartForm.finalized()
+        } else if let httpBody {
             do {
                 request.httpBody = try JSONEncoder().encode(httpBody)
             } catch {
