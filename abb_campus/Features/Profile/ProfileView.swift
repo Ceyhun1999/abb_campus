@@ -68,23 +68,21 @@ struct ProfileView: View {
     // MARK: - Info
 
     private var infoCard: some View {
-        VStack(spacing: 0) {
-            ProfileInfoRow(
+        InfoCard {
+            InfoRow(
                 icon: "envelope",
                 title: "E-poçt",
                 value: viewModel.email
             )
 
-            Divider()
-                .padding(.leading, 56)
+            InfoDivider()
 
-            ProfileInfoRow(
+            InfoRow(
                 icon: "person.text.rectangle",
                 title: "Rol",
                 value: viewModel.roleTitle
             )
         }
-        .cardStyle()
     }
 
     // MARK: - Logout
@@ -111,34 +109,5 @@ struct ProfileView: View {
         .buttonStyle(.plain)
         .disabled(viewModel.isLoggingOut)
         .accessibilityIdentifier("logout_button")
-    }
-}
-
-private struct ProfileInfoRow: View {
-
-    let icon: String
-    let title: String
-    let value: String
-
-    var body: some View {
-        HStack(spacing: 14) {
-            Image(systemName: icon)
-                .font(.system(size: 18))
-                .foregroundStyle(.blue)
-                .frame(width: 26)
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(.manropeRegular(13))
-                    .foregroundStyle(.textSecondary)
-
-                Text(value)
-                    .font(.manropeSemiBold(16))
-                    .foregroundStyle(.textPrimary)
-            }
-
-            Spacer()
-        }
-        .padding(16)
     }
 }
