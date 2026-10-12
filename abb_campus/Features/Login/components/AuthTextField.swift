@@ -9,6 +9,8 @@ struct AuthTextField: View {
 
     var isSecure: Bool = false
     var keyboardType: UIKeyboardType = .default
+    var textContentType: UITextContentType?
+    var accessibilityID: String?
 
     @State private var isPasswordVisible = false
 
@@ -20,6 +22,9 @@ struct AuthTextField: View {
                 .frame(width: 24)
 
             inputField
+                .font(.manropeRegular(17))
+                .textContentType(textContentType)
+                .accessibilityIdentifier(accessibilityID ?? placeholder)
 
             if isSecure {
                 passwordVisibilityButton
@@ -44,10 +49,8 @@ struct AuthTextField: View {
     private var inputField: some View {
         if isSecure && !isPasswordVisible {
             SecureField(placeholder, text: $text)
-                .font(.custom("Manrope-Regular", size: 17))
         } else {
             TextField(placeholder, text: $text)
-                .font(.custom("Manrope-Regular", size: 17))
                 .keyboardType(keyboardType)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
@@ -67,6 +70,9 @@ struct AuthTextField: View {
             .foregroundStyle(.secondary)
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(
+            isPasswordVisible ? "Şifrəni gizlət" : "Şifrəni göstər"
+        )
     }
 }
 

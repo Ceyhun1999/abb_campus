@@ -5,46 +5,43 @@ import Observation
 @Observable
 final class LoginViewModel {
 
-    var email: String = "student@abb.local"
-    var password: String = "Password123!"
-    var isLoading: Bool = false
-    var errorMessage: String?
+    var email: String
+    var password: String = ""
+    var isForgotPasswordPresented = false
+    private(set) var isLoading: Bool = false
+    private(set) var errorMessage: String?
 
     private let authenticationState: AuthenticationState
     private let authService: any AuthService
+    private let preferences: any PreferencesStore
 
     init(
         authenticationState: AuthenticationState,
-        authService: any AuthService = DefaultAuthService()
+        authService: any AuthService,
+        preferences: any PreferencesStore
     ) {
         self.authenticationState = authenticationState
         self.authService = authService
+        self.preferences = preferences
+        self.email = preferences.lastLoginEmail ?? ""
+    }
+
+    var selectedRole: UserRole? {
+        authenticationState.selectedRole
     }
 
     func login() async {
-
-        guard !ValidationHelper.isEmpty(email) else {
-            errorMessage = ValidationMessage.emptyEmail
+        guard !isLoading else {
             return
         }
 
-        guard ValidationHelper.isValidEmail(email) else {
-            errorMessage = ValidationMessage.invalidEmail
+        if let validationError = validate() {
+            errorMessage = validationError
             return
         }
 
-        guard !ValidationHelper.isEmpty(password) else {
-            errorMessage = ValidationMessage.emptyPassword
-            return
-        }
-
-        guard ValidationHelper.isValidPassword(password) else {
-            errorMessage = ValidationMessage.shortPassword
-            return
-        }
-
-        guard let role = authenticationState.selectedRole else {
-            errorMessage = "Rol seçilməyib."
+        guard let role = selectedRole else {
+            errorMessage = ValidationMessage.roleNotSelected
             return
         }
 
@@ -55,9 +52,13 @@ final class LoginViewModel {
             isLoading = false
         }
 
+        let trimmedEmail = email.trimmingCharacters(
+            in: .whitespacesAndNewlines
+        )
+
         do {
             let loginResult = try await authService.login(
-                email: email,
+                email: trimmedEmail,
                 password: password,
                 role: role
             )
@@ -67,8 +68,30 @@ final class LoginViewModel {
                 token: loginResult.data.token
             )
 
+            preferences.lastLoginEmail = trimmedEmail
+
         } catch {
             errorMessage = error.localizedDescription
         }
+    }
+
+    func showForgotPassword() {
+        isForgotPasswordPresented = true
+    }
+
+    private func validate() -> String? {
+        if let emailError = ValidationHelper.emailError(email) {
+            return emailError
+        }
+
+        if ValidationHelper.isEmpty(password) {
+            return ValidationMessage.emptyPassword
+        }
+
+        if !ValidationHelper.isValidPassword(password) {
+            return ValidationMessage.shortPassword
+        }
+
+        return nil
     }
 }
