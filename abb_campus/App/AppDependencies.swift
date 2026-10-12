@@ -4,14 +4,21 @@ struct AppDependencies {
 
     let authService: any AuthService
     let passwordResetService: any PasswordResetService
+    let dashboardService: any EmployeeDashboardService
+    let studentDirectoryService: any StudentDirectoryService
+    let teacherService: any TeacherService
+    let groupService: any GroupService
+    let announcementService: any AnnouncementService
     let secureStorage: any SecureStorage
     let preferences: any PreferencesStore
+    let tokenStore: TokenStore
 
     @MainActor
     func makeAuthenticationState() -> AuthenticationState {
         AuthenticationState(
             secureStorage: secureStorage,
-            authService: authService
+            authService: authService,
+            tokenStore: tokenStore
         )
     }
 }
@@ -19,7 +26,8 @@ struct AppDependencies {
 extension AppDependencies {
 
     static var live: AppDependencies {
-        let networkService = DefaultNetworkService()
+        let tokenStore = TokenStore()
+        let networkService = DefaultNetworkService(tokenProvider: tokenStore)
 
         return AppDependencies(
             authService: DefaultAuthService(
@@ -28,8 +36,24 @@ extension AppDependencies {
             passwordResetService: DefaultPasswordResetService(
                 networkService: networkService
             ),
+            dashboardService: DefaultEmployeeDashboardService(
+                networkService: networkService
+            ),
+            studentDirectoryService: DefaultStudentDirectoryService(
+                networkService: networkService
+            ),
+            teacherService: DefaultTeacherService(
+                networkService: networkService
+            ),
+            groupService: DefaultGroupService(
+                networkService: networkService
+            ),
+            announcementService: DefaultAnnouncementService(
+                networkService: networkService
+            ),
             secureStorage: KeychainService(),
-            preferences: UserDefaultsPreferencesStore()
+            preferences: UserDefaultsPreferencesStore(),
+            tokenStore: tokenStore
         )
     }
 

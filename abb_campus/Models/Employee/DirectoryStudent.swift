@@ -1,0 +1,43 @@
+import Foundation
+
+struct DirectoryStudent: Decodable, Identifiable, Hashable {
+
+    struct GroupReference: Decodable, Hashable {
+        let id: Int
+        let name: String
+    }
+
+    let id: Int
+    let firstName: String
+    let lastName: String
+    let email: String
+    let phone: String?
+    let isActive: Bool
+    let group: GroupReference?
+    let createdAt: String?
+
+    var fullName: String {
+        "\(firstName) \(lastName)"
+    }
+}
+
+enum StudentStatusFilter: String, CaseIterable, Identifiable {
+    case all
+    case active
+    case inactive
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .all: return "Hamısı"
+        case .active: return "Aktiv"
+        case .inactive: return "Deaktiv"
+        }
+    }
+
+    /// Value of the `status` query parameter, `nil` means no filter.
+    var queryValue: String? {
+        self == .all ? nil : rawValue
+    }
+}
