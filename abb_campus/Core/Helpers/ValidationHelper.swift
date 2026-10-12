@@ -35,11 +35,13 @@ enum ValidationHelper {
 
     /// Returns a user-facing message for the first invalid field, or `nil` when the email is valid.
     static func emailError(_ email: String) -> String? {
-        if isEmpty(email) {
+        let trimmedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if trimmedEmail.isEmpty {
             return ValidationMessage.emptyEmail
         }
 
-        if !isValidEmail(email) {
+        if !isValidEmail(trimmedEmail) {
             return ValidationMessage.invalidEmail
         }
 
