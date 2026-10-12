@@ -9,4 +9,12 @@ enum ValidationMessage {
     static let passwordsDoNotMatch = "Şifrələr eyni deyil."
     static let invalidResetCode = "Kod 6 rəqəmdən ibarət olmalıdır."
     static let roleNotSelected = "Rol seçilməyib."
+    static let emptyGroupName = "Qrup adını daxil edin."
+    static let courseNotSelected = "Kursu seçin."
+    static let invalidEndDate = "Bitmə tarixi başlama tarixindən əvvəl ola bilməz."
+    static let emptyAnnouncementTitle = "Elanın başlığını daxil edin."
+    static let emptyAnnouncementMessage = "Elanın mətnini daxil edin."
+    static let groupNotSelected = "Qrupu seçin."
+    static let fileNotSelected = "Excel faylını seçin."
+    static let fileNotReadable = "Faylı oxumaq mümkün olmadı."
 }
