@@ -5,21 +5,15 @@ final class LoginUITests: XCTestCase {
 
     private var app: XCUIApplication!
 
-    /// CI simulators are much slower than a local Mac, so waits are generous.
-    private let timeout: TimeInterval = 20
-
     override func setUp() async throws {
         continueAfterFailure = false
-
-        app = XCUIApplication()
-        app.launchArguments = ["-ui-testing"]
-        app.launch()
+        app = .launchedForUITesting()
     }
 
     // MARK: - Tests
 
     func testSelectingStudentRoleOpensLoginScreen() {
-        openStudentLogin()
+        XCTAssertTrue(app.openLogin(role: "student"))
 
         XCTAssertEqual(app.staticTexts["login_title"].label, "Tələbə girişi")
         XCTAssertTrue(app.textFields["login_email"].exists)
@@ -28,108 +22,52 @@ final class LoginUITests: XCTestCase {
     }
 
     func testEmptyFieldsShowValidationError() {
-        openStudentLogin()
+        XCTAssertTrue(app.openLogin(role: "student"))
 
         app.buttons["login_button"].tap()
 
         let error = app.staticTexts["login_error"]
-        XCTAssertTrue(error.waitForExistence(timeout: timeout))
+        XCTAssertTrue(error.waitForExistence(timeout: uiTimeout))
         XCTAssertEqual(error.label, "E-poçtu daxil edin.")
     }
 
     func testWrongPasswordShowsServerError() {
-        openStudentLogin()
+        XCTAssertTrue(app.openLogin(role: "student"))
 
-        fillCredentials(email: "student@abb.local", password: "WrongPass1")
+        app.fillCredentials(email: "student@abb.local", password: "WrongPass1")
         app.buttons["login_button"].tap()
 
         let error = app.staticTexts["login_error"]
-        XCTAssertTrue(error.waitForExistence(timeout: timeout))
+        XCTAssertTrue(error.waitForExistence(timeout: uiTimeout))
         XCTAssertEqual(error.label, "Bu məlumatlarla hesab tapılmadı.")
     }
 
     func testSuccessfulLoginOpensStudentHomeAndLogoutReturnsToRoles() {
-        openStudentLogin()
+        XCTAssertTrue(app.openLogin(role: "student"))
 
-        fillCredentials(email: "student@abb.local", password: "Password123!")
+        app.fillCredentials(email: "student@abb.local", password: "Password123!")
         app.buttons["login_button"].tap()
 
         let greeting = app.staticTexts["home_greeting"]
-        XCTAssertTrue(greeting.waitForExistence(timeout: timeout))
+        XCTAssertTrue(greeting.waitForExistence(timeout: uiTimeout))
         XCTAssertEqual(greeting.label, "Salam, Ceyhun!")
 
-        tapWhenHittable(app.tabBars.buttons["Profil"])
-        tapWhenHittable(app.buttons["logout_button"])
+        let logoutButton = app.buttons["logout_button"]
+        XCTAssertTrue(app.tap(app.tabBars.buttons["Profil"], until: logoutButton))
 
         let confirmLogout = app.buttons["confirm_logout_button"].firstMatch
-        XCTAssertTrue(confirmLogout.waitForExistence(timeout: timeout))
+        XCTAssertTrue(app.tap(logoutButton, until: confirmLogout))
         confirmLogout.tap()
 
-        XCTAssertTrue(app.buttons["role_student"].waitForExistence(timeout: timeout))
+        XCTAssertTrue(app.buttons["role_student"].waitForExistence(timeout: uiTimeout))
     }
 
     func testForgotPasswordOpensSheet() {
-        openStudentLogin()
+        XCTAssertTrue(app.openLogin(role: "student"))
 
         app.buttons["forgot_password_button"].tap()
 
-        XCTAssertTrue(app.textFields["forgot_password_email"].waitForExistence(timeout: timeout))
+        XCTAssertTrue(app.textFields["forgot_password_email"].waitForExistence(timeout: uiTimeout))
         XCTAssertTrue(app.buttons["forgot_password_submit"].exists)
-    }
-
-    // MARK: - Helpers
-
-    private func openStudentLogin() {
-        let studentRole = app.buttons["role_student"]
-        let loginButton = app.buttons["login_button"]
-        XCTAssertTrue(studentRole.waitForExistence(timeout: timeout))
-
-        // A busy CI simulator can drop the first tap, so retry a few times.
-        for _ in 0..<3 where !loginButton.exists {
-            if studentRole.exists {
-                studentRole.tap()
-            }
-
-            _ = loginButton.waitForExistence(timeout: timeout / 2)
-        }
-
-        XCTAssertTrue(loginButton.exists, "Login screen did not open")
-    }
-
-    /// After a successful login iOS may show a "Save Password?" prompt
-    /// with a delay. Dismiss it (first button is "Not Now" in any language)
-    /// until the element underneath becomes hittable.
-    private func tapWhenHittable(
-        _ element: XCUIElement,
-        timeout: TimeInterval = 40,
-        file: StaticString = #filePath,
-        line: UInt = #line
-    ) {
-        let deadline = Date().addingTimeInterval(timeout)
-
-        while Date() < deadline {
-            let savePasswordPrompt = app.sheets.firstMatch
-
-            if savePasswordPrompt.exists {
-                savePasswordPrompt.buttons.element(boundBy: 0).tap()
-            } else if element.exists && element.isHittable {
-                element.tap()
-                return
-            }
-
-            RunLoop.current.run(until: Date().addingTimeInterval(0.3))
-        }
-
-        XCTFail("\(element) was not hittable within \(timeout)s", file: file, line: line)
-    }
-
-    private func fillCredentials(email: String, password: String) {
-        let emailField = app.textFields["login_email"]
-        emailField.tap()
-        emailField.typeText(email)
-
-        let passwordField = app.secureTextFields["login_password"]
-        passwordField.tap()
-        passwordField.typeText(password)
     }
 }
