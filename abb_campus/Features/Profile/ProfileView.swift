@@ -35,6 +35,7 @@ struct ProfileView: View {
                         await viewModel.logout()
                     }
                 }
+                .accessibilityIdentifier("confirm_logout_button")
 
                 Button("Ləğv et", role: .cancel) {}
             }
