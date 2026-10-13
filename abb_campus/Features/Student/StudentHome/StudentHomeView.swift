@@ -2,6 +2,8 @@ import SwiftUI
 
 struct StudentHomeView: View {
 
+    @Environment(AuthenticationState.self) private var authenticationState
+
     @State private var viewModel: StudentHomeViewModel
 
     init(viewModel: StudentHomeViewModel) {
@@ -9,17 +11,30 @@ struct StudentHomeView: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 24) {
-                headerView
-                NextLessonCardView()
-                statisticsView
+        AsyncContentView(state: viewModel.state, retry: viewModel.load) { dashboard in
+            ScrollView {
+                VStack(alignment: .leading, spacing: 24) {
+                    headerView
+
+                    NextLessonCardView(lesson: dashboard.nextLesson)
+
+                    statisticsView(dashboard)
+
+                    announcementsView(dashboard.recentAnnouncements)
+                }
+                .padding(.horizontal, AppLayout.horizontalPadding)
+                .padding(.top, 20)
+                .padding(.bottom, 30)
             }
-            .padding(.horizontal, AppLayout.horizontalPadding)
-            .padding(.top, 20)
-            .padding(.bottom, 30)
+            .refreshable {
+                await viewModel.load()
+            }
         }
         .background(.appBackground)
+        .toolbar(.hidden, for: .navigationBar)
+        .task {
+            await viewModel.load()
+        }
     }
 
     // MARK: - Header
@@ -39,35 +54,67 @@ struct StudentHomeView: View {
 
             Spacer()
 
-            Image("person")
-                .resizable()
-                .scaledToFill()
-                .frame(width: 56, height: 56)
-                .clipShape(Circle())
+            if let user = authenticationState.currentUser {
+                AvatarView(firstName: user.firstName, lastName: user.lastName, size: 56)
+            }
         }
     }
 
     // MARK: - Statistics
 
-    private var statisticsView: some View {
+    private func statisticsView(_ dashboard: StudentDashboard) -> some View {
         HStack(spacing: 14) {
             StatCardView(
                 icon: "chart.bar.fill",
                 iconColor: .gradeGreen,
                 title: "Orta bal",
-                value: "88.5",
-                progress: 0.885,
+                value: dashboard.averageScore.formatted(.number.precision(.fractionLength(0...1))),
+                progress: dashboard.averageScore / 100,
                 progressColor: .gradeGreenLight
             )
+            .accessibilityIdentifier("average_score_card")
 
-            StatCardView(
-                icon: "person.2.fill",
-                iconColor: .attendanceBlue,
-                title: "Davamiyyət",
-                value: "92%",
-                progress: 0.92,
-                progressColor: .attendanceBlue
-            )
+            NavigationLink(value: StudentRoute.attendance) {
+                StatCardView(
+                    icon: "person.2.fill",
+                    iconColor: .attendanceBlue,
+                    title: "Davamiyyət",
+                    value: "\(Int(dashboard.attendancePercentage.rounded()))%",
+                    progress: dashboard.attendancePercentage / 100,
+                    progressColor: .attendanceBlue
+                )
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("attendance_card")
+        }
+    }
+
+    // MARK: - Announcements
+
+    @ViewBuilder
+    private func announcementsView(_ announcements: [Announcement]) -> some View {
+        if !announcements.isEmpty {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Son elanlar")
+                    .font(.manropeBold(20))
+                    .foregroundStyle(.textPrimary)
+
+                VStack(spacing: 0) {
+                    ForEach(announcements) { announcement in
+                        NavigationLink(value: announcement) {
+                            AnnouncementRow(announcement: announcement)
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 12)
+                        }
+                        .buttonStyle(.plain)
+
+                        if announcement.id != announcements.last?.id {
+                            InfoDivider()
+                        }
+                    }
+                }
+                .cardStyle()
+            }
         }
     }
 }

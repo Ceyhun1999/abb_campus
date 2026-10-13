@@ -3,32 +3,58 @@ import SwiftUI
 struct StudentTabView: View {
 
     @Environment(AuthenticationState.self) private var authenticationState
+    @Environment(\.dependencies) private var dependencies
 
     var body: some View {
         TabView {
-            StudentHomeView(
-                viewModel: StudentHomeViewModel(
-                    authenticationState: authenticationState
+            NavigationStack {
+                StudentHomeView(
+                    viewModel: StudentHomeViewModel(
+                        authenticationState: authenticationState,
+                        studentService: dependencies.studentService
+                    )
                 )
-            )
+                .studentDestinations()
+            }
             .tabItem {
                 Label("Ana səhifə", systemImage: "house.fill")
             }
 
-            StudentGradesView()
-                .tabItem {
-                    Label("Qiymətlər", systemImage: "chart.bar.fill")
-                }
+            NavigationStack {
+                StudentGradesView(
+                    viewModel: StudentGradesViewModel(
+                        studentService: dependencies.studentService
+                    )
+                )
+                .studentDestinations()
+            }
+            .tabItem {
+                Label("Qiymətlər", systemImage: "chart.bar.fill")
+            }
 
-            StudentScheduleView()
-                .tabItem {
-                    Label("Cədvəl", systemImage: "calendar")
-                }
+            NavigationStack {
+                StudentScheduleView(
+                    viewModel: ScheduleViewModel(
+                        studentService: dependencies.studentService
+                    )
+                )
+                .studentDestinations()
+            }
+            .tabItem {
+                Label("Cədvəl", systemImage: "calendar")
+            }
 
-            StudentNotificationsView()
-                .tabItem {
-                    Label("Bildirişlər", systemImage: "bell.fill")
-                }
+            NavigationStack {
+                StudentNotificationsView(
+                    viewModel: StudentNotificationsViewModel(
+                        studentService: dependencies.studentService
+                    )
+                )
+                .studentDestinations()
+            }
+            .tabItem {
+                Label("Bildirişlər", systemImage: "bell.fill")
+            }
 
             ProfileView(
                 viewModel: ProfileViewModel(
