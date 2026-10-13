@@ -41,6 +41,37 @@ struct EmployeeFormViewModelTests {
         #expect(sut.options == .idle)
     }
 
+    @Test("Only teachers of the selected course are offered, teachers before mentors")
+    func teachersFilteredByCourse() async {
+        let teacherService = MockTeacherService()
+        teacherService.teachersResult = .success([
+            .stub(id: 1, specialty: "Mobil Tərtibatçılıq iOS", position: .mentor),
+            .stub(id: 2, specialty: "Mobil Tərtibatçılıq iOS", position: .teacher),
+            .stub(id: 3, specialty: "UI/UX Dizayn", position: .teacher)
+        ])
+        let sut = CreateGroupViewModel(groupService: MockGroupService(), teacherService: teacherService)
+
+        await sut.loadOptions()
+
+        #expect(sut.availableTeachers.map(\.id) == [2, 1])
+    }
+
+    @Test("Changing the course clears a teacher from another course")
+    func courseChangeClearsTeacher() async {
+        let groupService = MockGroupService()
+        groupService.coursesResult = .success([
+            Course(id: 7, name: "Mobil Tərtibatçılıq iOS"),
+            Course(id: 8, name: "UI/UX Dizayn")
+        ])
+        let sut = CreateGroupViewModel(groupService: groupService, teacherService: MockTeacherService())
+        await sut.loadOptions()
+        sut.selectedTeacherId = 21
+
+        sut.selectedCourseId = 8
+
+        #expect(sut.selectedTeacherId == nil)
+    }
+
     @Test("Group name is required")
     func createGroupEmptyName() async {
         let service = MockGroupService()

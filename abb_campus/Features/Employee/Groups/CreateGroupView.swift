@@ -69,8 +69,8 @@ struct CreateGroupView: View {
                 Picker("Müəllim", selection: $viewModel.selectedTeacherId) {
                     Text("Təyin edilməyib").tag(Int?.none)
 
-                    ForEach(options.teachers) { teacher in
-                        Text(teacher.fullName).tag(Optional(teacher.id))
+                    ForEach(viewModel.availableTeachers) { teacher in
+                        Text("\(teacher.fullName) · \(teacher.positionTitle)").tag(Optional(teacher.id))
                     }
                 }
                 .pickerStyle(.navigationLink)

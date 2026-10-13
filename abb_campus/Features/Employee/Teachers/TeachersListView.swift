@@ -24,9 +24,13 @@ struct TeachersListView: View {
                         AvatarView(firstName: teacher.firstName, lastName: teacher.lastName)
 
                         VStack(alignment: .leading, spacing: 3) {
-                            Text(teacher.fullName)
-                                .font(.manropeSemiBold(16))
-                                .foregroundStyle(.textPrimary)
+                            HStack(spacing: 8) {
+                                Text(teacher.fullName)
+                                    .font(.manropeSemiBold(16))
+                                    .foregroundStyle(.textPrimary)
+
+                                PositionBadge(position: teacher.position ?? .teacher)
+                            }
 
                             Text(teacher.specialty ?? "İxtisas qeyd edilməyib")
                                 .font(.manropeRegular(13))
@@ -54,5 +58,24 @@ struct TeachersListView: View {
         .task(id: viewModel.searchText) {
             await viewModel.queryChanged()
         }
+    }
+}
+
+struct PositionBadge: View {
+
+    let position: TeacherPosition
+
+    var body: some View {
+        Text(position.title)
+            .font(.manropeSemiBold(11))
+            .foregroundStyle(tint)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 3)
+            .background(tint.opacity(0.12))
+            .clipShape(Capsule())
+    }
+
+    private var tint: Color {
+        position == .mentor ? .purple : .blue
     }
 }

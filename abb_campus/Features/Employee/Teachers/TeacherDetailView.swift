@@ -19,7 +19,7 @@ struct TeacherDetailView: View {
                             .font(.manropeBold(22))
                             .foregroundStyle(.textPrimary)
 
-                        Text("Müəllim")
+                        Text(teacher.positionTitle)
                             .font(.manropeRegular(15))
                             .foregroundStyle(.textSecondary)
                     }

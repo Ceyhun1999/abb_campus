@@ -11,7 +11,13 @@ struct CreateGroupOptions: Equatable {
 final class CreateGroupViewModel {
 
     var name = ""
-    var selectedCourseId: Int?
+    var selectedCourseId: Int? {
+        didSet {
+            if let selectedTeacherId, !availableTeachers.contains(where: { $0.id == selectedTeacherId }) {
+                self.selectedTeacherId = nil
+            }
+        }
+    }
     var selectedTeacherId: Int?
     var startDate = Date()
     var hasEndDate = true
@@ -27,6 +33,19 @@ final class CreateGroupViewModel {
     init(groupService: any GroupService, teacherService: any TeacherService) {
         self.groupService = groupService
         self.teacherService = teacherService
+    }
+
+    // MARK: - Teachers
+
+    var availableTeachers: [Teacher] {
+        guard let options = options.value,
+              let course = options.courses.first(where: { $0.id == selectedCourseId }) else {
+            return []
+        }
+
+        return options.teachers
+            .filter { $0.specialty == course.name }
+            .sorted { ($0.position == .mentor ? 1 : 0, $0.fullName) < ($1.position == .mentor ? 1 : 0, $1.fullName) }
     }
 
     func loadOptions() async {

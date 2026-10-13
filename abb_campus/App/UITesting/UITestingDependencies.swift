@@ -107,16 +107,16 @@ final class UITestingDirectory: EmployeeDashboardService, StudentDirectoryServic
 
     private let teachers = [
         Teacher(id: 21, firstName: "Kamal", lastName: "Əliyev", email: "kamal@abb.local",
-                phone: "+994 50 987 65 43", specialty: "iOS Development", isActive: true,
+                phone: "+994 50 987 65 43", specialty: "Mobil Tərtibatçılıq iOS", position: .teacher, isActive: true,
                 groupsCount: 1, groups: nil)
     ]
 
     private var groups = [
-        StudyGroup(id: 1, name: "IOS-01", course: Course(id: 1, name: "iOS Development"),
+        StudyGroup(id: 1, name: "IOS-01", course: Course(id: 1, name: "Mobil Tərtibatçılıq iOS"),
                    teacher: .init(id: 21, firstName: "Kamal", lastName: "Əliyev"),
                    startDate: "2026-07-01", endDate: "2027-01-01", isActive: true,
                    studentsCount: 2, progress: 55),
-        StudyGroup(id: 2, name: "UIUX-01", course: Course(id: 2, name: "UI/UX Design"),
+        StudyGroup(id: 2, name: "UIUX-01", course: Course(id: 2, name: "UI/UX Dizayn"),
                    teacher: nil, startDate: "2026-08-01", endDate: "2026-12-01", isActive: true,
                    studentsCount: 1, progress: 60)
     ]
@@ -198,7 +198,7 @@ final class UITestingDirectory: EmployeeDashboardService, StudentDirectoryServic
     }
 
     func fetchCourses() async throws -> [Course] {
-        [Course(id: 1, name: "iOS Development"), Course(id: 2, name: "UI/UX Design")]
+        [Course(id: 1, name: "Mobil Tərtibatçılıq iOS"), Course(id: 2, name: "UI/UX Dizayn")]
     }
 
     func createGroup(_ request: CreateGroupRequest) async throws -> StudyGroup {
