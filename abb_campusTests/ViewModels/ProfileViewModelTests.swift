@@ -45,7 +45,7 @@ struct ProfileViewModelTests {
 
     @Test("Home greeting uses the first name")
     func homeGreeting() {
-        let sut = StudentHomeViewModel(authenticationState: state)
+        let sut = StudentHomeViewModel(authenticationState: state, studentService: MockStudentService())
 
         #expect(sut.greeting == "Salam, Ceyhun!")
     }
@@ -53,7 +53,7 @@ struct ProfileViewModelTests {
     @Test("Home greeting falls back when there is no user")
     func homeGreetingWithoutUser() async {
         await state.logout()
-        let sut = StudentHomeViewModel(authenticationState: state)
+        let sut = StudentHomeViewModel(authenticationState: state, studentService: MockStudentService())
 
         #expect(sut.greeting == "Salam!")
     }
