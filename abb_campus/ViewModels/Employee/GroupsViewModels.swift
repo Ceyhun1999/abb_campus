@@ -8,7 +8,7 @@ final class GroupsListViewModel {
     var searchText = ""
     var isCreateGroupPresented = false
     private(set) var state: ViewState<[StudyGroup]> = .idle
-    private(set) var createGroupViewModel: CreateGroupViewModel?
+    private(set) var createGroupViewModel: GroupFormViewModel?
 
     private let groupService: any GroupService
     private let teacherService: any TeacherService
@@ -48,7 +48,7 @@ final class GroupsListViewModel {
     }
 
     func showCreateGroup() {
-        createGroupViewModel = CreateGroupViewModel(
+        createGroupViewModel = GroupFormViewModel(
             groupService: groupService,
             teacherService: teacherService
         )
@@ -72,14 +72,22 @@ struct GroupDetail: Equatable {
 final class GroupDetailViewModel {
 
     var isImportPresented = false
+    var isEditPresented = false
     private(set) var state: ViewState<GroupDetail> = .idle
+    private(set) var editViewModel: GroupFormViewModel?
 
     let group: StudyGroup
     private let groupService: any GroupService
+    private let teacherService: any TeacherService
 
-    init(group: StudyGroup, groupService: any GroupService) {
+    init(group: StudyGroup, groupService: any GroupService, teacherService: any TeacherService) {
         self.group = group
         self.groupService = groupService
+        self.teacherService = teacherService
+    }
+
+    var title: String {
+        state.value?.group.name ?? group.name
     }
 
     func load() async {
@@ -102,5 +110,22 @@ final class GroupDetailViewModel {
 
     func showImport() {
         isImportPresented = true
+    }
+
+    // MARK: - Edit
+
+    func showEdit() {
+        editViewModel = GroupFormViewModel(
+            group: state.value?.group ?? group,
+            groupService: groupService,
+            teacherService: teacherService
+        )
+        isEditPresented = true
+    }
+
+    func groupSaved() async {
+        isEditPresented = false
+        editViewModel = nil
+        await load()
     }
 }

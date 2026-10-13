@@ -1,16 +1,16 @@
 import SwiftUI
 
-struct CreateGroupView: View {
+struct GroupFormView: View {
 
     @Environment(\.dismiss) private var dismiss
 
-    @State private var viewModel: CreateGroupViewModel
+    @State private var viewModel: GroupFormViewModel
 
-    let onCreated: () -> Void
+    let onSaved: () -> Void
 
-    init(viewModel: CreateGroupViewModel, onCreated: @escaping () -> Void) {
+    init(viewModel: GroupFormViewModel, onSaved: @escaping () -> Void) {
         _viewModel = State(initialValue: viewModel)
-        self.onCreated = onCreated
+        self.onSaved = onSaved
     }
 
     var body: some View {
@@ -18,7 +18,7 @@ struct CreateGroupView: View {
             AsyncContentView(state: viewModel.options, retry: viewModel.loadOptions) { options in
                 form(options)
             }
-            .navigationTitle("Yeni qrup")
+            .navigationTitle(viewModel.title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -31,15 +31,15 @@ struct CreateGroupView: View {
                     if viewModel.isSaving {
                         ProgressView()
                     } else {
-                        Button("Yarat") {
+                        Button(viewModel.saveTitle) {
                             Task {
                                 if await viewModel.save() != nil {
-                                    onCreated()
+                                    onSaved()
                                 }
                             }
                         }
                         .disabled(viewModel.options.value == nil)
-                        .accessibilityIdentifier("create_group_save")
+                        .accessibilityIdentifier("group_form_save")
                     }
                 }
             }
@@ -49,7 +49,7 @@ struct CreateGroupView: View {
         }
     }
 
-    private func form(_ options: CreateGroupOptions) -> some View {
+    private func form(_ options: GroupFormOptions) -> some View {
         @Bindable var viewModel = viewModel
 
         return Form {
@@ -57,7 +57,7 @@ struct CreateGroupView: View {
                 TextField("Qrup adı, məs. IOS-03", text: $viewModel.name)
                     .textInputAutocapitalization(.characters)
                     .autocorrectionDisabled()
-                    .accessibilityIdentifier("create_group_name")
+                    .accessibilityIdentifier("group_form_name")
 
                 Picker("Kurs", selection: $viewModel.selectedCourseId) {
                     ForEach(options.courses) { course in
@@ -70,11 +70,13 @@ struct CreateGroupView: View {
                     Text("Təyin edilməyib").tag(Int?.none)
 
                     ForEach(viewModel.availableTeachers) { teacher in
-                        Text("\(teacher.fullName) · \(teacher.positionTitle)").tag(Optional(teacher.id))
+                        Text(teacher.fullName).tag(Optional(teacher.id))
                     }
                 }
                 .pickerStyle(.navigationLink)
             }
+
+            mentorsSection
 
             Section("Müddət") {
                 DatePicker("Başlama tarixi", selection: $viewModel.startDate, displayedComponents: .date)
@@ -86,9 +88,46 @@ struct CreateGroupView: View {
                 }
             }
 
+            if viewModel.isEditing {
+                Section("Status") {
+                    Toggle("Aktiv qrup", isOn: $viewModel.isActive)
+                }
+            }
+
             if let errorMessage = viewModel.errorMessage {
                 Section {
-                    ErrorMessageText(message: errorMessage, accessibilityID: "create_group_error")
+                    ErrorMessageText(message: errorMessage, accessibilityID: "group_form_error")
+                }
+            }
+        }
+    }
+
+    // MARK: - Mentors
+
+    private var mentorsSection: some View {
+        Section("Mentorlar") {
+            if viewModel.availableMentors.isEmpty {
+                Text("Bu kurs üçün mentor yoxdur")
+                    .foregroundStyle(.secondary)
+            } else {
+                ForEach(viewModel.availableMentors) { mentor in
+                    Button {
+                        viewModel.toggleMentor(mentor)
+                    } label: {
+                        HStack {
+                            Text(mentor.fullName)
+                                .foregroundStyle(.textPrimary)
+
+                            Spacer()
+
+                            if viewModel.isMentorSelected(mentor) {
+                                Image(systemName: "checkmark")
+                                    .fontWeight(.semibold)
+                                    .foregroundStyle(.blue)
+                            }
+                        }
+                    }
+                    .accessibilityIdentifier("mentor_row_\(mentor.id)")
                 }
             }
         }

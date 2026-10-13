@@ -10,7 +10,8 @@ enum EmployeeEndpoint {
     case groups(search: String)
     case group(id: Int)
     case groupStudents(groupId: Int)
-    case createGroup(CreateGroupRequest)
+    case createGroup(GroupFormRequest)
+    case updateGroup(id: Int, GroupFormRequest)
     case courses
     case importStudents(groupId: Int, form: MultipartFormData)
     case announcements
@@ -44,7 +45,7 @@ extension EmployeeEndpoint: Endpoint {
         case .groups, .createGroup:
             return "/api/groups"
 
-        case .group(let id):
+        case .group(let id), .updateGroup(let id, _):
             return "/api/groups/\(id)"
 
         case .groupStudents(let groupId):
@@ -63,7 +64,7 @@ extension EmployeeEndpoint: Endpoint {
 
     var method: HTTPMethod {
         switch self {
-        case .setUserStatus:
+        case .setUserStatus, .updateGroup:
             return .patch
 
         case .createGroup, .importStudents, .createAnnouncement:
@@ -112,7 +113,7 @@ extension EmployeeEndpoint: Endpoint {
         case .setUserStatus(_, let isActive):
             return ["isActive": isActive]
 
-        case .createGroup(let request):
+        case .createGroup(let request), .updateGroup(_, let request):
             return request
 
         case .createAnnouncement(let request):

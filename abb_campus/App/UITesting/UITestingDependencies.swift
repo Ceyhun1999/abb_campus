@@ -114,10 +114,11 @@ final class UITestingDirectory: EmployeeDashboardService, StudentDirectoryServic
     private var groups = [
         StudyGroup(id: 1, name: "IOS-01", course: Course(id: 1, name: "Mobil Tərtibatçılıq iOS"),
                    teacher: .init(id: 21, firstName: "Kamal", lastName: "Əliyev"),
+                   mentors: [.init(id: 22, firstName: "Fidan", lastName: "Kərimova")],
                    startDate: "2026-07-01", endDate: "2027-01-01", isActive: true,
                    studentsCount: 2, progress: 55),
         StudyGroup(id: 2, name: "UIUX-01", course: Course(id: 2, name: "UI/UX Dizayn"),
-                   teacher: nil, startDate: "2026-08-01", endDate: "2026-12-01", isActive: true,
+                   teacher: nil, mentors: [], startDate: "2026-08-01", endDate: "2026-12-01", isActive: true,
                    studentsCount: 1, progress: 60)
     ]
 
@@ -201,14 +202,24 @@ final class UITestingDirectory: EmployeeDashboardService, StudentDirectoryServic
         [Course(id: 1, name: "Mobil Tərtibatçılıq iOS"), Course(id: 2, name: "UI/UX Dizayn")]
     }
 
-    func createGroup(_ request: CreateGroupRequest) async throws -> StudyGroup {
-        let group = StudyGroup(
-            id: groups.count + 1, name: request.name, course: nil, teacher: nil,
-            startDate: request.startDate, endDate: request.endDate, isActive: true,
-            studentsCount: 0, progress: 0
-        )
+    func createGroup(_ request: GroupFormRequest) async throws -> StudyGroup {
+        let group = makeGroup(id: groups.count + 1, request: request)
         groups.append(group)
         return group
+    }
+
+    func updateGroup(id: Int, _ request: GroupFormRequest) async throws -> StudyGroup {
+        let group = makeGroup(id: id, request: request)
+        groups = groups.map { $0.id == id ? group : $0 }
+        return group
+    }
+
+    private func makeGroup(id: Int, request: GroupFormRequest) -> StudyGroup {
+        StudyGroup(
+            id: id, name: request.name, course: nil, teacher: nil, mentors: [],
+            startDate: request.startDate, endDate: request.endDate, isActive: request.isActive,
+            studentsCount: 0, progress: 0
+        )
     }
 
     func importStudents(groupId: Int, fileName: String, fileData: Data) async throws -> StudentImportResult {

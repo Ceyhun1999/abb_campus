@@ -51,7 +51,7 @@ struct GroupsListView: View {
         }
         .sheet(isPresented: $viewModel.isCreateGroupPresented) {
             if let createGroupViewModel = viewModel.createGroupViewModel {
-                CreateGroupView(viewModel: createGroupViewModel) {
+                GroupFormView(viewModel: createGroupViewModel) {
                     Task {
                         await viewModel.groupCreated()
                     }

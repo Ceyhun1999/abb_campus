@@ -10,7 +10,7 @@ struct EmployeeFormViewModelTests {
 
     @Test("Options load and the first course is preselected")
     func createGroupOptions() async {
-        let sut = CreateGroupViewModel(groupService: MockGroupService(), teacherService: MockTeacherService())
+        let sut = GroupFormViewModel(groupService: MockGroupService(), teacherService: MockTeacherService())
 
         await sut.loadOptions()
 
@@ -21,7 +21,7 @@ struct EmployeeFormViewModelTests {
     @Test("Loaded options are not reloaded when the form appears again")
     func createGroupOptionsLoadedOnce() async {
         let groupService = MockGroupService()
-        let sut = CreateGroupViewModel(groupService: groupService, teacherService: MockTeacherService())
+        let sut = GroupFormViewModel(groupService: groupService, teacherService: MockTeacherService())
         await sut.loadOptions()
 
         groupService.coursesResult = .failure(NetworkError.noConnection)
@@ -34,26 +34,61 @@ struct EmployeeFormViewModelTests {
     func createGroupOptionsCancelled() async {
         let groupService = MockGroupService()
         groupService.coursesResult = .failure(CancellationError())
-        let sut = CreateGroupViewModel(groupService: groupService, teacherService: MockTeacherService())
+        let sut = GroupFormViewModel(groupService: groupService, teacherService: MockTeacherService())
 
         await sut.loadOptions()
 
         #expect(sut.options == .idle)
     }
 
-    @Test("Only teachers of the selected course are offered, teachers before mentors")
-    func teachersFilteredByCourse() async {
+    @Test("Teachers and mentors of the selected course are offered separately")
+    func staffFilteredByCourse() async {
         let teacherService = MockTeacherService()
         teacherService.teachersResult = .success([
             .stub(id: 1, specialty: "Mobil Tərtibatçılıq iOS", position: .mentor),
             .stub(id: 2, specialty: "Mobil Tərtibatçılıq iOS", position: .teacher),
             .stub(id: 3, specialty: "UI/UX Dizayn", position: .teacher)
         ])
-        let sut = CreateGroupViewModel(groupService: MockGroupService(), teacherService: teacherService)
+        let sut = GroupFormViewModel(groupService: MockGroupService(), teacherService: teacherService)
 
         await sut.loadOptions()
 
-        #expect(sut.availableTeachers.map(\.id) == [2, 1])
+        #expect(sut.availableTeachers.map(\.id) == [2])
+        #expect(sut.availableMentors.map(\.id) == [1])
+    }
+
+    @Test("Editing prefills the form and sends an update with mentors")
+    func editGroup() async throws {
+        let teacherService = MockTeacherService()
+        teacherService.teachersResult = .success([
+            .stub(id: 21, specialty: "Mobil Tərtibatçılıq iOS", position: .teacher),
+            .stub(id: 31, specialty: "Mobil Tərtibatçılıq iOS", position: .mentor),
+            .stub(id: 32, specialty: "Mobil Tərtibatçılıq iOS", position: .mentor)
+        ])
+        let groupService = MockGroupService()
+        let group = StudyGroup(
+            id: 5, name: "IOS-05", course: Course(id: 7, name: "Mobil Tərtibatçılıq iOS"),
+            teacher: .init(id: 21, firstName: "Kamal", lastName: "Əliyev"),
+            mentors: [.init(id: 31, firstName: "Fidan", lastName: "Kərimova")],
+            startDate: "2026-09-01", endDate: nil, isActive: true, studentsCount: 0, progress: nil
+        )
+        let sut = GroupFormViewModel(group: group, groupService: groupService, teacherService: teacherService)
+        await sut.loadOptions()
+
+        #expect(sut.isEditing)
+        #expect(sut.name == "IOS-05")
+        #expect(sut.selectedTeacherId == 21)
+        #expect(sut.hasEndDate == false)
+
+        sut.toggleMentor(.stub(id: 32))
+        sut.isActive = false
+        _ = await sut.save()
+
+        let update = try #require(groupService.updatedRequests.first)
+        #expect(update.id == 5)
+        #expect(update.request.mentorIds == [31, 32])
+        #expect(update.request.isActive == false)
+        #expect(groupService.createdRequests.isEmpty)
     }
 
     @Test("Changing the course clears a teacher from another course")
@@ -63,7 +98,7 @@ struct EmployeeFormViewModelTests {
             Course(id: 7, name: "Mobil Tərtibatçılıq iOS"),
             Course(id: 8, name: "UI/UX Dizayn")
         ])
-        let sut = CreateGroupViewModel(groupService: groupService, teacherService: MockTeacherService())
+        let sut = GroupFormViewModel(groupService: groupService, teacherService: MockTeacherService())
         await sut.loadOptions()
         sut.selectedTeacherId = 21
 
@@ -75,7 +110,7 @@ struct EmployeeFormViewModelTests {
     @Test("Group name is required")
     func createGroupEmptyName() async {
         let service = MockGroupService()
-        let sut = CreateGroupViewModel(groupService: service, teacherService: MockTeacherService())
+        let sut = GroupFormViewModel(groupService: service, teacherService: MockTeacherService())
         sut.selectedCourseId = 7
         sut.name = "   "
 
@@ -88,7 +123,7 @@ struct EmployeeFormViewModelTests {
 
     @Test("End date before start date is rejected")
     func createGroupInvalidDates() async {
-        let sut = CreateGroupViewModel(groupService: MockGroupService(), teacherService: MockTeacherService())
+        let sut = GroupFormViewModel(groupService: MockGroupService(), teacherService: MockTeacherService())
         sut.name = "IOS-03"
         sut.selectedCourseId = 7
         sut.startDate = Date()
@@ -102,7 +137,7 @@ struct EmployeeFormViewModelTests {
     @Test("Valid form sends an uppercase name and API dates")
     func createGroupSuccess() async throws {
         let service = MockGroupService()
-        let sut = CreateGroupViewModel(groupService: service, teacherService: MockTeacherService())
+        let sut = GroupFormViewModel(groupService: service, teacherService: MockTeacherService())
         sut.name = " ios-03 "
         sut.selectedCourseId = 7
         sut.selectedTeacherId = 21
@@ -113,7 +148,8 @@ struct EmployeeFormViewModelTests {
 
         #expect(group != nil)
         #expect(service.createdRequests == [
-            CreateGroupRequest(name: "IOS-03", courseId: 7, teacherId: 21, startDate: "2026-11-01", endDate: nil)
+            GroupFormRequest(name: "IOS-03", courseId: 7, teacherId: 21, mentorIds: [],
+                             startDate: "2026-11-01", endDate: nil, isActive: true)
         ])
     }
 
@@ -121,7 +157,7 @@ struct EmployeeFormViewModelTests {
     func createGroupFailure() async {
         let service = MockGroupService()
         service.createResult = .failure(NetworkError.serverError(statusCode: 422, message: "Bu ad artıq istifadə olunur."))
-        let sut = CreateGroupViewModel(groupService: service, teacherService: MockTeacherService())
+        let sut = GroupFormViewModel(groupService: service, teacherService: MockTeacherService())
         sut.name = "IOS-01"
         sut.selectedCourseId = 7
 

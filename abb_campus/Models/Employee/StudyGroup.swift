@@ -23,6 +23,7 @@ struct StudyGroup: Decodable, Identifiable, Hashable {
     let name: String
     let course: Course?
     let teacher: TeacherReference?
+    let mentors: [TeacherReference]?
     let startDate: String?
     let endDate: String?
     let isActive: Bool
@@ -41,12 +42,30 @@ struct GroupStudent: Decodable, Identifiable, Hashable {
     }
 }
 
-struct CreateGroupRequest: Encodable, Equatable {
+struct GroupFormRequest: Encodable, Equatable {
     let name: String
     let courseId: Int
     let teacherId: Int?
+    let mentorIds: [Int]
     let startDate: String
     let endDate: String?
+    let isActive: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case name, courseId, teacherId, mentorIds, startDate, endDate, isActive
+    }
+
+    // teacherId and endDate are sent as null when empty, so editing can clear them.
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(name, forKey: .name)
+        try container.encode(courseId, forKey: .courseId)
+        try container.encode(teacherId, forKey: .teacherId)
+        try container.encode(mentorIds, forKey: .mentorIds)
+        try container.encode(startDate, forKey: .startDate)
+        try container.encode(endDate, forKey: .endDate)
+        try container.encode(isActive, forKey: .isActive)
+    }
 }
 
 struct StudentImportResult: Decodable, Equatable {

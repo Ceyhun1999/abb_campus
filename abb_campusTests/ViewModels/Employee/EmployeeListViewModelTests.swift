@@ -131,7 +131,7 @@ struct EmployeeListViewModelTests {
     func groupDetail() async {
         let service = MockGroupService()
         service.studentsResult = .success([GroupStudent(id: 1, firstName: "Ali", lastName: "Rzayev", email: "ali@abb.local")])
-        let sut = GroupDetailViewModel(group: .stub(), groupService: service)
+        let sut = GroupDetailViewModel(group: .stub(), groupService: service, teacherService: MockTeacherService())
 
         await sut.load()
 
@@ -143,7 +143,7 @@ struct EmployeeListViewModelTests {
     func groupDetailFailure() async {
         let service = MockGroupService()
         service.studentsResult = .failure(NetworkError.unauthorized)
-        let sut = GroupDetailViewModel(group: .stub(), groupService: service)
+        let sut = GroupDetailViewModel(group: .stub(), groupService: service, teacherService: MockTeacherService())
 
         await sut.load()
 

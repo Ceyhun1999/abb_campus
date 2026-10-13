@@ -33,8 +33,26 @@ struct GroupDetailView: View {
             }
         }
         .background(.appBackground)
-        .navigationTitle(viewModel.group.name)
+        .navigationTitle(viewModel.title)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button("Redaktə et") {
+                    viewModel.showEdit()
+                }
+                .disabled(viewModel.state.value == nil)
+                .accessibilityIdentifier("edit_group_button")
+            }
+        }
+        .sheet(isPresented: $viewModel.isEditPresented) {
+            if let editViewModel = viewModel.editViewModel {
+                GroupFormView(viewModel: editViewModel) {
+                    Task {
+                        await viewModel.groupSaved()
+                    }
+                }
+            }
+        }
         .navigationDestination(isPresented: $viewModel.isImportPresented) {
             StudentImportView(
                 viewModel: StudentImportViewModel(
@@ -66,10 +84,17 @@ struct GroupDetailView: View {
             InfoDivider()
             InfoRow(icon: "person", title: "Müəllim", value: group.teacher?.fullName ?? "Təyin edilməyib")
             InfoDivider()
+            InfoRow(icon: "person.2", title: "Mentorlar", value: mentorNames(group))
+            InfoDivider()
             InfoRow(icon: "calendar", title: "Müddət", value: period(group))
             InfoDivider()
             InfoRow(icon: "person.3", title: "Tələbə sayı", value: "\(group.studentsCount ?? 0)")
         }
+    }
+
+    private func mentorNames(_ group: StudyGroup) -> String {
+        let names = group.mentors?.map(\.fullName) ?? []
+        return names.isEmpty ? "Təyin edilməyib" : names.joined(separator: "\n")
     }
 
     private func period(_ group: StudyGroup) -> String {

@@ -65,7 +65,8 @@ final class MockGroupService: GroupService {
         StudentImportResult(imported: 5, skipped: 0, errors: [])
     )
 
-    private(set) var createdRequests: [CreateGroupRequest] = []
+    private(set) var createdRequests: [GroupFormRequest] = []
+    private(set) var updatedRequests: [(id: Int, request: GroupFormRequest)] = []
     private(set) var importedFiles: [(groupId: Int, fileName: String, data: Data)] = []
 
     func fetchGroups(search: String) async throws -> [StudyGroup] {
@@ -84,8 +85,13 @@ final class MockGroupService: GroupService {
         try coursesResult.get()
     }
 
-    func createGroup(_ request: CreateGroupRequest) async throws -> StudyGroup {
+    func createGroup(_ request: GroupFormRequest) async throws -> StudyGroup {
         createdRequests.append(request)
+        return try createResult.get()
+    }
+
+    func updateGroup(id: Int, _ request: GroupFormRequest) async throws -> StudyGroup {
+        updatedRequests.append((id, request))
         return try createResult.get()
     }
 
@@ -184,6 +190,7 @@ extension StudyGroup {
             name: name,
             course: Course(id: 7, name: "iOS Development"),
             teacher: nil,
+            mentors: nil,
             startDate: "2026-07-01",
             endDate: "2027-01-01",
             isActive: true,

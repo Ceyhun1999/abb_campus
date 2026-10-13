@@ -5,7 +5,8 @@ protocol GroupService {
     func fetchGroup(id: Int) async throws -> StudyGroup
     func fetchStudents(groupId: Int) async throws -> [GroupStudent]
     func fetchCourses() async throws -> [Course]
-    func createGroup(_ request: CreateGroupRequest) async throws -> StudyGroup
+    func createGroup(_ request: GroupFormRequest) async throws -> StudyGroup
+    func updateGroup(id: Int, _ request: GroupFormRequest) async throws -> StudyGroup
     func importStudents(groupId: Int, fileName: String, fileData: Data) async throws -> StudentImportResult
 }
 
@@ -49,9 +50,17 @@ final class DefaultGroupService: GroupService {
         return response.data
     }
 
-    func createGroup(_ request: CreateGroupRequest) async throws -> StudyGroup {
+    func createGroup(_ request: GroupFormRequest) async throws -> StudyGroup {
         let response: APIResponse<StudyGroup> = try await networkService.request(
             EmployeeEndpoint.createGroup(request)
+        )
+
+        return response.data
+    }
+
+    func updateGroup(id: Int, _ request: GroupFormRequest) async throws -> StudyGroup {
+        let response: APIResponse<StudyGroup> = try await networkService.request(
+            EmployeeEndpoint.updateGroup(id: id, request)
         )
 
         return response.data

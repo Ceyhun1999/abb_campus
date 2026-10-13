@@ -24,7 +24,8 @@ private struct EmployeeDestinations: ViewModifier {
                 GroupDetailView(
                     viewModel: GroupDetailViewModel(
                         group: group,
-                        groupService: dependencies.groupService
+                        groupService: dependencies.groupService,
+                        teacherService: dependencies.teacherService
                     )
                 )
             }
