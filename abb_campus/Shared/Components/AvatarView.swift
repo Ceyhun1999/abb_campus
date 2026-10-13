@@ -28,7 +28,8 @@ struct AvatarView: View {
             .uppercased()
     }
 
-    /// Same name always gets the same color.
+    // MARK: - Color
+
     private var color: Color {
         let seed = (firstName + lastName).unicodeScalars.reduce(0) { $0 + Int($1.value) }
         return Self.palette[seed % Self.palette.count]

@@ -1,6 +1,5 @@
 import SwiftUI
 
-/// Shown for roles whose screens are not implemented yet.
 struct ComingSoonView: View {
 
     @State private var viewModel: ProfileViewModel

@@ -4,8 +4,8 @@ enum EmployeeRoute: Hashable {
     case teachers
 }
 
-/// Registers every screen an employee can push, so any tab can link to
-/// students, groups, teachers or announcements by value.
+// MARK: - Destinations
+
 private struct EmployeeDestinations: ViewModifier {
 
     @Environment(\.dependencies) private var dependencies

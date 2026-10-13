@@ -1,7 +1,5 @@
 import SwiftUI
 
-/// Renders loading, error and empty states for a `ViewState`,
-/// so every screen handles them the same way.
 struct AsyncContentView<Value, Content: View>: View {
 
     let state: ViewState<Value>

@@ -16,7 +16,6 @@ protocol Endpoint {
 
     var multipartForm: MultipartFormData? { get }
 
-    /// Requests that need the signed-in user's token get it from the network service.
     var requiresAuthorization: Bool { get }
 }
 

@@ -36,7 +36,6 @@ enum StudentStatusFilter: String, CaseIterable, Identifiable {
         }
     }
 
-    /// Value of the `status` query parameter, `nil` means no filter.
     var queryValue: String? {
         self == .all ? nil : rawValue
     }

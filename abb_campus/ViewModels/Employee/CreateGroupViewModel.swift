@@ -47,7 +47,8 @@ final class CreateGroupViewModel {
         }
     }
 
-    /// Returns the created group, or `nil` when validation or the request failed.
+    // MARK: - Save
+
     func save() async -> StudyGroup? {
         let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
 

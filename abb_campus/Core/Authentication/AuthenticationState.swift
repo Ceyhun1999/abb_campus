@@ -1,8 +1,8 @@
 import Foundation
 import Observation
 
-/// A signed-in user together with their access token.
-/// Keeping both in one value makes "a user without a token" impossible.
+// MARK: - Session
+
 struct Session: Equatable {
     let user: User
     let token: String

@@ -15,8 +15,8 @@ final class GroupsListViewModel {
         self.groupService = groupService
     }
 
-    /// Called on every search/filter change; waits briefly so typing
-    /// doesn't send a request per keystroke. The first load is immediate.
+    // MARK: - Search
+
     func queryChanged() async {
         if state.value != nil {
             do {

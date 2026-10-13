@@ -29,7 +29,8 @@ struct InfoRow: View {
     }
 }
 
-/// A card that stacks `InfoRow`s; put `InfoDivider()` between rows.
+// MARK: - Info Card
+
 struct InfoCard<Content: View>: View {
 
     @ViewBuilder let content: Content

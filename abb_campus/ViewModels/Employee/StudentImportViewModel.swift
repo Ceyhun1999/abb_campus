@@ -5,7 +5,8 @@ protocol FileDataLoader {
     func loadData(from url: URL) throws -> Data
 }
 
-/// Reads files picked with `fileImporter`, which are security-scoped.
+// MARK: - File Loader
+
 struct SecurityScopedFileLoader: FileDataLoader {
 
     func loadData(from url: URL) throws -> Data {

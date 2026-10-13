@@ -19,7 +19,6 @@ enum EmployeeEndpoint {
 
 extension EmployeeEndpoint: Endpoint {
 
-    /// Lists are small enough to load in one page.
     private static let pageSize = "200"
 
     var path: String {

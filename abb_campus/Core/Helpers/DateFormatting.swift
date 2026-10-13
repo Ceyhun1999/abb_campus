@@ -17,7 +17,8 @@ enum DateFormatting {
         return formatter
     }()
 
-    /// Accepts `yyyy-MM-dd` or ISO 8601 and returns `dd.MM.yyyy`.
+    // MARK: - Display
+
     static func displayDate(from apiValue: String?) -> String? {
         guard let apiValue else {
             return nil
@@ -45,7 +46,8 @@ enum DateFormatting {
         return formatter
     }()
 
-    /// `2026-10-13` → `Çərşənbə axşamı, 13 oktyabr`
+    // MARK: - Day Title
+
     static func dayTitle(fromAPI value: String) -> String {
         guard let date = apiDate.date(from: value) else {
             return value

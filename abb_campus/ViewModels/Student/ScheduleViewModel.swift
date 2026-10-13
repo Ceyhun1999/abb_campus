@@ -41,8 +41,8 @@ final class ScheduleViewModel {
         self.today = today
     }
 
-    /// Lessons of the selected period grouped by day:
-    /// upcoming days go soonest first, past days go most recent first.
+    // MARK: - Sections
+
     var sections: [ScheduleSection] {
         guard let lessons = state.value else {
             return []

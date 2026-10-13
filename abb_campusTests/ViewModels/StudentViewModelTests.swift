@@ -6,7 +6,6 @@ import Testing
 @Suite("Student view models")
 struct StudentViewModelTests {
 
-    /// 2026-10-13, a Tuesday.
     private let today: Date = {
         var components = DateComponents()
         components.year = 2026

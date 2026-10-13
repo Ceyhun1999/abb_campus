@@ -1,6 +1,5 @@
 import Foundation
 
-/// The signed-in student's own academic data.
 protocol StudentService {
     func fetchGradesOverview() async throws -> GradesOverview
     func fetchModuleGrades(moduleId: Int) async throws -> ModuleGrades

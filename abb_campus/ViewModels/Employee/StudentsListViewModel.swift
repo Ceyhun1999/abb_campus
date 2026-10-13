@@ -15,7 +15,8 @@ final class StudentsListViewModel {
         self.studentService = studentService
     }
 
-    /// Changes whenever the list has to be reloaded.
+    // MARK: - Query
+
     var query: String {
         "\(statusFilter.rawValue)|\(trimmedSearch)"
     }
@@ -26,8 +27,8 @@ final class StudentsListViewModel {
             : "\"\(trimmedSearch)\" üzrə nəticə tapılmadı."
     }
 
-    /// Called on every search/filter change; waits briefly so typing
-    /// doesn't send a request per keystroke. The first load is immediate.
+    // MARK: - Search
+
     func queryChanged() async {
         if state.value != nil {
             do {
@@ -52,7 +53,6 @@ final class StudentsListViewModel {
             )
             state = .loaded(students)
         } catch is CancellationError {
-            // A newer search replaced this request.
         } catch {
             state = .failed(error.localizedDescription)
         }

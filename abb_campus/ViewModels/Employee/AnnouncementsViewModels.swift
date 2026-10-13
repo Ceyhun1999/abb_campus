@@ -86,7 +86,8 @@ final class NewAnnouncementViewModel {
         }
     }
 
-    /// Returns the published announcement, or `nil` when validation or the request failed.
+    // MARK: - Publish
+
     func publish() async -> Announcement? {
         let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
         let trimmedMessage = message.trimmingCharacters(in: .whitespacesAndNewlines)

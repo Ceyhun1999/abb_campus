@@ -1,8 +1,7 @@
 #if DEBUG
 import Foundation
 
-// Stub services used when the app is launched by UI tests (`-ui-testing`),
-// so UI tests never depend on the real backend.
+// MARK: - UI Testing
 
 extension AppDependencies {
 
@@ -89,7 +88,8 @@ final class UITestingAuthService: AuthService {
     func logout(token: String) async throws {}
 }
 
-/// In-memory data for the employee screens.
+// MARK: - Employee Data
+
 final class UITestingDirectory: EmployeeDashboardService, StudentDirectoryService,
                                 TeacherService, GroupService, AnnouncementService {
 

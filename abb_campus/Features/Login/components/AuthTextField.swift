@@ -59,8 +59,8 @@ struct AuthTextField: View {
         .autocorrectionDisabled()
     }
 
-    /// Passwords are Latin-only, so secure fields always get an ASCII keyboard
-    /// even when the device language is Azerbaijani or Russian.
+    // MARK: - Keyboard
+
     private var effectiveKeyboardType: UIKeyboardType {
         isSecure ? .asciiCapable : keyboardType
     }

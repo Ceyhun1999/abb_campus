@@ -33,7 +33,8 @@ enum ValidationHelper {
         code.count == resetCodeLength && code.allSatisfy(\.isNumber)
     }
 
-    /// Returns a user-facing message for the first invalid field, or `nil` when the email is valid.
+    // MARK: - Email
+
     static func emailError(_ email: String) -> String? {
         let trimmedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
 

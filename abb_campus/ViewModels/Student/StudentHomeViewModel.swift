@@ -63,7 +63,8 @@ final class StudentHomeViewModel {
         }
     }
 
-    /// The first lesson from today onwards (API dates compare correctly as strings).
+    // MARK: - Next Lesson
+
     private func nextLesson(in lessons: [ScheduleLesson]) -> ScheduleLesson? {
         let todayString = DateFormatting.apiString(from: today())
 

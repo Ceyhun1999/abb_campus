@@ -5,7 +5,8 @@ struct Course: Decodable, Identifiable, Hashable {
     let name: String
 }
 
-/// A group of students (named `StudyGroup` to avoid clashing with SwiftUI's `Group`).
+// MARK: - Study Group
+
 struct StudyGroup: Decodable, Identifiable, Hashable {
 
     struct TeacherReference: Decodable, Hashable {
