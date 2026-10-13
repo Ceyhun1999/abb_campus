@@ -9,6 +9,7 @@ struct AppDependencies {
     let teacherService: any TeacherService
     let groupService: any GroupService
     let announcementService: any AnnouncementService
+    let studentService: any StudentService
     let secureStorage: any SecureStorage
     let preferences: any PreferencesStore
     let tokenStore: TokenStore
@@ -49,6 +50,9 @@ extension AppDependencies {
                 networkService: networkService
             ),
             announcementService: DefaultAnnouncementService(
+                networkService: networkService
+            ),
+            studentService: DefaultStudentService(
                 networkService: networkService
             ),
             secureStorage: KeychainService(),

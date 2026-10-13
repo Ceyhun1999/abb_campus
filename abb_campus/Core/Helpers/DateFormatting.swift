@@ -33,4 +33,31 @@ enum DateFormatting {
     static func apiString(from date: Date) -> String {
         apiDate.string(from: date)
     }
+
+    static func date(fromAPI value: String) -> Date? {
+        apiDate.date(from: value)
+    }
+
+    private static let dayTitle: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "az_AZ")
+        formatter.dateFormat = "EEEE, d MMMM"
+        return formatter
+    }()
+
+    /// `2026-10-13` → `Çərşənbə axşamı, 13 oktyabr`
+    static func dayTitle(fromAPI value: String) -> String {
+        guard let date = apiDate.date(from: value) else {
+            return value
+        }
+
+        return dayTitle.string(from: date).capitalizedFirstLetter
+    }
+}
+
+private extension String {
+
+    var capitalizedFirstLetter: String {
+        prefix(1).uppercased() + dropFirst()
+    }
 }

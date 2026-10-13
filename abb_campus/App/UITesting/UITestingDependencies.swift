@@ -17,6 +17,7 @@ extension AppDependencies {
             teacherService: directory,
             groupService: directory,
             announcementService: directory,
+            studentService: UITestingStudentService(),
             secureStorage: InMemorySecureStorage(),
             preferences: InMemoryPreferencesStore(),
             tokenStore: TokenStore()
@@ -227,6 +228,60 @@ final class UITestingDirectory: EmployeeDashboardService, StudentDirectoryServic
         )
         announcements.insert(announcement, at: 0)
         return announcement
+    }
+}
+
+final class UITestingStudentService: StudentService {
+
+    func fetchGradesOverview() async throws -> GradesOverview {
+        GradesOverview(
+            modules: [
+                ModuleScore(moduleId: 1, moduleName: "Swift əsasları", totalScore: 86, maxScore: 100),
+                ModuleScore(moduleId: 2, moduleName: "SwiftUI və UI", totalScore: 78, maxScore: 100)
+            ],
+            averageScore: 82,
+            overallScore: 82
+        )
+    }
+
+    func fetchModuleGrades(moduleId: Int) async throws -> ModuleGrades {
+        ModuleGrades(
+            module: .init(id: moduleId, name: "Swift əsasları"),
+            grades: [
+                .init(category: "Homework", score: 28, maxScore: 35),
+                .init(category: "Project", score: 36, maxScore: 40)
+            ],
+            totalScore: 64,
+            maxScore: 75
+        )
+    }
+
+    func fetchAttendance() async throws -> AttendanceSummary {
+        AttendanceSummary(
+            records: [
+                AttendanceRecord(id: 1, date: "2026-10-09", status: .present, note: nil),
+                AttendanceRecord(id: 2, date: "2026-10-07", status: .late, note: nil)
+            ],
+            totalDays: 2,
+            presentDays: 2,
+            attendancePercentage: 100
+        )
+    }
+
+    func fetchSchedule() async throws -> [ScheduleLesson] {
+        let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date()
+
+        return [
+            ScheduleLesson(id: 1, title: "SwiftUI layout", date: DateFormatting.apiString(from: tomorrow),
+                           startsAt: "19:00", endsAt: "21:00", room: "402", description: nil)
+        ]
+    }
+
+    func fetchAnnouncements() async throws -> [Announcement] {
+        [
+            Announcement(id: 1, title: "Bayram günü dərslər", message: "Dərs olmayacaq.",
+                         target: .students, groupId: nil, groupName: nil, createdAt: "2026-10-10T09:00:00+00:00")
+        ]
     }
 }
 
