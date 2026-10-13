@@ -10,7 +10,7 @@ struct LoginData: Decodable {
     let user: User
 }
 
-struct User: Decodable {
+struct User: Decodable, Equatable {
     let id: Int
     let firstName: String
     let lastName: String

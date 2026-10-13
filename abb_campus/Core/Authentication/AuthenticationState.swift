@@ -1,13 +1,19 @@
 import Foundation
 import Observation
 
+/// A signed-in user together with their access token.
+/// Keeping both in one value makes "a user without a token" impossible.
+struct Session: Equatable {
+    let user: User
+    let token: String
+}
+
 @MainActor
 @Observable
 final class AuthenticationState {
 
     private(set) var selectedRole: UserRole?
-    private(set) var currentUser: User?
-    private(set) var token: String?
+    private(set) var session: Session?
     private(set) var isRestoringSession = true
 
     private let secureStorage: any SecureStorage
@@ -27,7 +33,15 @@ final class AuthenticationState {
     }
 
     var isAuthenticated: Bool {
-        currentUser != nil && token != nil
+        session != nil
+    }
+
+    var currentUser: User? {
+        session?.user
+    }
+
+    var token: String? {
+        session?.token
     }
 
     func selectRole(_ role: UserRole) {
@@ -45,8 +59,7 @@ final class AuthenticationState {
             for: tokenAccount
         )
 
-        currentUser = user
-        self.token = token
+        session = Session(user: user, token: token)
         tokenStore.token = token
     }
 
@@ -75,8 +88,7 @@ final class AuthenticationState {
                 token: savedToken
             )
 
-            currentUser = user
-            token = savedToken
+            session = Session(user: user, token: savedToken)
             tokenStore.token = savedToken
 
         } catch {
@@ -98,8 +110,7 @@ final class AuthenticationState {
         )
 
         selectedRole = nil
-        currentUser = nil
-        token = nil
+        session = nil
         tokenStore.token = nil
     }
 }

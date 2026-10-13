@@ -35,8 +35,8 @@ struct AuthenticationStateTests {
 
         await sut.restoreSession()
 
+        #expect(sut.session == Session(user: .stub(firstName: "Aysel"), token: "saved-token"))
         #expect(sut.isAuthenticated)
-        #expect(sut.token == "saved-token")
         #expect(sut.currentUser?.firstName == "Aysel")
         #expect(authService.meTokens == ["saved-token"])
     }
@@ -62,7 +62,8 @@ struct AuthenticationStateTests {
 
         await sut.logout()
 
-        #expect(sut.isAuthenticated == false)
+        #expect(sut.session == nil)
+        #expect(sut.token == nil)
         #expect(sut.selectedRole == nil)
         #expect(secureStorage.storage.isEmpty)
     }

@@ -8,11 +8,8 @@ struct RootView: View {
         Group {
             if authenticationState.isRestoringSession {
                 LaunchLoadingView()
-
-            } else if let user = authenticationState.currentUser,
-                      authenticationState.isAuthenticated {
-                authenticatedView(for: user.role)
-
+            } else if let session = authenticationState.session {
+                authenticatedView(for: session.user.role)
             } else {
                 NavigationStack {
                     AuthenticationView()
@@ -30,10 +27,8 @@ struct RootView: View {
         switch role {
         case .student:
             StudentTabView()
-
         case .employee:
             EmployeeTabView()
-
         case .teacher:
             ComingSoonView(
                 viewModel: ProfileViewModel(
