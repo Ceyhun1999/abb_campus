@@ -36,7 +36,9 @@ extension XCUIApplication {
             if savePasswordPrompt.exists {
                 savePasswordPrompt.buttons.element(boundBy: 0).tap()
             } else if element.exists && element.isHittable {
-                element.tap()
+                // A coordinate tap never fails the test: if the prompt
+                // appears in between, the loop simply tries again.
+                element.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
 
                 if target.waitForExistence(timeout: 3) {
                     return true
