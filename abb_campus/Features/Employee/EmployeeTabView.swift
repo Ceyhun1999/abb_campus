@@ -35,7 +35,8 @@ struct EmployeeTabView: View {
             NavigationStack {
                 GroupsListView(
                     viewModel: GroupsListViewModel(
-                        groupService: dependencies.groupService
+                        groupService: dependencies.groupService,
+                        teacherService: dependencies.teacherService
                     )
                 )
                 .employeeDestinations()
@@ -47,7 +48,8 @@ struct EmployeeTabView: View {
             NavigationStack {
                 AnnouncementsListView(
                     viewModel: AnnouncementsListViewModel(
-                        announcementService: dependencies.announcementService
+                        announcementService: dependencies.announcementService,
+                        groupService: dependencies.groupService
                     )
                 )
                 .employeeDestinations()

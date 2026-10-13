@@ -2,8 +2,6 @@ import SwiftUI
 
 struct AnnouncementsListView: View {
 
-    @Environment(\.dependencies) private var dependencies
-
     @State private var viewModel: AnnouncementsListViewModel
 
     init(viewModel: AnnouncementsListViewModel) {
@@ -45,14 +43,11 @@ struct AnnouncementsListView: View {
             }
         }
         .sheet(isPresented: $viewModel.isCreatePresented) {
-            NewAnnouncementView(
-                viewModel: NewAnnouncementViewModel(
-                    announcementService: dependencies.announcementService,
-                    groupService: dependencies.groupService
-                )
-            ) {
-                Task {
-                    await viewModel.announcementCreated()
+            if let newAnnouncementViewModel = viewModel.newAnnouncementViewModel {
+                NewAnnouncementView(viewModel: newAnnouncementViewModel) {
+                    Task {
+                        await viewModel.announcementCreated()
+                    }
                 }
             }
         }

@@ -7,11 +7,14 @@ final class AnnouncementsListViewModel {
 
     var isCreatePresented = false
     private(set) var state: ViewState<[Announcement]> = .idle
+    private(set) var newAnnouncementViewModel: NewAnnouncementViewModel?
 
     private let announcementService: any AnnouncementService
+    private let groupService: any GroupService
 
-    init(announcementService: any AnnouncementService) {
+    init(announcementService: any AnnouncementService, groupService: any GroupService) {
         self.announcementService = announcementService
+        self.groupService = groupService
     }
 
     func load() async {
@@ -27,11 +30,16 @@ final class AnnouncementsListViewModel {
     }
 
     func showCreate() {
+        newAnnouncementViewModel = NewAnnouncementViewModel(
+            announcementService: announcementService,
+            groupService: groupService
+        )
         isCreatePresented = true
     }
 
     func announcementCreated() async {
         isCreatePresented = false
+        newAnnouncementViewModel = nil
         await load()
     }
 }

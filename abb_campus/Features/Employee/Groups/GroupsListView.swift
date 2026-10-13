@@ -2,8 +2,6 @@ import SwiftUI
 
 struct GroupsListView: View {
 
-    @Environment(\.dependencies) private var dependencies
-
     @State private var viewModel: GroupsListViewModel
 
     init(viewModel: GroupsListViewModel) {
@@ -52,14 +50,11 @@ struct GroupsListView: View {
             }
         }
         .sheet(isPresented: $viewModel.isCreateGroupPresented) {
-            CreateGroupView(
-                viewModel: CreateGroupViewModel(
-                    groupService: dependencies.groupService,
-                    teacherService: dependencies.teacherService
-                )
-            ) {
-                Task {
-                    await viewModel.groupCreated()
+            if let createGroupViewModel = viewModel.createGroupViewModel {
+                CreateGroupView(viewModel: createGroupViewModel) {
+                    Task {
+                        await viewModel.groupCreated()
+                    }
                 }
             }
         }
