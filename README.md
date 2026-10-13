@@ -17,12 +17,19 @@ The app works with a Laravel REST API (`https://campus.jeywastudio.com/api`).
 | <img src="docs/screenshots/6-employee-home-light.png" width="180"> | <img src="docs/screenshots/7-employee-students-light.png" width="180"> | <img src="docs/screenshots/8-employee-group-light.png" width="180"> | <img src="docs/screenshots/9-employee-import-light.png" width="180"> |
 | <img src="docs/screenshots/6-employee-home-dark.png" width="180"> | <img src="docs/screenshots/7-employee-students-dark.png" width="180"> | <img src="docs/screenshots/8-employee-group-dark.png" width="180"> | <img src="docs/screenshots/9-employee-import-dark.png" width="180"> |
 
-### Sign in and student
+### Student
 
-| Role selection | Login | Forgot password | Home | Profile |
-| --- | --- | --- | --- | --- |
-| <img src="docs/screenshots/1-roles-light.png" width="160"> | <img src="docs/screenshots/2-login-light.png" width="160"> | <img src="docs/screenshots/3-forgot-light.png" width="160"> | <img src="docs/screenshots/4-home-light.png" width="160"> | <img src="docs/screenshots/5-profile-light.png" width="160"> |
-| <img src="docs/screenshots/1-roles-dark.png" width="160"> | <img src="docs/screenshots/2-login-dark.png" width="160"> | <img src="docs/screenshots/3-forgot-dark.png" width="160"> | <img src="docs/screenshots/4-home-dark.png" width="160"> | <img src="docs/screenshots/5-profile-dark.png" width="160"> |
+| Home | Grades | Module | Schedule | Attendance | Notifications |
+| --- | --- | --- | --- | --- | --- |
+| <img src="docs/screenshots/10-student-home-light.png" width="140"> | <img src="docs/screenshots/12-student-grades-light.png" width="140"> | <img src="docs/screenshots/13-student-module-light.png" width="140"> | <img src="docs/screenshots/14-student-schedule-light.png" width="140"> | <img src="docs/screenshots/11-student-attendance-light.png" width="140"> | <img src="docs/screenshots/15-student-notifications-light.png" width="140"> |
+| <img src="docs/screenshots/10-student-home-dark.png" width="140"> | <img src="docs/screenshots/12-student-grades-dark.png" width="140"> | <img src="docs/screenshots/13-student-module-dark.png" width="140"> | <img src="docs/screenshots/14-student-schedule-dark.png" width="140"> | <img src="docs/screenshots/11-student-attendance-dark.png" width="140"> | <img src="docs/screenshots/15-student-notifications-dark.png" width="140"> |
+
+### Sign in
+
+| Role selection | Login | Forgot password | Profile |
+| --- | --- | --- | --- |
+| <img src="docs/screenshots/1-roles-light.png" width="160"> | <img src="docs/screenshots/2-login-light.png" width="160"> | <img src="docs/screenshots/3-forgot-light.png" width="160"> | <img src="docs/screenshots/5-profile-light.png" width="160"> |
+| <img src="docs/screenshots/1-roles-dark.png" width="160"> | <img src="docs/screenshots/2-login-dark.png" width="160"> | <img src="docs/screenshots/3-forgot-dark.png" width="160"> | <img src="docs/screenshots/5-profile-dark.png" width="160"> |
 
 ## Features
 
@@ -30,7 +37,10 @@ The app works with a Laravel REST API (`https://campus.jeywastudio.com/api`).
 - **Login.** Validation runs in the view model, server errors come back in Azerbaijani, and the last used email is remembered.
 - **Forgot password.** A sheet with three steps: email → 6-digit code → new password.
 - **Session persistence.** The token is stored in the Keychain and restored on launch through `/auth/me`. Expired tokens are removed.
-- **Student area.** A `TabView` with Home, Grades, Schedule, Notifications and Profile tabs.
+- **Student home.** Shows the next lesson from the schedule, the average score, attendance and the latest announcements, all loaded in parallel with `async let`. The attendance card opens the full attendance history.
+- **Grades (student).** Shows the average and overall score, a progress bar for each module, and the category breakdown of a module (Homework, Final, Project…).
+- **Schedule (student).** Upcoming or past lessons grouped by day, with time and room.
+- **Notifications (student).** Announcements for all students and for the student's own group.
 - **Profile.** Shows the user's details and signs out (with confirmation) through `/auth/logout`.
 - **Employee dashboard.** Shows the number of students, teachers, groups and announcements, plus the latest announcements.
 - **Students (employee).** Search by name, email or group, filter by All / Active / Inactive, open details, and activate or deactivate an account.
@@ -86,8 +96,8 @@ abb_campusUITests/  # UI tests
 
 ## Tests
 
-- **Unit tests** (`abb_campusTests`, 60 tests) cover the auth view models (`LoginViewModel`, `ForgotPasswordViewModel`, `RoleSelectionViewModel`), `ProfileViewModel`, `StudentHomeViewModel`, all employee view models (dashboard, students list and detail, group detail, create group, Excel import, new announcement), `AuthenticationState`, `ValidationHelper` and request building for `EmployeeEndpoint`. They check both success and error cases. Every service is replaced by a mock through its protocol, so the tests never call the real API.
-- **UI tests** (`abb_campusUITests`) cover the login flow (role selection, the validation error, the wrong password error, a successful login → home → logout, and opening the forgot password sheet) and the employee flow (dashboard → students → Inactive filter → student details, and group → import screen). The app starts with `-ui-testing`, so the tests use stub services.
+- **Unit tests** (`abb_campusTests`, 72 tests) cover the auth view models (`LoginViewModel`, `ForgotPasswordViewModel`, `RoleSelectionViewModel`), `ProfileViewModel`, all student view models (home with next-lesson selection, grades, module grades, schedule grouping, attendance, notifications), all employee view models (dashboard, students list and detail, group detail, create group, Excel import, new announcement), `AuthenticationState`, `ValidationHelper` and request building for `EmployeeEndpoint`. They check both success and error cases. Every service is replaced by a mock through its protocol, so the tests never call the real API.
+- **UI tests** (`abb_campusUITests`) cover the login flow (role selection, the validation error, the wrong password error, a successful login → home → logout, and opening the forgot password sheet) the student flow (home → attendance, grades → module details) and the employee flow (dashboard → students → Inactive filter → student details, and group → import screen). The app starts with `-ui-testing`, so the tests use stub services.
 
 Run all tests from the terminal:
 
@@ -123,4 +133,4 @@ To try the Excel import, drag [`docs/demo/telebeler.xlsx`](docs/demo/telebeler.x
 
 ## Backend
 
-The app talks to a Laravel 12 REST API. For the employee screens these endpoints were added: `GET /employee/dashboard`, `GET /students`, `GET /students/{id}`, `GET /teachers`, `GET /teachers/{id}` and `PATCH /users/{id}/status`, plus search on `GET /groups`. They are covered by PHPUnit feature tests.
+The app talks to a Laravel 12 REST API. For the employee screens these endpoints were added: `GET /employee/dashboard`, `GET /students`, `GET /students/{id}`, `GET /teachers`, `GET /teachers/{id}` and `PATCH /users/{id}/status`, plus search on `GET /groups`. While building the student screens, three existing backend bugs were fixed: attendance was always 0%, ungraded modules lowered the average, and the group students list returned a 500 error. Everything is covered by PHPUnit feature tests (28 tests).
