@@ -18,6 +18,29 @@ struct EmployeeFormViewModelTests {
         #expect(sut.selectedCourseId == 7)
     }
 
+    @Test("Loaded options are not reloaded when the form appears again")
+    func createGroupOptionsLoadedOnce() async {
+        let groupService = MockGroupService()
+        let sut = CreateGroupViewModel(groupService: groupService, teacherService: MockTeacherService())
+        await sut.loadOptions()
+
+        groupService.coursesResult = .failure(NetworkError.noConnection)
+        await sut.loadOptions()
+
+        #expect(sut.options.value?.courses.count == 1)
+    }
+
+    @Test("A cancelled request is not shown as an error")
+    func createGroupOptionsCancelled() async {
+        let groupService = MockGroupService()
+        groupService.coursesResult = .failure(CancellationError())
+        let sut = CreateGroupViewModel(groupService: groupService, teacherService: MockTeacherService())
+
+        await sut.loadOptions()
+
+        #expect(sut.options == .idle)
+    }
+
     @Test("Group name is required")
     func createGroupEmptyName() async {
         let service = MockGroupService()

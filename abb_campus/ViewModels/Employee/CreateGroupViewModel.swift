@@ -30,6 +30,10 @@ final class CreateGroupViewModel {
     }
 
     func loadOptions() async {
+        guard options.value == nil else {
+            return
+        }
+
         options = .loading
 
         do {
@@ -42,6 +46,8 @@ final class CreateGroupViewModel {
             if selectedCourseId == nil {
                 selectedCourseId = loaded.courses.first?.id
             }
+        } catch is CancellationError {
+            options = .idle
         } catch {
             options = .failed(error.localizedDescription)
         }

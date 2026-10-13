@@ -70,6 +70,9 @@ final class DefaultNetworkService: NetworkService {
         } catch let networkError as NetworkError {
             throw networkError
 
+        } catch let urlError as URLError where urlError.code == .cancelled {
+            throw CancellationError()
+
         } catch let urlError as URLError
                     where urlError.code == .notConnectedToInternet ||
                           urlError.code == .networkConnectionLost {

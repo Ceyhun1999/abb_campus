@@ -64,6 +64,7 @@ struct CreateGroupView: View {
                         Text(course.name).tag(Optional(course.id))
                     }
                 }
+                .pickerStyle(.navigationLink)
 
                 Picker("Müəllim", selection: $viewModel.selectedTeacherId) {
                     Text("Təyin edilməyib").tag(Int?.none)
@@ -72,6 +73,7 @@ struct CreateGroupView: View {
                         Text(teacher.fullName).tag(Optional(teacher.id))
                     }
                 }
+                .pickerStyle(.navigationLink)
             }
 
             Section("Müddət") {
