@@ -111,7 +111,7 @@ final class UITestingDirectory: EmployeeDashboardService, StudentDirectoryServic
                          group: .init(id: 1, name: "IOS-01"), createdAt: "2026-09-15T10:00:00+00:00")
     ]
 
-    private let teachers = [
+    private var teachers = [
         Teacher(id: 21, firstName: "Kamal", lastName: "Əliyev", email: "kamal@abb.local",
                 phone: "+994 50 987 65 43", specialty: "Mobile Development iOS", position: .teacher, isActive: true,
                 groupsCount: 1, groups: nil)
@@ -171,6 +171,7 @@ final class UITestingDirectory: EmployeeDashboardService, StudentDirectoryServic
 
     func setStatus(userId: Int, isActive: Bool) async throws {
         guard let index = students.firstIndex(where: { $0.id == userId }) else {
+            teachers = teachers.map { $0.id == userId ? $0.withStatus(isActive) : $0 }
             return
         }
 

@@ -51,4 +51,12 @@ struct Teacher: Decodable, Identifiable, Hashable {
     var positionTitle: String {
         position?.title ?? TeacherPosition.teacher.title
     }
+
+    func withStatus(_ isActive: Bool) -> Teacher {
+        Teacher(
+            id: id, firstName: firstName, lastName: lastName, email: email, phone: phone,
+            specialty: specialty, position: position, isActive: isActive,
+            groupsCount: groupsCount, groups: groups
+        )
+    }
 }

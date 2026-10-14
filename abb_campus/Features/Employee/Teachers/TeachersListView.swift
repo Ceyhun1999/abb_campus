@@ -116,6 +116,16 @@ struct TeachersListView: View {
                                     .foregroundStyle(.textPrimary)
 
                                 PositionBadge(position: teacher.position ?? .teacher)
+
+                                if !teacher.isActive {
+                                    Text("Deaktiv")
+                                        .font(.manropeSemiBold(11))
+                                        .foregroundStyle(.red)
+                                        .padding(.horizontal, 8)
+                                        .padding(.vertical, 3)
+                                        .background(Color.red.opacity(0.12))
+                                        .clipShape(Capsule())
+                                }
                             }
 
                             Text(teacher.specialty ?? "İxtisas qeyd edilməyib")

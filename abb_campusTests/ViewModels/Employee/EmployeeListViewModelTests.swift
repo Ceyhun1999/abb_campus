@@ -250,4 +250,35 @@ struct EmployeeListViewModelTests {
 
         #expect(teacherService.teacherQueries.count == 3)
     }
+
+    // MARK: - Teacher status
+
+    @Test("Deactivating a teacher updates the status")
+    func deactivateTeacher() async {
+        let service = MockTeacherService()
+        let sut = TeacherDetailViewModel(teacher: .stub(id: 21), teacherService: service)
+        #expect(sut.statusActionTitle == "Deaktiv et")
+
+        sut.requestStatusChange()
+        #expect(sut.isStatusConfirmationPresented)
+
+        await sut.toggleStatus()
+
+        #expect(service.statusChanges.first?.userId == 21)
+        #expect(service.statusChanges.first?.isActive == false)
+        #expect(sut.state.value?.isActive == false)
+        #expect(sut.statusActionTitle == "Aktiv et")
+    }
+
+    @Test("A failed status change keeps the teacher active and shows the error")
+    func deactivateTeacherFailure() async {
+        let service = MockTeacherService()
+        service.setStatusError = NetworkError.noConnection
+        let sut = TeacherDetailViewModel(teacher: .stub(id: 21), teacherService: service)
+
+        await sut.toggleStatus()
+
+        #expect(sut.state.value?.isActive == true)
+        #expect(sut.actionErrorMessage != nil)
+    }
 }

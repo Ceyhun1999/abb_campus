@@ -3,6 +3,7 @@ import Foundation
 protocol TeacherService {
     func fetchTeachers(search: String, position: TeacherPositionFilter, specialty: String?) async throws -> [Teacher]
     func fetchTeacher(id: Int) async throws -> Teacher
+    func setStatus(userId: Int, isActive: Bool) async throws
 }
 
 final class DefaultTeacherService: TeacherService {
@@ -27,5 +28,11 @@ final class DefaultTeacherService: TeacherService {
         )
 
         return response.data
+    }
+
+    func setStatus(userId: Int, isActive: Bool) async throws {
+        let _: MessageResponse = try await networkService.request(
+            EmployeeEndpoint.setUserStatus(userId: userId, isActive: isActive)
+        )
     }
 }

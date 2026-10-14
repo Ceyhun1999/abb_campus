@@ -61,6 +61,17 @@ final class MockTeacherService: TeacherService {
     func fetchTeacher(id: Int) async throws -> Teacher {
         try teachersResult.get()[0]
     }
+
+    var setStatusError: Error?
+    private(set) var statusChanges: [(userId: Int, isActive: Bool)] = []
+
+    func setStatus(userId: Int, isActive: Bool) async throws {
+        statusChanges.append((userId, isActive))
+
+        if let setStatusError {
+            throw setStatusError
+        }
+    }
 }
 
 final class MockGroupService: GroupService {

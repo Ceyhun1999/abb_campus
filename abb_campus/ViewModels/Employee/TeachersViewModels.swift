@@ -106,7 +106,10 @@ final class TeachersListViewModel {
 @Observable
 final class TeacherDetailViewModel {
 
+    var isStatusConfirmationPresented = false
     private(set) var state: ViewState<Teacher>
+    private(set) var isUpdatingStatus = false
+    private(set) var actionErrorMessage: String?
 
     private let teacherId: Int
     private let teacherService: any TeacherService
@@ -124,6 +127,46 @@ final class TeacherDetailViewModel {
             if state.value == nil {
                 state = .failed(error.localizedDescription)
             }
+        }
+    }
+
+    // MARK: - Status
+
+    var statusActionTitle: String {
+        state.value?.isActive == true ? "Deaktiv et" : "Aktiv et"
+    }
+
+    var statusConfirmationTitle: String {
+        state.value?.isActive == true
+            ? "Müəllim hesabı deaktiv edilsin? Müəllim tətbiqə daxil ola bilməyəcək."
+            : "Müəllim hesabı yenidən aktiv edilsin?"
+    }
+
+    func requestStatusChange() {
+        isStatusConfirmationPresented = true
+    }
+
+    func dismissError() {
+        actionErrorMessage = nil
+    }
+
+    func toggleStatus() async {
+        guard !isUpdatingStatus, let teacher = state.value else {
+            return
+        }
+
+        actionErrorMessage = nil
+        isUpdatingStatus = true
+
+        defer {
+            isUpdatingStatus = false
+        }
+
+        do {
+            try await teacherService.setStatus(userId: teacher.id, isActive: !teacher.isActive)
+            state = .loaded(teacher.withStatus(!teacher.isActive))
+        } catch {
+            actionErrorMessage = error.localizedDescription
         }
     }
 }

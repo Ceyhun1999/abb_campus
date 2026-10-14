@@ -9,6 +9,8 @@ struct TeacherDetailView: View {
     }
 
     var body: some View {
+        @Bindable var viewModel = viewModel
+
         AsyncContentView(state: viewModel.state, retry: viewModel.load) { teacher in
             ScrollView {
                 VStack(spacing: 20) {
@@ -30,9 +32,17 @@ struct TeacherDetailView: View {
                         InfoRow(icon: "phone", title: "Telefon", value: teacher.phone ?? "—")
                         InfoDivider()
                         InfoRow(icon: "graduationcap", title: "İxtisas", value: teacher.specialty ?? "—")
+                        InfoDivider()
+                        InfoRow(
+                            icon: teacher.isActive ? "checkmark.circle" : "xmark.circle",
+                            title: "Status",
+                            value: teacher.isActive ? "Aktiv" : "Deaktiv"
+                        )
                     }
 
                     groupsSection(teacher.groups ?? [])
+
+                    statusButton(teacher)
                 }
                 .padding(.horizontal, AppLayout.horizontalPadding)
                 .padding(.vertical, 20)
@@ -40,10 +50,63 @@ struct TeacherDetailView: View {
         }
         .background(.appBackground)
         .navigationBarTitleDisplayMode(.inline)
+        .errorAlert(viewModel.actionErrorMessage, onDismiss: viewModel.dismissError)
+        .confirmationDialog(
+            viewModel.statusConfirmationTitle,
+            isPresented: $viewModel.isStatusConfirmationPresented,
+            titleVisibility: .visible
+        ) {
+            Button(viewModel.statusActionTitle, role: .destructive) {
+                Task {
+                    await viewModel.toggleStatus()
+                }
+            }
+
+            Button("Ləğv et", role: .cancel) {}
+        }
         .task {
             await viewModel.load()
         }
     }
+
+    // MARK: - Status
+
+    @ViewBuilder
+    private func statusButton(_ teacher: Teacher) -> some View {
+        if teacher.isActive {
+            Button {
+                viewModel.requestStatusChange()
+            } label: {
+                Group {
+                    if viewModel.isUpdatingStatus {
+                        ProgressView()
+                    } else {
+                        Text(viewModel.statusActionTitle)
+                            .font(.manropeSemiBold(17))
+                    }
+                }
+                .foregroundStyle(.red)
+                .frame(maxWidth: .infinity)
+                .frame(height: 56)
+                .background(Color.red.opacity(0.1))
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+            }
+            .buttonStyle(.plain)
+            .disabled(viewModel.isUpdatingStatus)
+            .accessibilityIdentifier("teacher_status_button")
+        } else {
+            PrimaryButton(
+                title: viewModel.statusActionTitle,
+                isLoading: viewModel.isUpdatingStatus
+            ) {
+                viewModel.requestStatusChange()
+            }
+            .accessibilityIdentifier("teacher_status_button")
+        }
+    }
+
+    // MARK: - Groups
+
 
     @ViewBuilder
     private func groupsSection(_ groups: [StudyGroup]) -> some View {
