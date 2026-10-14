@@ -31,6 +31,10 @@ final class ForgotPasswordViewModel {
         self.passwordResetService = passwordResetService
     }
 
+    func dismissError() {
+        errorMessage = nil
+    }
+
     func submit() async {
         switch step {
         case .email:

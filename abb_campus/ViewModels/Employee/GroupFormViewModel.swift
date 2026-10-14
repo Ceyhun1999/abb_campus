@@ -52,6 +52,10 @@ final class GroupFormViewModel {
         }
     }
 
+    func dismissError() {
+        errorMessage = nil
+    }
+
     var isEditing: Bool {
         editingGroup != nil
     }

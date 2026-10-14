@@ -55,6 +55,10 @@ final class StudentImportViewModel {
         self.fileLoader = fileLoader
     }
 
+    func dismissError() {
+        errorMessage = nil
+    }
+
     var canImport: Bool {
         selectedFile != nil && !result.isLoading
     }

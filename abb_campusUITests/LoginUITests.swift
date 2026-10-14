@@ -26,9 +26,10 @@ final class LoginUITests: XCTestCase {
 
         app.buttons["login_button"].tap()
 
-        let error = app.staticTexts["login_error"]
-        XCTAssertTrue(error.waitForExistence(timeout: uiTimeout))
-        XCTAssertEqual(error.label, "E-poçtu daxil edin.")
+        let alert = app.alerts["Xəta"]
+        XCTAssertTrue(alert.waitForExistence(timeout: uiTimeout))
+        XCTAssertTrue(alert.staticTexts["E-poçtu daxil edin."].exists)
+        alert.buttons["Bağla"].tap()
     }
 
     func testWrongPasswordShowsServerError() {
@@ -37,9 +38,10 @@ final class LoginUITests: XCTestCase {
         app.fillCredentials(email: "student@abb.local", password: "WrongPass1")
         app.buttons["login_button"].tap()
 
-        let error = app.staticTexts["login_error"]
-        XCTAssertTrue(error.waitForExistence(timeout: uiTimeout))
-        XCTAssertEqual(error.label, "Bu məlumatlarla hesab tapılmadı.")
+        let alert = app.alerts["Xəta"]
+        XCTAssertTrue(alert.waitForExistence(timeout: uiTimeout))
+        XCTAssertTrue(alert.staticTexts["Bu məlumatlarla hesab tapılmadı."].exists)
+        alert.buttons["Bağla"].tap()
     }
 
     func testSuccessfulLoginOpensStudentHomeAndLogoutReturnsToRoles() {

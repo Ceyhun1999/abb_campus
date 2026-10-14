@@ -18,6 +18,7 @@ struct GroupFormView: View {
             AsyncContentView(state: viewModel.options, retry: viewModel.loadOptions) { options in
                 form(options)
             }
+            .errorAlert(viewModel.errorMessage, onDismiss: viewModel.dismissError)
             .navigationTitle(viewModel.title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -91,12 +92,6 @@ struct GroupFormView: View {
             if viewModel.isEditing {
                 Section("Status") {
                     Toggle("Aktiv qrup", isOn: $viewModel.isActive)
-                }
-            }
-
-            if let errorMessage = viewModel.errorMessage {
-                Section {
-                    ErrorMessageText(message: errorMessage, accessibilityID: "group_form_error")
                 }
             }
         }

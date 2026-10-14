@@ -22,6 +22,10 @@ final class StudentDetailViewModel {
         self.studentService = studentService
     }
 
+    func dismissError() {
+        actionErrorMessage = nil
+    }
+
     var statusActionTitle: String {
         state.value?.isActive == true ? "Deaktiv et" : "Aktiv et"
     }

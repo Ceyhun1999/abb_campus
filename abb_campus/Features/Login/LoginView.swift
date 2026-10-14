@@ -49,12 +49,6 @@ private struct LoginContentView: View {
                     loginFieldsView
                         .padding(.top, 36)
 
-                    ErrorMessageText(
-                        message: viewModel.errorMessage,
-                        accessibilityID: "login_error"
-                    )
-                    .padding(.top, 8)
-
                     forgotPasswordButton
                         .padding(.top, 14)
 
@@ -75,6 +69,7 @@ private struct LoginContentView: View {
             }
             .scrollDismissesKeyboard(.interactively)
         }
+        .errorAlert(viewModel.errorMessage, onDismiss: viewModel.dismissError)
         .sheet(isPresented: $viewModel.isForgotPasswordPresented) {
             ForgotPasswordView(
                 viewModel: ForgotPasswordViewModel(

@@ -18,11 +18,6 @@ struct ForgotPasswordView: View {
 
                     stepContent
 
-                    ErrorMessageText(
-                        message: viewModel.errorMessage,
-                        accessibilityID: "forgot_password_error"
-                    )
-
                     PrimaryButton(
                         title: viewModel.step.buttonTitle,
                         isLoading: viewModel.isLoading
@@ -42,6 +37,7 @@ struct ForgotPasswordView: View {
                 .animation(.default, value: viewModel.step)
             }
             .scrollDismissesKeyboard(.interactively)
+            .errorAlert(viewModel.errorMessage, onDismiss: viewModel.dismissError)
             .navigationTitle("Şifrənin bərpası")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

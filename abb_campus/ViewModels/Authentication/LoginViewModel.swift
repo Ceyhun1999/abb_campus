@@ -27,6 +27,10 @@ final class LoginViewModel {
             .flatMap { preferences.lastLoginEmail(for: $0) } ?? ""
     }
 
+    func dismissError() {
+        errorMessage = nil
+    }
+
     var selectedRole: UserRole? {
         authenticationState.selectedRole
     }

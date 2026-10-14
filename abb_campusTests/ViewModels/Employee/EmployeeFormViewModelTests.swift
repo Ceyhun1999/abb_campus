@@ -107,6 +107,18 @@ struct EmployeeFormViewModelTests {
         #expect(sut.selectedTeacherId == nil)
     }
 
+    @Test("Closing the error alert clears the message")
+    func dismissGroupFormError() async {
+        let sut = GroupFormViewModel(groupService: MockGroupService(), teacherService: MockTeacherService())
+        await sut.loadOptions()
+        _ = await sut.save()
+        #expect(sut.errorMessage == ValidationMessage.emptyGroupName)
+
+        sut.dismissError()
+
+        #expect(sut.errorMessage == nil)
+    }
+
     @Test("Group name is required")
     func createGroupEmptyName() async {
         let service = MockGroupService()

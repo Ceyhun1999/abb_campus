@@ -30,11 +30,6 @@ struct StudentDetailView: View {
                         )
                     }
 
-                    ErrorMessageText(
-                        message: viewModel.actionErrorMessage,
-                        accessibilityID: "student_status_error"
-                    )
-
                     statusButton(student)
                 }
                 .padding(.horizontal, AppLayout.horizontalPadding)
@@ -46,6 +41,7 @@ struct StudentDetailView: View {
         }
         .background(.appBackground)
         .navigationBarTitleDisplayMode(.inline)
+        .errorAlert(viewModel.actionErrorMessage, onDismiss: viewModel.dismissError)
         .confirmationDialog(
             viewModel.statusConfirmationTitle,
             isPresented: $viewModel.isStatusConfirmationPresented,

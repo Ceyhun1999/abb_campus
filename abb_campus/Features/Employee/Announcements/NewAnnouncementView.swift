@@ -45,13 +45,8 @@ struct NewAnnouncementView: View {
                     Text(viewModel.messageCounter)
                         .frame(maxWidth: .infinity, alignment: .trailing)
                 }
-
-                if let errorMessage = viewModel.errorMessage {
-                    Section {
-                        ErrorMessageText(message: errorMessage, accessibilityID: "announcement_error")
-                    }
-                }
             }
+            .errorAlert(viewModel.errorMessage, onDismiss: viewModel.dismissError)
             .navigationTitle("Yeni elan")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

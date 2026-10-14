@@ -30,8 +30,6 @@ struct StudentImportView: View {
                     selectedFileRow(file)
                 }
 
-                ErrorMessageText(message: viewModel.errorMessage, accessibilityID: "import_error")
-
                 PrimaryButton(
                     title: "Tələbələri idxal et",
                     isLoading: viewModel.result.isLoading
@@ -52,6 +50,7 @@ struct StudentImportView: View {
             .padding(.vertical, 20)
         }
         .background(.appBackground)
+        .errorAlert(viewModel.errorMessage, onDismiss: viewModel.dismissError)
         .navigationTitle("Tələbə importu")
         .navigationBarTitleDisplayMode(.inline)
         .fileImporter(

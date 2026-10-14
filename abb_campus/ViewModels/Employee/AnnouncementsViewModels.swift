@@ -76,6 +76,10 @@ final class NewAnnouncementViewModel {
         self.groupService = groupService
     }
 
+    func dismissError() {
+        errorMessage = nil
+    }
+
     var messageCounter: String {
         "\(message.count)/\(Self.maxMessageLength)"
     }
