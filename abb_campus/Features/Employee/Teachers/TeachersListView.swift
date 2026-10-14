@@ -139,6 +139,7 @@ struct TeachersListView: View {
                 await viewModel.load()
             }
         }
+        .refreshingIndicator(viewModel.isRefreshing)
     }
 }
 

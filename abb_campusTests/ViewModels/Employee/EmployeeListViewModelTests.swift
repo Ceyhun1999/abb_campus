@@ -192,4 +192,41 @@ struct EmployeeListViewModelTests {
 
         #expect(sut.query != initial)
     }
+
+    @Test("Changing a filter shows loading until new data arrives")
+    func filterChangeShowsLoading() async {
+        let sut = TeachersListViewModel(teacherService: MockTeacherService(), groupService: MockGroupService())
+        await sut.load()
+        #expect(sut.state.value != nil)
+
+        sut.positionFilter = .mentor
+
+        #expect(sut.state.isLoading)
+
+        await sut.load()
+
+        #expect(sut.state.value != nil)
+    }
+
+    @Test("Typing in search keeps the current list")
+    func searchKeepsList() async {
+        let sut = TeachersListViewModel(teacherService: MockTeacherService(), groupService: MockGroupService())
+        await sut.load()
+
+        sut.searchText = "Kam"
+
+        #expect(sut.state.value != nil)
+    }
+
+    @Test("Reloading a loaded list finishes without the refreshing flag")
+    func refreshingFlagResets() async {
+        let sut = TeachersListViewModel(teacherService: MockTeacherService(), groupService: MockGroupService())
+        await sut.load()
+
+        sut.searchText = "Kam"
+        await sut.queryChanged()
+
+        #expect(sut.isRefreshing == false)
+        #expect(sut.state.value != nil)
+    }
 }

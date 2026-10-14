@@ -6,8 +6,15 @@ import Observation
 final class StudentsListViewModel {
 
     var searchText = ""
-    var statusFilter: StudentStatusFilter = .all
+    var statusFilter: StudentStatusFilter = .all {
+        didSet {
+            if statusFilter != oldValue {
+                state = .loading
+            }
+        }
+    }
     private(set) var state: ViewState<[DirectoryStudent]> = .idle
+    private(set) var isRefreshing = false
 
     private let studentService: any StudentDirectoryService
 
@@ -31,11 +38,17 @@ final class StudentsListViewModel {
 
     func queryChanged() async {
         if state.value != nil {
+            isRefreshing = true
+
             do {
                 try await Task.sleep(for: SearchDebounce.delay)
             } catch {
                 return
             }
+        }
+
+        defer {
+            isRefreshing = false
         }
 
         await load()

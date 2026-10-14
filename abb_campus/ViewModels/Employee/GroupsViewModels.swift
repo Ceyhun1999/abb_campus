@@ -8,6 +8,7 @@ final class GroupsListViewModel {
     var searchText = ""
     var isCreateGroupPresented = false
     private(set) var state: ViewState<[StudyGroup]> = .idle
+    private(set) var isRefreshing = false
     private(set) var createGroupViewModel: GroupFormViewModel?
 
     private let groupService: any GroupService
@@ -22,11 +23,17 @@ final class GroupsListViewModel {
 
     func queryChanged() async {
         if state.value != nil {
+            isRefreshing = true
+
             do {
                 try await Task.sleep(for: SearchDebounce.delay)
             } catch {
                 return
             }
+        }
+
+        defer {
+            isRefreshing = false
         }
 
         await load()

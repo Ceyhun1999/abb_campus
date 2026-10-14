@@ -6,10 +6,23 @@ import Observation
 final class TeachersListViewModel {
 
     var searchText = ""
-    var positionFilter: TeacherPositionFilter = .all
-    var specialtyFilter: String?
+    var positionFilter: TeacherPositionFilter = .all {
+        didSet {
+            if positionFilter != oldValue {
+                state = .loading
+            }
+        }
+    }
+    var specialtyFilter: String? {
+        didSet {
+            if specialtyFilter != oldValue {
+                state = .loading
+            }
+        }
+    }
     private(set) var specialties: [String] = []
     private(set) var state: ViewState<[Teacher]> = .idle
+    private(set) var isRefreshing = false
 
     private let teacherService: any TeacherService
     private let groupService: any GroupService
@@ -47,11 +60,17 @@ final class TeachersListViewModel {
 
     func queryChanged() async {
         if state.value != nil {
+            isRefreshing = true
+
             do {
                 try await Task.sleep(for: SearchDebounce.delay)
             } catch {
                 return
             }
+        }
+
+        defer {
+            isRefreshing = false
         }
 
         await load()

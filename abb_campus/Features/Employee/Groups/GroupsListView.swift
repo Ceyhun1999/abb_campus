@@ -36,6 +36,7 @@ struct GroupsListView: View {
                 await viewModel.load()
             }
         }
+        .refreshingIndicator(viewModel.isRefreshing)
         .background(.appBackground)
         .navigationTitle("Qruplar")
         .searchable(text: $viewModel.searchText, prompt: "Qrup adı üzrə axtar")

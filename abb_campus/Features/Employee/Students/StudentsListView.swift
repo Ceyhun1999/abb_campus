@@ -41,6 +41,7 @@ struct StudentsListView: View {
                     await viewModel.load()
                 }
             }
+            .refreshingIndicator(viewModel.isRefreshing)
         }
         .navigationTitle("Tələbələr")
         .searchable(
