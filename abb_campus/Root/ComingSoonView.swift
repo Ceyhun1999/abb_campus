@@ -9,33 +9,26 @@ struct ComingSoonView: View {
     }
 
     var body: some View {
-        VStack(spacing: 20) {
-            IconCircleView(
-                systemName: "hammer.fill",
-                diameter: 110,
-                iconSize: 44
-            )
-
-            Text("Salam, \(viewModel.fullName)!")
-                .font(.manropeBold(24))
-                .multilineTextAlignment(.center)
-
+        ContentUnavailableView {
+            Label("Salam, \(viewModel.fullName)!", systemImage: "hammer.fill")
+        } description: {
             Text("\(viewModel.roleTitle) bölməsi hazırlanır.")
-                .font(.manropeRegular(16))
-                .foregroundStyle(.secondary)
-
-            PrimaryButton(
-                title: "Çıxış et",
-                isLoading: viewModel.isLoggingOut
-            ) {
+        } actions: {
+            Button {
                 Task {
                     await viewModel.logout()
                 }
+            } label: {
+                if viewModel.isLoggingOut {
+                    ProgressView()
+                } else {
+                    Text("Çıxış et")
+                }
             }
-            .padding(.top, 12)
+            .buttonStyle(.borderedProminent)
+            .controlSize(.large)
+            .disabled(viewModel.isLoggingOut)
         }
-        .padding(.horizontal, AppLayout.horizontalPadding)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(.appBackground)
+        .font(.manropeRegular(16))
     }
 }

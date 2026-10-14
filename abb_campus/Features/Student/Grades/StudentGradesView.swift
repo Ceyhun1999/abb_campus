@@ -17,75 +17,57 @@ struct StudentGradesView: View {
             emptyIcon: "chart.bar",
             retry: viewModel.load
         ) { overview in
-            ScrollView {
-                VStack(spacing: 16) {
-                    summaryCard(overview)
+            List {
+                Section {
+                    LabeledContent(
+                        "Orta bal",
+                        value: overview.averageScore.formatted(.number.precision(.fractionLength(0...1)))
+                    )
+                    LabeledContent(
+                        "Ümumi nəticə",
+                        value: "\(overview.overallScore.formatted(.number.precision(.fractionLength(0...1))))%"
+                    )
+                }
 
+                Section("Modullar") {
                     ForEach(overview.modules) { module in
                         NavigationLink(value: module) {
-                            ModuleScoreRow(module: module)
+                            ScoreRow(
+                                title: module.moduleName,
+                                score: module.totalScore,
+                                maxScore: module.maxScore,
+                                tint: .green
+                            )
                         }
-                        .buttonStyle(.plain)
                         .accessibilityIdentifier("module_row_\(module.moduleId)")
                     }
                 }
-                .padding(.horizontal, AppLayout.horizontalPadding)
-                .padding(.vertical, 16)
             }
+            .font(.manropeRegular(16))
             .refreshable {
                 await viewModel.load()
             }
         }
-        .background(.appBackground)
         .navigationTitle("Qiymətlər")
         .task {
             await viewModel.load()
         }
     }
-
-    private func summaryCard(_ overview: GradesOverview) -> some View {
-        HStack(spacing: 12) {
-            SummaryCard(
-                icon: "chart.bar.fill",
-                title: "Orta bal",
-                value: overview.averageScore.formatted(.number.precision(.fractionLength(0...1))),
-                tint: .green
-            )
-
-            SummaryCard(
-                icon: "sum",
-                title: "Ümumi nəticə",
-                value: "\(overview.overallScore.formatted(.number.precision(.fractionLength(0...1))))%"
-            )
-        }
-    }
 }
 
-private struct ModuleScoreRow: View {
+struct ScoreRow: View {
 
-    let module: ModuleScore
+    let title: String
+    let score: Double
+    let maxScore: Double
+    var tint: Color = .blue
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text(module.moduleName)
-                    .font(.manropeSemiBold(16))
-                    .foregroundStyle(.textPrimary)
+        VStack(alignment: .leading, spacing: 8) {
+            LabeledContent(title, value: "\(score.formatted()) / \(maxScore.formatted())")
 
-                Spacer()
-
-                Text("\(module.totalScore.formatted()) / \(module.maxScore.formatted())")
-                    .font(.manropeBold(16))
-                    .foregroundStyle(.textPrimary)
-
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(.secondary)
-            }
-
-            ProgressBar(color: .gradeGreen, progress: module.progress)
+            ProgressView(value: maxScore > 0 ? min(score / maxScore, 1) : 0)
+                .tint(tint)
         }
-        .padding(16)
-        .cardStyle(cornerRadius: 18)
     }
 }

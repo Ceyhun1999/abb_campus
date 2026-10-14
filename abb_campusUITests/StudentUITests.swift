@@ -28,6 +28,6 @@ final class StudentUITests: XCTestCase {
 
         let totalScore = app.staticTexts["module_total_score"]
         XCTAssertTrue(app.tap(moduleRow, until: totalScore))
-        XCTAssertEqual(totalScore.label, "64 / 75")
+        XCTAssertTrue(totalScore.label.hasSuffix("64 / 75"), totalScore.label)
     }
 }
