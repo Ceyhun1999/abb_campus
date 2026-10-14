@@ -141,6 +141,10 @@ final class GroupFormViewModel {
     // MARK: - Save
 
     func save() async -> StudyGroup? {
+        guard !isSaving else {
+            return nil
+        }
+
         let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
 
         guard !trimmedName.isEmpty else {

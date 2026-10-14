@@ -47,6 +47,10 @@ final class ProfileViewModel {
     }
 
     func logout() async {
+        guard !isLoggingOut else {
+            return
+        }
+
         isLoggingOut = true
 
         defer {

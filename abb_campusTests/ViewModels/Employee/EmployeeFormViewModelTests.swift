@@ -181,6 +181,22 @@ struct EmployeeFormViewModelTests {
         ])
     }
 
+    @Test("A second tap while saving does not send the group twice")
+    func doubleTapSavesOnce() async {
+        let service = MockGroupService()
+        service.createDelay = .milliseconds(100)
+        let sut = GroupFormViewModel(groupService: service, teacherService: MockTeacherService())
+        sut.name = "IOS-08"
+        sut.selectedCourseId = 7
+
+        async let first = sut.save()
+        async let second = sut.save()
+        let results = await [first, second]
+
+        #expect(service.createdRequests.count == 1)
+        #expect(results.compactMap { $0 }.count == 1)
+    }
+
     @Test("Server error while creating a group is shown")
     func createGroupFailure() async {
         let service = MockGroupService()

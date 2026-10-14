@@ -36,6 +36,10 @@ final class ForgotPasswordViewModel {
     }
 
     func submit() async {
+        guard !isLoading else {
+            return
+        }
+
         switch step {
         case .email:
             await requestCode()

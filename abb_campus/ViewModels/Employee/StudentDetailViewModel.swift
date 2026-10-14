@@ -51,7 +51,7 @@ final class StudentDetailViewModel {
     }
 
     func toggleStatus() async {
-        guard let student = state.value else {
+        guard !isUpdatingStatus, let student = state.value else {
             return
         }
 

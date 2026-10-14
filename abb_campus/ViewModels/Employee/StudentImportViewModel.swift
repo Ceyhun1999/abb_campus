@@ -90,6 +90,10 @@ final class StudentImportViewModel {
     }
 
     func importStudents() async {
+        guard !result.isLoading else {
+            return
+        }
+
         guard let selectedFile else {
             errorMessage = ValidationMessage.fileNotSelected
             return

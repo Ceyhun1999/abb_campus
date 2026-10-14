@@ -101,6 +101,10 @@ final class NewAnnouncementViewModel {
     // MARK: - Publish
 
     func publish() async -> Announcement? {
+        guard !isSending else {
+            return nil
+        }
+
         let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
         let trimmedMessage = message.trimmingCharacters(in: .whitespacesAndNewlines)
 

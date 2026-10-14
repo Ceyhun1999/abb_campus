@@ -64,6 +64,7 @@ final class MockGroupService: GroupService {
     var studentsResult: Result<[GroupStudent], Error> = .success([])
     var coursesResult: Result<[Course], Error> = .success([Course(id: 7, name: "Mobile Development iOS")])
     var createResult: Result<StudyGroup, Error> = .success(.stub())
+    var createDelay: Duration?
     var importResult: Result<StudentImportResult, Error> = .success(
         StudentImportResult(imported: 5, skipped: 0, errors: [])
     )
@@ -90,6 +91,11 @@ final class MockGroupService: GroupService {
 
     func createGroup(_ request: GroupFormRequest) async throws -> StudyGroup {
         createdRequests.append(request)
+
+        if let createDelay {
+            try await Task.sleep(for: createDelay)
+        }
+
         return try createResult.get()
     }
 
