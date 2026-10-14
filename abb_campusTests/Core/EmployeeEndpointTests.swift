@@ -62,7 +62,7 @@ struct EmployeeEndpointTests {
     @Test("Editing a group is a PATCH that sends an empty teacher as null")
     func updateGroupRequest() throws {
         let form = GroupFormRequest(name: "IOS-05", courseId: 1, teacherId: nil, mentorIds: [3, 4],
-                                    startDate: "2026-09-01", endDate: nil, isActive: false)
+                                    startDate: "2026-09-01", endDate: "2027-03-01", isActive: false)
         let request = try EmployeeEndpoint.updateGroup(id: 5, form).makeRequest()
         let body = try #require(request.httpBody)
         let json = try #require(try JSONSerialization.jsonObject(with: body) as? [String: Any])

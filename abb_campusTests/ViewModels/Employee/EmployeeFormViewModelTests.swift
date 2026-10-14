@@ -94,7 +94,7 @@ struct EmployeeFormViewModelTests {
         #expect(sut.isEditing)
         #expect(sut.name == "IOS-05")
         #expect(sut.selectedTeacherId == 21)
-        #expect(sut.hasEndDate == false)
+        #expect(Calendar.current.dateComponents([.month], from: sut.startDate, to: sut.endDate).month == 6)
 
         sut.toggleMentor(.stub(id: 32))
         sut.isActive = false
@@ -170,14 +170,14 @@ struct EmployeeFormViewModelTests {
         sut.selectedCourseId = 7
         sut.selectedTeacherId = 21
         sut.startDate = try #require(Calendar.current.date(from: DateComponents(year: 2026, month: 11, day: 1)))
-        sut.hasEndDate = false
+        sut.endDate = try #require(Calendar.current.date(from: DateComponents(year: 2027, month: 5, day: 1)))
 
         let group = await sut.save()
 
         #expect(group != nil)
         #expect(service.createdRequests == [
             GroupFormRequest(name: "IOS-03", courseId: 7, teacherId: 21, mentorIds: [],
-                             startDate: "2026-11-01", endDate: nil, isActive: true)
+                             startDate: "2026-11-01", endDate: "2027-05-01", isActive: true)
         ])
     }
 

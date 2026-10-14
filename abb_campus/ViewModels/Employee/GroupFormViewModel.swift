@@ -19,7 +19,6 @@ final class GroupFormViewModel {
     var selectedTeacherId: Int?
     private(set) var selectedMentorIds: Set<Int> = []
     var startDate = Date()
-    var hasEndDate = true
     var endDate = Calendar.current.date(byAdding: .month, value: 6, to: Date()) ?? Date()
     var isActive = true
 
@@ -46,8 +45,9 @@ final class GroupFormViewModel {
             selectedTeacherId = group.teacher?.id
             selectedMentorIds = Set(group.mentors?.map(\.id) ?? [])
             startDate = group.startDate.flatMap(DateFormatting.date(fromAPI:)) ?? Date()
-            hasEndDate = group.endDate != nil
-            endDate = group.endDate.flatMap(DateFormatting.date(fromAPI:)) ?? endDate
+            endDate = group.endDate.flatMap(DateFormatting.date(fromAPI:))
+                ?? Calendar.current.date(byAdding: .month, value: 6, to: startDate)
+                ?? startDate
             isActive = group.isActive
         }
     }
@@ -153,7 +153,7 @@ final class GroupFormViewModel {
             return nil
         }
 
-        guard !hasEndDate || Calendar.current.startOfDay(for: endDate) >= Calendar.current.startOfDay(for: startDate) else {
+        guard Calendar.current.startOfDay(for: endDate) >= Calendar.current.startOfDay(for: startDate) else {
             errorMessage = ValidationMessage.invalidEndDate
             return nil
         }
@@ -171,7 +171,7 @@ final class GroupFormViewModel {
             teacherId: selectedTeacherId,
             mentorIds: selectedMentorIds.sorted(),
             startDate: DateFormatting.apiString(from: startDate),
-            endDate: hasEndDate ? DateFormatting.apiString(from: endDate) : nil,
+            endDate: DateFormatting.apiString(from: endDate),
             isActive: isActive
         )
 

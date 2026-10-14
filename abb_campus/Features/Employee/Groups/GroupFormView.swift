@@ -85,11 +85,7 @@ struct GroupFormView: View {
             Section("Müddət") {
                 DatePicker("Başlama tarixi", selection: $viewModel.startDate, displayedComponents: .date)
 
-                Toggle("Bitmə tarixi var", isOn: $viewModel.hasEndDate)
-
-                if viewModel.hasEndDate {
-                    DatePicker("Bitmə tarixi", selection: $viewModel.endDate, displayedComponents: .date)
-                }
+                DatePicker("Bitmə tarixi", selection: $viewModel.endDate, displayedComponents: .date)
             }
 
             if viewModel.isEditing {
