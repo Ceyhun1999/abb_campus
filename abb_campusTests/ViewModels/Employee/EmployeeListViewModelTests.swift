@@ -229,4 +229,25 @@ struct EmployeeListViewModelTests {
         #expect(sut.isRefreshing == false)
         #expect(sut.state.value != nil)
     }
+
+    @Test("Returning to the list with the same query reloads without the indicator")
+    func sameQueryReloadsQuietly() async throws {
+        let teacherService = MockTeacherService()
+        let sut = TeachersListViewModel(teacherService: teacherService, groupService: MockGroupService())
+        await sut.queryChanged()
+        teacherService.fetchDelay = .milliseconds(300)
+
+        let reload = Task { await sut.queryChanged() }
+        try await Task.sleep(for: .milliseconds(50))
+        #expect(sut.isRefreshing == false)
+        await reload.value
+
+        sut.searchText = "Kam"
+        let search = Task { await sut.queryChanged() }
+        try await Task.sleep(for: .milliseconds(50))
+        #expect(sut.isRefreshing)
+        await search.value
+
+        #expect(teacherService.teacherQueries.count == 3)
+    }
 }

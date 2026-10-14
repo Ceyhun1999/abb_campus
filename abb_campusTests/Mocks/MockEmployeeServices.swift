@@ -46,9 +46,15 @@ final class MockTeacherService: TeacherService {
     var teachersResult: Result<[Teacher], Error> = .success([.stub()])
 
     private(set) var teacherQueries: [(position: TeacherPositionFilter, specialty: String?)] = []
+    var fetchDelay: Duration?
 
     func fetchTeachers(search: String, position: TeacherPositionFilter, specialty: String?) async throws -> [Teacher] {
         teacherQueries.append((position, specialty))
+
+        if let fetchDelay {
+            try await Task.sleep(for: fetchDelay)
+        }
+
         return try teachersResult.get()
     }
 

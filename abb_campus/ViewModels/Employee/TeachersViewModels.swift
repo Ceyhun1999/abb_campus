@@ -23,6 +23,7 @@ final class TeachersListViewModel {
     private(set) var specialties: [String] = []
     private(set) var state: ViewState<[Teacher]> = .idle
     private(set) var isRefreshing = false
+    private var loadedQuery: String?
 
     private let teacherService: any TeacherService
     private let groupService: any GroupService
@@ -59,7 +60,7 @@ final class TeachersListViewModel {
     // MARK: - Search
 
     func queryChanged() async {
-        if state.value != nil {
+        if state.value != nil && query != loadedQuery {
             isRefreshing = true
 
             do {
@@ -81,12 +82,15 @@ final class TeachersListViewModel {
             state = .loading
         }
 
+        let requestedQuery = query
+
         do {
             state = .loaded(try await teacherService.fetchTeachers(
                 search: trimmedSearch,
                 position: positionFilter,
                 specialty: specialtyFilter
             ))
+            loadedQuery = requestedQuery
         } catch is CancellationError {
         } catch {
             state = .failed(error.localizedDescription)

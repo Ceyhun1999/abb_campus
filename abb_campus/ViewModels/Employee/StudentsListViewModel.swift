@@ -15,6 +15,7 @@ final class StudentsListViewModel {
     }
     private(set) var state: ViewState<[DirectoryStudent]> = .idle
     private(set) var isRefreshing = false
+    private var loadedQuery: String?
 
     private let studentService: any StudentDirectoryService
 
@@ -37,7 +38,7 @@ final class StudentsListViewModel {
     // MARK: - Search
 
     func queryChanged() async {
-        if state.value != nil {
+        if state.value != nil && query != loadedQuery {
             isRefreshing = true
 
             do {
@@ -59,12 +60,15 @@ final class StudentsListViewModel {
             state = .loading
         }
 
+        let requestedQuery = query
+
         do {
             let students = try await studentService.fetchStudents(
                 search: trimmedSearch,
                 status: statusFilter
             )
             state = .loaded(students)
+            loadedQuery = requestedQuery
         } catch is CancellationError {
         } catch {
             state = .failed(error.localizedDescription)

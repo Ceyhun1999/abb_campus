@@ -9,6 +9,7 @@ final class GroupsListViewModel {
     var isCreateGroupPresented = false
     private(set) var state: ViewState<[StudyGroup]> = .idle
     private(set) var isRefreshing = false
+    private var loadedQuery: String?
     private(set) var createGroupViewModel: GroupFormViewModel?
 
     private let groupService: any GroupService
@@ -21,8 +22,12 @@ final class GroupsListViewModel {
 
     // MARK: - Search
 
+    private var query: String {
+        searchText.trimmingCharacters(in: .whitespaces)
+    }
+
     func queryChanged() async {
-        if state.value != nil {
+        if state.value != nil && query != loadedQuery {
             isRefreshing = true
 
             do {
@@ -44,10 +49,13 @@ final class GroupsListViewModel {
             state = .loading
         }
 
+        let requestedQuery = query
+
         do {
             state = .loaded(try await groupService.fetchGroups(
-                search: searchText.trimmingCharacters(in: .whitespaces)
+                search: requestedQuery
             ))
+            loadedQuery = requestedQuery
         } catch is CancellationError {
         } catch {
             state = .failed(error.localizedDescription)
