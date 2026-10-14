@@ -14,25 +14,25 @@ struct GroupDetailView: View {
         @Bindable var viewModel = viewModel
 
         AsyncContentView(state: viewModel.state, retry: viewModel.load) { detail in
-            List {
-                infoSection(detail.group)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    infoCard(detail.group)
 
-                Section {
-                    Button {
+                    PrimaryButton(title: "Excel-dən tələbə idxal et") {
                         viewModel.showImport()
-                    } label: {
-                        Label("Excel-dən tələbə idxal et", systemImage: "square.and.arrow.down")
                     }
                     .accessibilityIdentifier("import_students_button")
-                }
 
-                studentsSection(detail.students)
+                    studentsSection(detail.students)
+                }
+                .padding(.horizontal, AppLayout.horizontalPadding)
+                .padding(.vertical, 20)
             }
-            .font(.manropeRegular(16))
             .refreshable {
                 await viewModel.load()
             }
         }
+        .background(.appBackground)
         .navigationTitle(viewModel.title)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -73,19 +73,22 @@ struct GroupDetailView: View {
         }
     }
 
-    // MARK: - Info
+    private func infoCard(_ group: StudyGroup) -> some View {
+        InfoCard {
+            HStack {
+                InfoRow(icon: "book", title: "Kurs", value: group.course?.name ?? "—")
 
-    private func infoSection(_ group: StudyGroup) -> some View {
-        Section {
-            LabeledContent("Kurs", value: group.course?.name ?? "—")
-            LabeledContent("Status") {
-                Text(group.isActive ? "Aktiv" : "Bitib")
-                    .foregroundStyle(group.isActive ? .green : .red)
+                StatusBadge(isActive: group.isActive, inactiveTitle: "Bitib")
+                    .padding(.trailing, 16)
             }
-            LabeledContent("Müəllim", value: group.teacher?.fullName ?? "Təyin edilməyib")
-            LabeledContent("Mentorlar", value: mentorNames(group))
-            LabeledContent("Müddət", value: period(group))
-            LabeledContent("Tələbə sayı", value: "\(group.studentsCount ?? 0)")
+            InfoDivider()
+            InfoRow(icon: "person", title: "Müəllim", value: group.teacher?.fullName ?? "Təyin edilməyib")
+            InfoDivider()
+            InfoRow(icon: "person.2", title: "Mentorlar", value: mentorNames(group))
+            InfoDivider()
+            InfoRow(icon: "calendar", title: "Müddət", value: period(group))
+            InfoDivider()
+            InfoRow(icon: "person.3", title: "Tələbə sayı", value: "\(group.studentsCount ?? 0)")
         }
     }
 
@@ -101,10 +104,13 @@ struct GroupDetailView: View {
         return "\(start) – \(end)"
     }
 
-    // MARK: - Students
-
+    @ViewBuilder
     private func studentsSection(_ students: [GroupStudent]) -> some View {
-        Section("Tələbələr (\(students.count))") {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Tələbələr (\(students.count))")
+                .font(.manropeBold(20))
+                .foregroundStyle(.textPrimary)
+
             if students.isEmpty {
                 ContentUnavailableView(
                     "Qrupda tələbə yoxdur",
@@ -112,18 +118,32 @@ struct GroupDetailView: View {
                     description: Text("Tələbələri Excel faylından idxal edin.")
                 )
             } else {
-                ForEach(students) { student in
-                    HStack(spacing: 12) {
-                        AvatarView(firstName: student.firstName, lastName: student.lastName, size: 38)
+                VStack(spacing: 0) {
+                    ForEach(students) { student in
+                        HStack(spacing: 12) {
+                            AvatarView(firstName: student.firstName, lastName: student.lastName, size: 38)
 
-                        LabeledContent {
-                            EmptyView()
-                        } label: {
-                            Text(student.fullName)
-                            Text(student.email)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(student.fullName)
+                                    .font(.manropeSemiBold(15))
+                                    .foregroundStyle(.textPrimary)
+
+                                Text(student.email)
+                                    .font(.manropeRegular(12))
+                                    .foregroundStyle(.textSecondary)
+                            }
+
+                            Spacer()
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 10)
+
+                        if student.id != students.last?.id {
+                            InfoDivider()
                         }
                     }
                 }
+                .cardStyle()
             }
         }
     }

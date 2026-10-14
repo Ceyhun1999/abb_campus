@@ -23,6 +23,7 @@ struct ProfileViewModelTests {
         let sut = ProfileViewModel(authenticationState: state)
 
         #expect(sut.fullName == "Ceyhun Rzayev")
+        #expect(sut.initials == "CR")
         #expect(sut.email == "student@abb.local")
         #expect(sut.roleTitle == "Tələbə")
     }
