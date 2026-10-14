@@ -12,6 +12,26 @@ enum TeacherPosition: String, Decodable, Hashable {
     }
 }
 
+enum TeacherPositionFilter: String, CaseIterable, Identifiable {
+    case all
+    case teacher
+    case mentor
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .all: return "Hamısı"
+        case .teacher: return TeacherPosition.teacher.title
+        case .mentor: return TeacherPosition.mentor.title
+        }
+    }
+
+    var queryValue: String? {
+        self == .all ? nil : rawValue
+    }
+}
+
 struct Teacher: Decodable, Identifiable, Hashable {
     let id: Int
     let firstName: String

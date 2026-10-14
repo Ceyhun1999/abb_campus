@@ -1,7 +1,7 @@
 import Foundation
 
 protocol TeacherService {
-    func fetchTeachers(search: String) async throws -> [Teacher]
+    func fetchTeachers(search: String, position: TeacherPositionFilter, specialty: String?) async throws -> [Teacher]
     func fetchTeacher(id: Int) async throws -> Teacher
 }
 
@@ -13,9 +13,9 @@ final class DefaultTeacherService: TeacherService {
         self.networkService = networkService
     }
 
-    func fetchTeachers(search: String) async throws -> [Teacher] {
+    func fetchTeachers(search: String, position: TeacherPositionFilter, specialty: String?) async throws -> [Teacher] {
         let response: PaginatedResponse<Teacher> = try await networkService.request(
-            EmployeeEndpoint.teachers(search: search)
+            EmployeeEndpoint.teachers(search: search, position: position, specialty: specialty)
         )
 
         return response.data

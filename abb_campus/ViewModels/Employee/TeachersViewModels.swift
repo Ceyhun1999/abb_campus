@@ -6,12 +6,41 @@ import Observation
 final class TeachersListViewModel {
 
     var searchText = ""
+    var positionFilter: TeacherPositionFilter = .all
+    var specialtyFilter: String?
+    private(set) var specialties: [String] = []
     private(set) var state: ViewState<[Teacher]> = .idle
 
     private let teacherService: any TeacherService
+    private let groupService: any GroupService
 
-    init(teacherService: any TeacherService) {
+    init(teacherService: any TeacherService, groupService: any GroupService) {
         self.teacherService = teacherService
+        self.groupService = groupService
+    }
+
+    // MARK: - Query
+
+    var query: String {
+        "\(positionFilter.rawValue)|\(specialtyFilter ?? "")|\(trimmedSearch)"
+    }
+
+    var hasSpecialtyFilter: Bool {
+        specialtyFilter != nil
+    }
+
+    var emptyMessage: String {
+        trimmedSearch.isEmpty
+            ? "Bu filtrə uyğun müəllim yoxdur."
+            : "\"\(trimmedSearch)\" üzrə nəticə tapılmadı."
+    }
+
+    func loadSpecialties() async {
+        guard specialties.isEmpty else {
+            return
+        }
+
+        specialties = (try? await groupService.fetchCourses().map(\.name)) ?? []
     }
 
     // MARK: - Search
@@ -35,12 +64,18 @@ final class TeachersListViewModel {
 
         do {
             state = .loaded(try await teacherService.fetchTeachers(
-                search: searchText.trimmingCharacters(in: .whitespaces)
+                search: trimmedSearch,
+                position: positionFilter,
+                specialty: specialtyFilter
             ))
         } catch is CancellationError {
         } catch {
             state = .failed(error.localizedDescription)
         }
+    }
+
+    private var trimmedSearch: String {
+        searchText.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
 

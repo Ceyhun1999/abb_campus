@@ -176,8 +176,11 @@ final class UITestingDirectory: EmployeeDashboardService, StudentDirectoryServic
         )
     }
 
-    func fetchTeachers(search: String) async throws -> [Teacher] {
-        teachers
+    func fetchTeachers(search: String, position: TeacherPositionFilter, specialty: String?) async throws -> [Teacher] {
+        teachers.filter { teacher in
+            (position.queryValue == nil || (teacher.position ?? .teacher).rawValue == position.queryValue)
+                && (specialty == nil || teacher.specialty == specialty)
+        }
     }
 
     func fetchTeacher(id: Int) async throws -> Teacher {

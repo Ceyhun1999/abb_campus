@@ -5,7 +5,7 @@ enum EmployeeEndpoint {
     case students(search: String, status: StudentStatusFilter)
     case student(id: Int)
     case setUserStatus(userId: Int, isActive: Bool)
-    case teachers(search: String)
+    case teachers(search: String, position: TeacherPositionFilter, specialty: String?)
     case teacher(id: Int)
     case groups(search: String)
     case group(id: Int)
@@ -94,7 +94,15 @@ extension EmployeeEndpoint: Endpoint {
                 status.queryValue.map { URLQueryItem(name: "status", value: $0) }
             ].compactMap { $0 }
 
-        case .teachers(let search), .groups(let search):
+        case .teachers(let search, let position, let specialty):
+            return [
+                URLQueryItem(name: "perPage", value: Self.pageSize),
+                search.isEmpty ? nil : URLQueryItem(name: "search", value: search),
+                position.queryValue.map { URLQueryItem(name: "position", value: $0) },
+                specialty.map { URLQueryItem(name: "specialty", value: $0) }
+            ].compactMap { $0 }
+
+        case .groups(let search):
             return [
                 URLQueryItem(name: "perPage", value: Self.pageSize),
                 search.isEmpty ? nil : URLQueryItem(name: "search", value: search)

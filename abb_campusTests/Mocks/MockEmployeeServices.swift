@@ -45,8 +45,11 @@ final class MockTeacherService: TeacherService {
 
     var teachersResult: Result<[Teacher], Error> = .success([.stub()])
 
-    func fetchTeachers(search: String) async throws -> [Teacher] {
-        try teachersResult.get()
+    private(set) var teacherQueries: [(position: TeacherPositionFilter, specialty: String?)] = []
+
+    func fetchTeachers(search: String, position: TeacherPositionFilter, specialty: String?) async throws -> [Teacher] {
+        teacherQueries.append((position, specialty))
+        return try teachersResult.get()
     }
 
     func fetchTeacher(id: Int) async throws -> Teacher {

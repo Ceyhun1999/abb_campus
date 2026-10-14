@@ -120,7 +120,7 @@ final class GroupFormViewModel {
 
         do {
             async let courses = groupService.fetchCourses()
-            async let teachers = teacherService.fetchTeachers(search: "")
+            async let teachers = teacherService.fetchTeachers(search: "", position: .all, specialty: nil)
 
             let loaded = GroupFormOptions(courses: try await courses, teachers: try await teachers)
             options = .loaded(loaded)

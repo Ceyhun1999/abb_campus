@@ -158,4 +158,38 @@ struct EmployeeListViewModelTests {
         try state.startSession(user: .stub(role: .employee), token: "token")
         return state
     }
+
+    // MARK: - Teachers
+
+    @Test("Teacher filters are sent to the service")
+    func teacherFilters() async {
+        let teacherService = MockTeacherService()
+        let sut = TeachersListViewModel(teacherService: teacherService, groupService: MockGroupService())
+        sut.positionFilter = .mentor
+        sut.specialtyFilter = "UI/UX Dizayn"
+
+        await sut.load()
+
+        #expect(teacherService.teacherQueries.last?.position == .mentor)
+        #expect(teacherService.teacherQueries.last?.specialty == "UI/UX Dizayn")
+    }
+
+    @Test("Specialties come from the course list")
+    func teacherSpecialties() async {
+        let sut = TeachersListViewModel(teacherService: MockTeacherService(), groupService: MockGroupService())
+
+        await sut.loadSpecialties()
+
+        #expect(sut.specialties == ["Mobil Tərtibatçılıq iOS"])
+    }
+
+    @Test("Changing a filter changes the query")
+    func teacherQueryChanges() {
+        let sut = TeachersListViewModel(teacherService: MockTeacherService(), groupService: MockGroupService())
+        let initial = sut.query
+
+        sut.positionFilter = .teacher
+
+        #expect(sut.query != initial)
+    }
 }

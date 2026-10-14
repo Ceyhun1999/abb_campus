@@ -45,7 +45,8 @@ private struct EmployeeDestinations: ViewModifier {
                 case .teachers:
                     TeachersListView(
                         viewModel: TeachersListViewModel(
-                            teacherService: dependencies.teacherService
+                            teacherService: dependencies.teacherService,
+                            groupService: dependencies.groupService
                         )
                     )
                 }
