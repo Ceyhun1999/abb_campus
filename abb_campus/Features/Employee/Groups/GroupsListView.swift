@@ -19,25 +19,18 @@ struct GroupsListView: View {
             emptyIcon: "square.grid.2x2",
             retry: viewModel.load
         ) { groups in
-            ScrollView {
-                LazyVStack(spacing: 12) {
-                    ForEach(groups) { group in
-                        NavigationLink(value: group) {
-                            GroupCardRow(group: group)
-                        }
-                        .buttonStyle(.plain)
-                        .accessibilityIdentifier("group_row_\(group.id)")
-                    }
+            List(groups) { group in
+                NavigationLink(value: group) {
+                    GroupRow(group: group)
                 }
-                .padding(.horizontal, AppLayout.horizontalPadding)
-                .padding(.vertical, 12)
+                .accessibilityIdentifier("group_row_\(group.id)")
             }
+            .font(.manropeRegular(16))
             .refreshable {
                 await viewModel.load()
             }
         }
         .refreshingIndicator(viewModel.isRefreshing)
-        .background(.appBackground)
         .navigationTitle("Qruplar")
         .searchable(text: $viewModel.searchText, prompt: "Qrup adı üzrə axtar")
         .toolbar {

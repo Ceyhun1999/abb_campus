@@ -16,24 +16,16 @@ final class ProfileViewModel {
         self.authenticationState = authenticationState
     }
 
-    var fullName: String {
-        guard let user = authenticationState.currentUser else {
-            return ""
-        }
-
-        return "\(user.firstName) \(user.lastName)"
+    var firstName: String {
+        authenticationState.currentUser?.firstName ?? ""
     }
 
-    var initials: String {
-        guard let user = authenticationState.currentUser else {
-            return ""
-        }
+    var lastName: String {
+        authenticationState.currentUser?.lastName ?? ""
+    }
 
-        return [user.firstName, user.lastName]
-            .compactMap(\.first)
-            .map(String.init)
-            .joined()
-            .uppercased()
+    var fullName: String {
+        "\(firstName) \(lastName)"
     }
 
     var email: String {
