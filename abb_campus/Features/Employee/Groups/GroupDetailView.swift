@@ -113,16 +113,7 @@ struct GroupDetailView: View {
                 )
             } else {
                 ForEach(students) { student in
-                    HStack(spacing: 12) {
-                        AvatarView(firstName: student.firstName, lastName: student.lastName, size: 38)
-
-                        LabeledContent {
-                            EmptyView()
-                        } label: {
-                            Text(student.fullName)
-                            Text(student.email)
-                        }
-                    }
+                    PersonRow(firstName: student.firstName, lastName: student.lastName, subtitle: student.email)
                 }
             }
         }

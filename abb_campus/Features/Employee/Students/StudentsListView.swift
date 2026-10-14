@@ -32,11 +32,21 @@ struct StudentsListView: View {
             ) { students in
                 List(students) { student in
                     NavigationLink(value: student) {
-                        StudentRow(student: student)
+                        PersonRow(
+                            firstName: student.firstName,
+                            lastName: student.lastName,
+                            subtitle: student.group?.name ?? "Qrupsuz"
+                        ) {
+                            if !student.isActive {
+                                Text("Deaktiv")
+                                    .foregroundStyle(.red)
+                            }
+                        }
                     }
                     .accessibilityIdentifier("student_row_\(student.id)")
                 }
                 .listStyle(.plain)
+                .font(.manropeRegular(16))
                 .refreshable {
                     await viewModel.load()
                 }
@@ -52,34 +62,5 @@ struct StudentsListView: View {
         .task(id: viewModel.query) {
             await viewModel.queryChanged()
         }
-    }
-}
-
-private struct StudentRow: View {
-
-    let student: DirectoryStudent
-
-    var body: some View {
-        HStack(spacing: 14) {
-            AvatarView(firstName: student.firstName, lastName: student.lastName)
-
-            VStack(alignment: .leading, spacing: 3) {
-                Text(student.fullName)
-                    .font(.manropeSemiBold(16))
-                    .foregroundStyle(.textPrimary)
-
-                Text(student.group?.name ?? "Qrupsuz")
-                    .font(.manropeRegular(13))
-                    .foregroundStyle(.textSecondary)
-            }
-
-            Spacer()
-
-            Circle()
-                .fill(student.isActive ? Color.green : Color.red)
-                .frame(width: 9, height: 9)
-                .accessibilityLabel(student.isActive ? "Aktiv" : "Deaktiv")
-        }
-        .padding(.vertical, 4)
     }
 }

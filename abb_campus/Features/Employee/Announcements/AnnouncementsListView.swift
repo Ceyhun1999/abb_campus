@@ -22,10 +22,10 @@ struct AnnouncementsListView: View {
             List(announcements) { announcement in
                 NavigationLink(value: announcement) {
                     AnnouncementRow(announcement: announcement)
-                        .padding(.vertical, 4)
                 }
             }
             .listStyle(.plain)
+            .font(.manropeRegular(16))
             .refreshable {
                 await viewModel.load()
             }
