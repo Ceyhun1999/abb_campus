@@ -15,6 +15,11 @@ protocol AuthService {
     func logout(
         token: String
     ) async throws
+
+    func changePassword(
+        token: String,
+        request: ChangePasswordRequest
+    ) async throws
 }
 
 final class DefaultAuthService: AuthService {
@@ -65,6 +70,21 @@ final class DefaultAuthService: AuthService {
 
         let endpoint = AuthEndpoint.logout(
             token: token
+        )
+
+        let _: MessageResponse = try await networkService.request(
+            endpoint
+        )
+    }
+
+    func changePassword(
+        token: String,
+        request: ChangePasswordRequest
+    ) async throws {
+
+        let endpoint = AuthEndpoint.changePassword(
+            token: token,
+            request
         )
 
         let _: MessageResponse = try await networkService.request(

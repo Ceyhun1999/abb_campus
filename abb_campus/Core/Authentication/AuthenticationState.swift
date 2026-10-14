@@ -96,6 +96,14 @@ final class AuthenticationState {
         }
     }
 
+    func changePassword(_ request: ChangePasswordRequest) async throws {
+        guard let token else {
+            throw NetworkError.unauthorized
+        }
+
+        try await authService.changePassword(token: token, request: request)
+    }
+
     func logout() async {
         if let token {
             try? await authService.logout(token: token)

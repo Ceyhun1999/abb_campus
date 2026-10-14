@@ -7,6 +7,8 @@ enum ValidationMessage {
     static let shortPassword = "Şifrə minimum 6 simvoldan ibarət olmalıdır."
     static let shortNewPassword = "Yeni şifrə minimum 8 simvoldan ibarət olmalıdır."
     static let passwordsDoNotMatch = "Şifrələr eyni deyil."
+    static let emptyCurrentPassword = "Cari şifrəni daxil edin."
+    static let samePassword = "Yeni şifrə cari şifrədən fərqli olmalıdır."
     static let invalidResetCode = "Kod 6 rəqəmdən ibarət olmalıdır."
     static let roleNotSelected = "Rol seçilməyib."
     static let emptyGroupName = "Qrup adını daxil edin."

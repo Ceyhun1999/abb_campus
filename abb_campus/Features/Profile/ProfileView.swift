@@ -18,6 +18,8 @@ struct ProfileView: View {
 
                     infoCard
 
+                    changePasswordButton
+
                     logoutButton
                 }
                 .padding(.horizontal, AppLayout.horizontalPadding)
@@ -25,6 +27,11 @@ struct ProfileView: View {
             }
             .background(.appBackground)
             .navigationTitle("Profil")
+            .sheet(isPresented: $viewModel.isChangePasswordPresented) {
+                if let changePasswordViewModel = viewModel.changePasswordViewModel {
+                    ChangePasswordView(viewModel: changePasswordViewModel)
+                }
+            }
             .confirmationDialog(
                 "Hesabdan çıxmaq istəyirsiniz?",
                 isPresented: $viewModel.isLogoutConfirmationPresented,
@@ -83,6 +90,36 @@ struct ProfileView: View {
                 value: viewModel.roleTitle
             )
         }
+    }
+
+    // MARK: - Password
+
+    private var changePasswordButton: some View {
+        Button {
+            viewModel.showChangePassword()
+        } label: {
+            HStack(spacing: 14) {
+                Image(systemName: "key")
+                    .font(.system(size: 18))
+                    .foregroundStyle(.brandBlue)
+                    .frame(width: 24)
+
+                Text("Şifrəni dəyiş")
+                    .font(.manropeSemiBold(17))
+                    .foregroundStyle(.textPrimary)
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(.textSecondary)
+            }
+            .padding(.horizontal, 18)
+            .frame(height: 56)
+            .cardStyle(cornerRadius: 16)
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier("change_password_button")
     }
 
     // MARK: - Logout

@@ -7,6 +7,7 @@ enum AuthEndpoint {
     case forgotPassword(ForgotPasswordRequest)
     case verifyResetCode(VerifyResetCodeRequest)
     case resetPassword(ResetPasswordRequest)
+    case changePassword(token: String, ChangePasswordRequest)
 }
 
 extension AuthEndpoint: Endpoint {
@@ -30,6 +31,9 @@ extension AuthEndpoint: Endpoint {
 
         case .resetPassword:
             return "/api/auth/reset-password"
+
+        case .changePassword:
+            return "/api/auth/change-password"
         }
     }
 
@@ -42,7 +46,8 @@ extension AuthEndpoint: Endpoint {
              .logout,
              .forgotPassword,
              .verifyResetCode,
-             .resetPassword:
+             .resetPassword,
+             .changePassword:
             return .post
         }
     }
@@ -50,7 +55,8 @@ extension AuthEndpoint: Endpoint {
     var headers: [String: String]? {
         switch self {
         case .me(let token),
-             .logout(let token):
+             .logout(let token),
+             .changePassword(let token, _):
             return HTTPHeader.authorized(token: token)
 
         case .login,
@@ -73,6 +79,9 @@ extension AuthEndpoint: Endpoint {
             return request
 
         case .resetPassword(let request):
+            return request
+
+        case .changePassword(_, let request):
             return request
 
         case .me,

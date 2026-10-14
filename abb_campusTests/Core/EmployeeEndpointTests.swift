@@ -49,6 +49,20 @@ struct EmployeeEndpointTests {
         #expect(body.hasSuffix("--\r\n"))
     }
 
+    @Test("Change password is an authorized POST with snake_case keys")
+    func changePasswordRequest() throws {
+        let body = ChangePasswordRequest(currentPassword: "old", password: "NewPass456!", passwordConfirmation: "NewPass456!")
+        let request = try AuthEndpoint.changePassword(token: "abc", body).makeRequest()
+        let data = try #require(request.httpBody)
+        let json = try #require(try JSONSerialization.jsonObject(with: data) as? [String: String])
+
+        #expect(request.httpMethod == "POST")
+        #expect(request.url?.path == "/api/auth/change-password")
+        #expect(request.value(forHTTPHeaderField: "Authorization") == "Bearer abc")
+        #expect(json["current_password"] == "old")
+        #expect(json["password_confirmation"] == "NewPass456!")
+    }
+
     @Test("Teacher filters are sent as query parameters")
     func teacherFilterQuery() throws {
         let request = try EmployeeEndpoint.teachers(search: "", position: .mentor, specialty: "UI/UX Design").makeRequest()

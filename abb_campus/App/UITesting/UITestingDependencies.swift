@@ -85,6 +85,12 @@ final class UITestingAuthService: AuthService {
         }
     }
 
+    func changePassword(token: String, request: ChangePasswordRequest) async throws {
+        guard request.currentPassword == UITestingCredentials.password else {
+            throw NetworkError.serverError(statusCode: 422, message: "Cari şifrə yanlışdır.")
+        }
+    }
+
     func logout(token: String) async throws {}
 }
 

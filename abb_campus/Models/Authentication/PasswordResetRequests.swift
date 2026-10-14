@@ -22,3 +22,15 @@ struct ResetPasswordRequest: Encodable {
         case passwordConfirmation = "password_confirmation"
     }
 }
+
+struct ChangePasswordRequest: Encodable, Equatable {
+    let currentPassword: String
+    let password: String
+    let passwordConfirmation: String
+
+    enum CodingKeys: String, CodingKey {
+        case currentPassword = "current_password"
+        case password
+        case passwordConfirmation = "password_confirmation"
+    }
+}

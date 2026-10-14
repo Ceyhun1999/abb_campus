@@ -6,7 +6,9 @@ import Observation
 final class ProfileViewModel {
 
     var isLogoutConfirmationPresented = false
+    var isChangePasswordPresented = false
     private(set) var isLoggingOut = false
+    private(set) var changePasswordViewModel: ChangePasswordViewModel?
 
     private let authenticationState: AuthenticationState
 
@@ -41,6 +43,15 @@ final class ProfileViewModel {
     var roleTitle: String {
         authenticationState.currentUser?.role.title ?? ""
     }
+
+    // MARK: - Password
+
+    func showChangePassword() {
+        changePasswordViewModel = ChangePasswordViewModel(authenticationState: authenticationState)
+        isChangePasswordPresented = true
+    }
+
+    // MARK: - Logout
 
     func requestLogout() {
         isLogoutConfirmationPresented = true
