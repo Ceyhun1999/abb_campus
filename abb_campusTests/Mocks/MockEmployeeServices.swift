@@ -62,7 +62,7 @@ final class MockGroupService: GroupService {
     var groupsResult: Result<[StudyGroup], Error> = .success([.stub()])
     var groupResult: Result<StudyGroup, Error> = .success(.stub())
     var studentsResult: Result<[GroupStudent], Error> = .success([])
-    var coursesResult: Result<[Course], Error> = .success([Course(id: 7, name: "Mobil Tərtibatçılıq iOS")])
+    var coursesResult: Result<[Course], Error> = .success([Course(id: 7, name: "Mobile Development iOS")])
     var createResult: Result<StudyGroup, Error> = .success(.stub())
     var importResult: Result<StudentImportResult, Error> = .success(
         StudentImportResult(imported: 5, skipped: 0, errors: [])
@@ -167,7 +167,7 @@ extension Teacher {
 
     static func stub(
         id: Int = 21,
-        specialty: String = "Mobil Tərtibatçılıq iOS",
+        specialty: String = "Mobile Development iOS",
         position: TeacherPosition = .teacher
     ) -> Teacher {
         Teacher(

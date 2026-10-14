@@ -61,6 +61,8 @@ struct GroupFormView: View {
                     .accessibilityIdentifier("group_form_name")
 
                 Picker("Kurs", selection: $viewModel.selectedCourseId) {
+                    Text("Seçilməyib").tag(Int?.none)
+
                     ForEach(options.courses) { course in
                         Text(course.name).tag(Optional(course.id))
                     }
@@ -75,6 +77,7 @@ struct GroupFormView: View {
                     }
                 }
                 .pickerStyle(.navigationLink)
+                .disabled(!viewModel.hasCourse)
             }
 
             mentorsSection
@@ -101,7 +104,10 @@ struct GroupFormView: View {
 
     private var mentorsSection: some View {
         Section("Mentorlar") {
-            if viewModel.availableMentors.isEmpty {
+            if !viewModel.hasCourse {
+                Text("Əvvəlcə kursu seçin")
+                    .foregroundStyle(.secondary)
+            } else if viewModel.availableMentors.isEmpty {
                 Text("Bu kurs üçün mentor yoxdur")
                     .foregroundStyle(.secondary)
             } else {

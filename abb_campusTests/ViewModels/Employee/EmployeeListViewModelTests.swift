@@ -166,12 +166,12 @@ struct EmployeeListViewModelTests {
         let teacherService = MockTeacherService()
         let sut = TeachersListViewModel(teacherService: teacherService, groupService: MockGroupService())
         sut.positionFilter = .mentor
-        sut.specialtyFilter = "UI/UX Dizayn"
+        sut.specialtyFilter = "UI/UX Design"
 
         await sut.load()
 
         #expect(teacherService.teacherQueries.last?.position == .mentor)
-        #expect(teacherService.teacherQueries.last?.specialty == "UI/UX Dizayn")
+        #expect(teacherService.teacherQueries.last?.specialty == "UI/UX Design")
     }
 
     @Test("Specialties come from the course list")
@@ -180,7 +180,7 @@ struct EmployeeListViewModelTests {
 
         await sut.loadSpecialties()
 
-        #expect(sut.specialties == ["Mobil Tərtibatçılıq iOS"])
+        #expect(sut.specialties == ["Mobile Development iOS"])
     }
 
     @Test("Changing a filter changes the query")

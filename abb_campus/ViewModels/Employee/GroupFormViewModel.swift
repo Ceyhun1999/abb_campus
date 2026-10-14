@@ -60,6 +60,10 @@ final class GroupFormViewModel {
         editingGroup != nil
     }
 
+    var hasCourse: Bool {
+        selectedCourseId != nil
+    }
+
     var title: String {
         isEditing ? "Redaktə" : "Yeni qrup"
     }
@@ -126,12 +130,7 @@ final class GroupFormViewModel {
             async let courses = groupService.fetchCourses()
             async let teachers = teacherService.fetchTeachers(search: "", position: .all, specialty: nil)
 
-            let loaded = GroupFormOptions(courses: try await courses, teachers: try await teachers)
-            options = .loaded(loaded)
-
-            if selectedCourseId == nil {
-                selectedCourseId = loaded.courses.first?.id
-            }
+            options = .loaded(GroupFormOptions(courses: try await courses, teachers: try await teachers))
         } catch is CancellationError {
             options = .idle
         } catch {

@@ -51,11 +51,11 @@ struct EmployeeEndpointTests {
 
     @Test("Teacher filters are sent as query parameters")
     func teacherFilterQuery() throws {
-        let request = try EmployeeEndpoint.teachers(search: "", position: .mentor, specialty: "UI/UX Dizayn").makeRequest()
+        let request = try EmployeeEndpoint.teachers(search: "", position: .mentor, specialty: "UI/UX Design").makeRequest()
         let items = URLComponents(url: try #require(request.url), resolvingAgainstBaseURL: false)?.queryItems ?? []
 
         #expect(items.contains(URLQueryItem(name: "position", value: "mentor")))
-        #expect(items.contains(URLQueryItem(name: "specialty", value: "UI/UX Dizayn")))
+        #expect(items.contains(URLQueryItem(name: "specialty", value: "UI/UX Design")))
         #expect(!items.contains { $0.name == "search" })
     }
 

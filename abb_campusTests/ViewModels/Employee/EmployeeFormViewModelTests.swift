@@ -8,14 +8,29 @@ struct EmployeeFormViewModelTests {
 
     // MARK: - Create group
 
-    @Test("Options load and the first course is preselected")
+    @Test("Options load and no course is selected by default")
     func createGroupOptions() async {
         let sut = GroupFormViewModel(groupService: MockGroupService(), teacherService: MockTeacherService())
 
         await sut.loadOptions()
 
         #expect(sut.options.value?.courses.count == 1)
-        #expect(sut.selectedCourseId == 7)
+        #expect(sut.selectedCourseId == nil)
+        #expect(sut.availableTeachers.isEmpty)
+        #expect(sut.availableMentors.isEmpty)
+    }
+
+    @Test("A group without a course is rejected")
+    func courseRequired() async {
+        let service = MockGroupService()
+        let sut = GroupFormViewModel(groupService: service, teacherService: MockTeacherService())
+        await sut.loadOptions()
+        sut.name = "IOS-07"
+
+        _ = await sut.save()
+
+        #expect(sut.errorMessage == ValidationMessage.courseNotSelected)
+        #expect(service.createdRequests.isEmpty)
     }
 
     @Test("Loaded options are not reloaded when the form appears again")
@@ -45,13 +60,14 @@ struct EmployeeFormViewModelTests {
     func staffFilteredByCourse() async {
         let teacherService = MockTeacherService()
         teacherService.teachersResult = .success([
-            .stub(id: 1, specialty: "Mobil Tərtibatçılıq iOS", position: .mentor),
-            .stub(id: 2, specialty: "Mobil Tərtibatçılıq iOS", position: .teacher),
-            .stub(id: 3, specialty: "UI/UX Dizayn", position: .teacher)
+            .stub(id: 1, specialty: "Mobile Development iOS", position: .mentor),
+            .stub(id: 2, specialty: "Mobile Development iOS", position: .teacher),
+            .stub(id: 3, specialty: "UI/UX Design", position: .teacher)
         ])
         let sut = GroupFormViewModel(groupService: MockGroupService(), teacherService: teacherService)
-
         await sut.loadOptions()
+
+        sut.selectedCourseId = 7
 
         #expect(sut.availableTeachers.map(\.id) == [2])
         #expect(sut.availableMentors.map(\.id) == [1])
@@ -61,13 +77,13 @@ struct EmployeeFormViewModelTests {
     func editGroup() async throws {
         let teacherService = MockTeacherService()
         teacherService.teachersResult = .success([
-            .stub(id: 21, specialty: "Mobil Tərtibatçılıq iOS", position: .teacher),
-            .stub(id: 31, specialty: "Mobil Tərtibatçılıq iOS", position: .mentor),
-            .stub(id: 32, specialty: "Mobil Tərtibatçılıq iOS", position: .mentor)
+            .stub(id: 21, specialty: "Mobile Development iOS", position: .teacher),
+            .stub(id: 31, specialty: "Mobile Development iOS", position: .mentor),
+            .stub(id: 32, specialty: "Mobile Development iOS", position: .mentor)
         ])
         let groupService = MockGroupService()
         let group = StudyGroup(
-            id: 5, name: "IOS-05", course: Course(id: 7, name: "Mobil Tərtibatçılıq iOS"),
+            id: 5, name: "IOS-05", course: Course(id: 7, name: "Mobile Development iOS"),
             teacher: .init(id: 21, firstName: "Kamal", lastName: "Əliyev"),
             mentors: [.init(id: 31, firstName: "Fidan", lastName: "Kərimova")],
             startDate: "2026-09-01", endDate: nil, isActive: true, studentsCount: 0, progress: nil
@@ -95,8 +111,8 @@ struct EmployeeFormViewModelTests {
     func courseChangeClearsTeacher() async {
         let groupService = MockGroupService()
         groupService.coursesResult = .success([
-            Course(id: 7, name: "Mobil Tərtibatçılıq iOS"),
-            Course(id: 8, name: "UI/UX Dizayn")
+            Course(id: 7, name: "Mobile Development iOS"),
+            Course(id: 8, name: "UI/UX Design")
         ])
         let sut = GroupFormViewModel(groupService: groupService, teacherService: MockTeacherService())
         await sut.loadOptions()
