@@ -16,27 +16,73 @@ struct ModuleGradesView: View {
             emptyIcon: "list.bullet.rectangle",
             retry: viewModel.load
         ) { grades in
-            List {
-                Section {
-                    LabeledContent("Modul balı") {
-                        Text("\(grades.totalScore.formatted()) / \(grades.maxScore.formatted())")
-                            .font(.manropeBold(17))
-                            .accessibilityIdentifier("module_total_score")
-                    }
-                }
+            ScrollView {
+                VStack(spacing: 16) {
+                    totalCard(grades)
 
-                Section("Kateqoriyalar") {
-                    ForEach(grades.grades) { category in
-                        ScoreRow(title: category.category, score: category.score, maxScore: category.maxScore)
+                    InfoCard {
+                        ForEach(grades.grades) { category in
+                            CategoryScoreRow(category: category)
+
+                            if category.id != grades.grades.last?.id {
+                                InfoDivider()
+                            }
+                        }
                     }
                 }
+                .padding(.horizontal, AppLayout.horizontalPadding)
+                .padding(.vertical, 16)
             }
-            .font(.manropeRegular(16))
         }
+        .background(.appBackground)
         .navigationTitle(viewModel.module.moduleName)
         .navigationBarTitleDisplayMode(.inline)
         .task {
             await viewModel.load()
         }
+    }
+
+    private func totalCard(_ grades: ModuleGrades) -> some View {
+        VStack(spacing: 8) {
+            Text("Modul balı")
+                .font(.manropeRegular(15))
+                .foregroundStyle(.white.opacity(0.85))
+
+            Text("\(grades.totalScore.formatted()) / \(grades.maxScore.formatted())")
+                .font(.manropeBold(34))
+                .foregroundStyle(.white)
+                .accessibilityIdentifier("module_total_score")
+        }
+        .frame(maxWidth: .infinity)
+        .padding(24)
+        .background(.brandBlue)
+        .clipShape(RoundedRectangle(cornerRadius: 22))
+    }
+}
+
+private struct CategoryScoreRow: View {
+
+    let category: ModuleGrades.CategoryScore
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Text(category.category)
+                    .font(.manropeSemiBold(15))
+                    .foregroundStyle(.textPrimary)
+
+                Spacer()
+
+                Text("\(category.score.formatted()) / \(category.maxScore.formatted())")
+                    .font(.manropeSemiBold(15))
+                    .foregroundStyle(.textPrimary)
+            }
+
+            ProgressBar(
+                color: .attendanceBlue,
+                progress: category.maxScore > 0 ? category.score / category.maxScore : 0
+            )
+        }
+        .padding(16)
     }
 }

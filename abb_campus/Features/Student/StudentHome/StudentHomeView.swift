@@ -12,54 +12,25 @@ struct StudentHomeView: View {
 
     var body: some View {
         AsyncContentView(state: viewModel.state, retry: viewModel.load) { dashboard in
-            List {
-                headerSection
+            ScrollView {
+                VStack(alignment: .leading, spacing: 24) {
+                    headerView
 
-                nextLessonSection(dashboard.nextLesson)
+                    NextLessonCardView(lesson: dashboard.nextLesson)
 
-                Section("Statistika") {
-                    VStack(alignment: .leading, spacing: 8) {
-                        LabeledContent {
-                            Text(dashboard.averageScore.formatted(.number.precision(.fractionLength(0...1))))
-                        } label: {
-                            Label("Orta bal", systemImage: "chart.bar.fill")
-                        }
+                    statisticsView(dashboard)
 
-                        ProgressView(value: min(max(dashboard.averageScore / 100, 0), 1))
-                            .tint(.green)
-                    }
-                    .accessibilityElement(children: .combine)
-                    .accessibilityIdentifier("average_score_card")
-
-                    NavigationLink(value: StudentRoute.attendance) {
-                        VStack(alignment: .leading, spacing: 8) {
-                            LabeledContent {
-                                Text("\(Int(dashboard.attendancePercentage.rounded()))%")
-                            } label: {
-                                Label("Davamiyyət", systemImage: "person.2.fill")
-                            }
-
-                            ProgressView(value: min(max(dashboard.attendancePercentage / 100, 0), 1))
-                        }
-                    }
-                    .accessibilityIdentifier("attendance_card")
+                    announcementsView(dashboard.recentAnnouncements)
                 }
-
-                if !dashboard.recentAnnouncements.isEmpty {
-                    Section("Son elanlar") {
-                        ForEach(dashboard.recentAnnouncements) { announcement in
-                            NavigationLink(value: announcement) {
-                                AnnouncementRow(announcement: announcement)
-                            }
-                        }
-                    }
-                }
+                .padding(.horizontal, AppLayout.horizontalPadding)
+                .padding(.top, 20)
+                .padding(.bottom, 30)
             }
-            .font(.manropeRegular(16))
             .refreshable {
                 await viewModel.load()
             }
         }
+        .background(.appBackground)
         .toolbar(.hidden, for: .navigationBar)
         .task {
             await viewModel.load()
@@ -68,49 +39,81 @@ struct StudentHomeView: View {
 
     // MARK: - Header
 
-    private var headerSection: some View {
-        Section {
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(viewModel.greeting)
-                        .font(.manropeBold(22))
-                        .accessibilityIdentifier("home_greeting")
+    private var headerView: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(viewModel.greeting)
+                    .font(.manropeBold(22))
+                    .foregroundStyle(.textPrimary)
+                    .accessibilityIdentifier("home_greeting")
 
-                    Text(viewModel.subtitle)
-                        .foregroundStyle(.secondary)
-                }
-
-                Spacer()
-
-                if let user = authenticationState.currentUser {
-                    AvatarView(firstName: user.firstName, lastName: user.lastName, size: 52)
-                }
+                Text(viewModel.subtitle)
+                    .font(.manropeRegular(16))
+                    .foregroundStyle(.textSecondary)
             }
-            .listRowBackground(Color.clear)
+
+            Spacer()
+
+            if let user = authenticationState.currentUser {
+                AvatarView(firstName: user.firstName, lastName: user.lastName, size: 56)
+            }
         }
     }
 
-    // MARK: - Next Lesson
+    // MARK: - Statistics
 
-    private func nextLessonSection(_ lesson: ScheduleLesson?) -> some View {
-        Section("Növbəti dərs") {
-            if let lesson {
-                Label {
-                    Text(lesson.title)
-                        .font(.manropeSemiBold(17))
-                        .accessibilityIdentifier("next_lesson_title")
+    private func statisticsView(_ dashboard: StudentDashboard) -> some View {
+        HStack(spacing: 14) {
+            StatCardView(
+                icon: "chart.bar.fill",
+                iconColor: .gradeGreen,
+                title: "Orta bal",
+                value: dashboard.averageScore.formatted(.number.precision(.fractionLength(0...1))),
+                progress: dashboard.averageScore / 100,
+                progressColor: .gradeGreenLight
+            )
+            .accessibilityIdentifier("average_score_card")
 
-                    Text("\(DateFormatting.dayTitle(fromAPI: lesson.date)) · \(lesson.timeRange)")
+            NavigationLink(value: StudentRoute.attendance) {
+                StatCardView(
+                    icon: "person.2.fill",
+                    iconColor: .attendanceBlue,
+                    title: "Davamiyyət",
+                    value: "\(Int(dashboard.attendancePercentage.rounded()))%",
+                    progress: dashboard.attendancePercentage / 100,
+                    progressColor: .attendanceBlue
+                )
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("attendance_card")
+        }
+    }
 
-                    if let room = lesson.room {
-                        Text("Otaq \(room)")
+    // MARK: - Announcements
+
+    @ViewBuilder
+    private func announcementsView(_ announcements: [Announcement]) -> some View {
+        if !announcements.isEmpty {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Son elanlar")
+                    .font(.manropeBold(20))
+                    .foregroundStyle(.textPrimary)
+
+                VStack(spacing: 0) {
+                    ForEach(announcements) { announcement in
+                        NavigationLink(value: announcement) {
+                            AnnouncementRow(announcement: announcement)
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 12)
+                        }
+                        .buttonStyle(.plain)
+
+                        if announcement.id != announcements.last?.id {
+                            InfoDivider()
+                        }
                     }
-                } icon: {
-                    Image(systemName: "calendar")
                 }
-            } else {
-                Text("Yaxın günlərdə dərs yoxdur")
-                    .foregroundStyle(.secondary)
+                .cardStyle()
             }
         }
     }

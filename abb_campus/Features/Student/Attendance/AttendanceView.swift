@@ -29,7 +29,6 @@ struct AttendanceView: View {
                 }
             }
             .listStyle(.insetGrouped)
-            .font(.manropeRegular(16))
             .refreshable {
                 await viewModel.load()
             }
@@ -42,27 +41,21 @@ struct AttendanceView: View {
     }
 
     private func summaryHeader(_ summary: AttendanceSummary) -> some View {
-        let percentage = Int(summary.attendancePercentage.rounded())
+        HStack(spacing: 20) {
+            ProgressRing(progress: Int(summary.attendancePercentage.rounded()), size: 76)
 
-        return HStack(spacing: 16) {
-            Gauge(value: Double(percentage), in: 0...100) {
-                Text("Davamiyyət")
-            } currentValueLabel: {
-                Text("\(percentage)%")
-            }
-            .gaugeStyle(.accessoryCircularCapacity)
-            .tint(.blue)
-
-            LabeledContent {
-                EmptyView()
-            } label: {
+            VStack(alignment: .leading, spacing: 4) {
                 Text("\(summary.presentDays) / \(summary.totalDays) dərs")
                     .font(.manropeBold(20))
+                    .foregroundStyle(.textPrimary)
                     .accessibilityIdentifier("attendance_summary")
 
                 Text("Gecikmələr iştirak kimi sayılır")
+                    .font(.manropeRegular(13))
+                    .foregroundStyle(.textSecondary)
             }
         }
+        .padding(.vertical, 8)
     }
 }
 
@@ -71,9 +64,20 @@ private struct AttendanceRow: View {
     let record: AttendanceRecord
 
     var body: some View {
-        LabeledContent(DateFormatting.dayTitle(fromAPI: record.date)) {
+        HStack {
+            Text(DateFormatting.dayTitle(fromAPI: record.date))
+                .font(.manropeRegular(15))
+                .foregroundStyle(.textPrimary)
+
+            Spacer()
+
             Text(record.status.title)
+                .font(.manropeSemiBold(12))
                 .foregroundStyle(record.status.tint)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 4)
+                .background(record.status.tint.opacity(0.12))
+                .clipShape(Capsule())
         }
     }
 }
