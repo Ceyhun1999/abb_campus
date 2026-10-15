@@ -101,8 +101,8 @@ struct ProfileView: View {
             HStack(spacing: 14) {
                 Image(systemName: "key")
                     .font(.system(size: 18))
-                    .foregroundStyle(.brandBlue)
-                    .frame(width: 24)
+                    .foregroundStyle(.blue)
+                    .frame(width: 26)
 
                 Text("Şifrəni dəyiş")
                     .font(.manropeSemiBold(17))
@@ -114,7 +114,7 @@ struct ProfileView: View {
                     .font(.system(size: 14, weight: .semibold))
                     .foregroundStyle(.textSecondary)
             }
-            .padding(.horizontal, 18)
+            .padding(.horizontal, 16)
             .frame(height: 56)
             .cardStyle(cornerRadius: 16)
         }
@@ -128,18 +128,24 @@ struct ProfileView: View {
         Button {
             viewModel.requestLogout()
         } label: {
-            HStack(spacing: 10) {
-                if viewModel.isLoggingOut {
-                    ProgressView()
-                } else {
-                    Image(systemName: "rectangle.portrait.and.arrow.right")
+            HStack(spacing: 14) {
+                Group {
+                    if viewModel.isLoggingOut {
+                        ProgressView()
+                    } else {
+                        Image(systemName: "rectangle.portrait.and.arrow.right")
+                            .font(.system(size: 18))
+                    }
                 }
+                .frame(width: 26)
 
                 Text("Çıxış et")
                     .font(.manropeSemiBold(17))
+
+                Spacer()
             }
             .foregroundStyle(.red)
-            .frame(maxWidth: .infinity)
+            .padding(.horizontal, 16)
             .frame(height: 56)
             .cardStyle(cornerRadius: 16)
         }
