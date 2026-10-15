@@ -109,7 +109,7 @@ struct GroupFormView: View {
     // MARK: - Mentors
 
     private var mentorsSection: some View {
-        Section("Mentorlar") {
+        Section {
             if !viewModel.hasCourse {
                 Text("Əvvəlcə kursu seçin")
                     .foregroundStyle(.secondary)
@@ -123,7 +123,7 @@ struct GroupFormView: View {
                     } label: {
                         HStack {
                             Text(mentor.fullName)
-                                .foregroundStyle(.textPrimary)
+                                .foregroundStyle(viewModel.canSelectMentor(mentor) ? .textPrimary : .textSecondary)
 
                             Spacer()
 
@@ -134,8 +134,15 @@ struct GroupFormView: View {
                             }
                         }
                     }
+                    .disabled(!viewModel.canSelectMentor(mentor))
                     .accessibilityIdentifier("mentor_row_\(mentor.id)")
                 }
+            }
+        } header: {
+            Text("Mentorlar")
+        } footer: {
+            if viewModel.hasCourse && !viewModel.availableMentors.isEmpty {
+                Text("Qrupa ən çox \(GroupFormViewModel.maxMentors) mentor təyin etmək olar.")
             }
         }
     }

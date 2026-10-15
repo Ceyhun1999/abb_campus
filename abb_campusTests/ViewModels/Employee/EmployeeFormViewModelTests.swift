@@ -144,6 +144,30 @@ struct EmployeeFormViewModelTests {
         #expect(group.inactiveStaff.count == 2)
     }
 
+    @Test("At most two mentors can be selected")
+    func mentorLimit() async {
+        let teacherService = MockTeacherService()
+        teacherService.teachersResult = .success([
+            .stub(id: 31, position: .mentor),
+            .stub(id: 32, position: .mentor),
+            .stub(id: 33, position: .mentor)
+        ])
+        let sut = GroupFormViewModel(groupService: MockGroupService(), teacherService: teacherService)
+        await sut.loadOptions()
+        sut.selectedCourseId = 7
+
+        for mentor in sut.availableMentors {
+            sut.toggleMentor(mentor)
+        }
+
+        #expect(sut.availableMentors.filter(sut.isMentorSelected).count == 2)
+        #expect(sut.canSelectMentor(.stub(id: 33, position: .mentor)) == false)
+
+        sut.toggleMentor(.stub(id: 31, position: .mentor))
+
+        #expect(sut.canSelectMentor(.stub(id: 33, position: .mentor)))
+    }
+
     @Test("Changing the course clears a teacher from another course")
     func courseChangeClearsTeacher() async {
         let groupService = MockGroupService()

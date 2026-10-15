@@ -88,10 +88,16 @@ final class GroupFormViewModel {
         selectedMentorIds.contains(mentor.id)
     }
 
+    static let maxMentors = 2
+
+    func canSelectMentor(_ mentor: Teacher) -> Bool {
+        isMentorSelected(mentor) || selectedMentorIds.count < Self.maxMentors
+    }
+
     func toggleMentor(_ mentor: Teacher) {
         if selectedMentorIds.contains(mentor.id) {
             selectedMentorIds.remove(mentor.id)
-        } else {
+        } else if canSelectMentor(mentor) {
             selectedMentorIds.insert(mentor.id)
         }
     }
