@@ -90,7 +90,7 @@ struct StudentImportResult: Decodable, Equatable {
     let skipped: Int
     let errors: [RowError]
 
-    var totalRows: Int {
-        imported + skipped
+    var isRejected: Bool {
+        !errors.isEmpty
     }
 }

@@ -278,9 +278,7 @@ struct EmployeeFormViewModelTests {
     @Test("Selected file is read and the import result is shown")
     func importSuccess() async {
         let service = MockGroupService()
-        service.importResult = .success(StudentImportResult(imported: 48, skipped: 3, errors: [
-            .init(row: 5, email: "bad", message: "E-poçt düzgün deyil.")
-        ]))
+        service.importResult = .success(StudentImportResult(imported: 48, skipped: 0, errors: []))
         let sut = StudentImportViewModel(group: .stub(id: 9), groupService: service, fileLoader: MockFileLoader())
 
         sut.fileSelected(.success(URL(fileURLWithPath: "/tmp/telebeler.xlsx")))
@@ -291,7 +289,24 @@ struct EmployeeFormViewModelTests {
 
         #expect(service.importedFiles.first?.groupId == 9)
         #expect(sut.result.value?.imported == 48)
-        #expect(sut.result.value?.totalRows == 51)
+        #expect(sut.result.value?.isRejected == false)
+    }
+
+    @Test("A file with errors is rejected and lists the rows")
+    func importRejected() async {
+        let service = MockGroupService()
+        service.importResult = .success(StudentImportResult(imported: 0, skipped: 2, errors: [
+            .init(row: 3, email: "bad", message: "E-poçt düzgün deyil."),
+            .init(row: 5, email: "elvin@abb.local", message: "Bu email faylda təkrarlanır (2-ci sətir).")
+        ]))
+        let sut = StudentImportViewModel(group: .stub(id: 9), groupService: service, fileLoader: MockFileLoader())
+        sut.fileSelected(.success(URL(fileURLWithPath: "/tmp/telebeler.xlsx")))
+
+        await sut.importStudents()
+
+        #expect(sut.result.value?.isRejected == true)
+        #expect(sut.result.value?.imported == 0)
+        #expect(sut.result.value?.errors.map(\.row) == [3, 5])
     }
 
     @Test("Unreadable file shows an error")

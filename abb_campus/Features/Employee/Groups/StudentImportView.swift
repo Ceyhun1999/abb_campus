@@ -131,59 +131,64 @@ struct StudentImportView: View {
 
     // MARK: - Result
 
+    @ViewBuilder
     private func resultSection(_ result: StudentImportResult) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("İdxal nəticəsi")
-                .font(.manropeBold(20))
-                .foregroundStyle(.textPrimary)
+        if result.isRejected {
+            rejectedCard(result)
+        } else {
+            HStack(spacing: 14) {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.system(size: 28))
+                    .foregroundStyle(.green)
 
-            InfoCard {
-                ResultRow(icon: "checkmark.circle.fill", tint: .green, title: "Uğurla əlavə olundu", value: result.imported)
-                InfoDivider()
-                ResultRow(icon: "xmark.circle.fill", tint: .red, title: "Səhv olanlar", value: result.skipped)
-                InfoDivider()
-                ResultRow(icon: "list.number", tint: .purple, title: "Cəmi sətir", value: result.totalRows)
-            }
-            .accessibilityIdentifier("import_result")
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("İdxal tamamlandı")
+                        .font(.manropeBold(17))
+                        .foregroundStyle(.textPrimary)
 
-            if !result.errors.isEmpty {
-                Button("Səhv siyahısına bax") {
-                    viewModel.isErrorListPresented = true
+                    Text("\(result.imported) tələbə qrupa əlavə olundu")
+                        .font(.manropeRegular(15))
+                        .foregroundStyle(.textSecondary)
                 }
-                .font(.manropeSemiBold(16))
-                .frame(maxWidth: .infinity)
+
+                Spacer(minLength: 0)
             }
+            .padding(16)
+            .cardStyle()
+            .accessibilityElement(children: .combine)
+            .accessibilityIdentifier("import_result")
         }
     }
-}
 
-// MARK: - Result Row
+    private func rejectedCard(_ result: StudentImportResult) -> some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(alignment: .top, spacing: 14) {
+                Image(systemName: "xmark.octagon.fill")
+                    .font(.system(size: 28))
+                    .foregroundStyle(.red)
 
-private struct ResultRow: View {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Fayl idxal edilmədi")
+                        .font(.manropeBold(17))
+                        .foregroundStyle(.textPrimary)
 
-    let icon: String
-    let tint: Color
-    let title: String
-    let value: Int
+                    Text("\(result.errors.count) sətirdə səhv var. Heç bir tələbə əlavə olunmadı. Excel-i düzəldib yenidən yükləyin.")
+                        .font(.manropeRegular(15))
+                        .foregroundStyle(.textSecondary)
+                }
+            }
 
-    var body: some View {
-        HStack(spacing: 14) {
-            Image(systemName: icon)
-                .font(.system(size: 20))
-                .foregroundStyle(tint)
-                .frame(width: 26)
-
-            Text(title)
-                .font(.manropeRegular(15))
-                .foregroundStyle(.textPrimary)
-
-            Spacer()
-
-            Text("\(value)")
-                .font(.manropeBold(18))
-                .foregroundStyle(.textPrimary)
+            Button("Səhv siyahısına bax") {
+                viewModel.isErrorListPresented = true
+            }
+            .font(.manropeSemiBold(16))
+            .frame(maxWidth: .infinity)
+            .accessibilityIdentifier("import_errors_button")
         }
         .padding(16)
+        .background(Color.red.opacity(0.08))
+        .clipShape(RoundedRectangle(cornerRadius: 20))
+        .accessibilityIdentifier("import_result")
     }
 }
 

@@ -129,7 +129,7 @@ Demo accounts (password `Password123!` for all of them):
 | Employee | `employee@abb.local` |
 | Teacher | `teacher@abb.local` |
 
-To try the Excel import, drag [`docs/demo/telebeler.xlsx`](docs/demo/telebeler.xlsx) onto the simulator and save it in Files. Then open a group, choose **Excel-dən tələbə idxal et** and pick the file. The file has 5 valid rows and 2 rows with errors.
+To try the Excel import, drag the files from [`docs/demo`](docs/demo) onto the simulator and save them in Files. Then open a group, choose **Excel-dən tələbə idxal et** and pick a file. The import is all or nothing: [`telebeler.xlsx`](docs/demo/telebeler.xlsx) is valid and adds 6 students (including `student@abb.local`), while [`telebeler_sehvli.xlsx`](docs/demo/telebeler_sehvli.xlsx) has 3 invalid rows, so nothing is imported and the errors are listed.
 
 ## Backend
 

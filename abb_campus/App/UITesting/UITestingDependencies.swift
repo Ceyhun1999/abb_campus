@@ -236,7 +236,7 @@ final class UITestingDirectory: EmployeeDashboardService, StudentDirectoryServic
     }
 
     func importStudents(groupId: Int, fileName: String, fileData: Data) async throws -> StudentImportResult {
-        StudentImportResult(imported: 2, skipped: 1, errors: [
+        StudentImportResult(imported: 0, skipped: 1, errors: [
             .init(row: 4, email: "wrong-email", message: "E-poçt düzgün deyil.")
         ])
     }
