@@ -34,6 +34,10 @@ final class GroupsListViewModel {
         "\(courseFilterId.map(String.init) ?? "")|\(trimmedSearch)"
     }
 
+    var isCourseFilterEnabled: Bool {
+        courseFilterId != nil || !trimmedSearch.isEmpty || state.value?.isEmpty == false
+    }
+
     var courseFilterName: String? {
         courses.first { $0.id == courseFilterId }?.name
     }

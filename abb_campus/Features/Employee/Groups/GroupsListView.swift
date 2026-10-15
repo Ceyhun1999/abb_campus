@@ -72,6 +72,7 @@ struct GroupsListView: View {
                   ? "line.3.horizontal.decrease.circle"
                   : "line.3.horizontal.decrease.circle.fill")
         }
+        .disabled(!viewModel.isCourseFilterEnabled)
         .accessibilityLabel("Kurs filtri")
         .accessibilityIdentifier("group_course_filter")
     }

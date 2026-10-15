@@ -307,4 +307,22 @@ struct EmployeeListViewModelTests {
         #expect(service.groupCourseIds.last == 7)
         #expect(sut.emptyMessage == "Bu filtrə uyğun qrup yoxdur.")
     }
+
+    @Test("Course filter is disabled while there are no groups")
+    func courseFilterDisabledWithoutGroups() async {
+        let service = MockGroupService()
+        service.groupsResult = .success([])
+        let sut = GroupsListViewModel(groupService: service, teacherService: MockTeacherService())
+
+        await sut.load()
+        #expect(sut.isCourseFilterEnabled == false)
+
+        sut.courseFilterId = 7
+        #expect(sut.isCourseFilterEnabled)
+
+        service.groupsResult = .success([.stub()])
+        sut.courseFilterId = nil
+        await sut.load()
+        #expect(sut.isCourseFilterEnabled)
+    }
 }
