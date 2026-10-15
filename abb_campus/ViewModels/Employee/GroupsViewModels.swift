@@ -15,6 +15,7 @@ final class GroupsListViewModel {
     }
     var isCreateGroupPresented = false
     private(set) var courses: [Course] = []
+    private(set) var hasGroups = false
     private(set) var state: ViewState<[StudyGroup]> = .idle
     private(set) var isRefreshing = false
     private var loadedQuery: String?
@@ -32,6 +33,10 @@ final class GroupsListViewModel {
 
     var query: String {
         "\(courseFilterId.map(String.init) ?? "")|\(trimmedSearch)"
+    }
+
+    var isSearchAvailable: Bool {
+        hasGroups || !trimmedSearch.isEmpty
     }
 
     var isCourseFilterEnabled: Bool {
@@ -86,10 +91,12 @@ final class GroupsListViewModel {
         let requestedQuery = query
 
         do {
-            state = .loaded(try await groupService.fetchGroups(
+            let groups = try await groupService.fetchGroups(
                 search: trimmedSearch,
                 courseId: courseFilterId
-            ))
+            )
+            state = .loaded(groups)
+            hasGroups = !groups.isEmpty
             loadedQuery = requestedQuery
         } catch is CancellationError {
         } catch {

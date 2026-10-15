@@ -22,7 +22,11 @@ struct GroupsListView: View {
         }
         .background(.appBackground)
         .navigationTitle("Qruplar")
-        .searchable(text: $viewModel.searchText, prompt: "Qrup adı üzrə axtar")
+        .searchable(
+            if: viewModel.isSearchAvailable,
+            text: $viewModel.searchText,
+            prompt: "Qrup adı üzrə axtar"
+        )
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 courseMenu
@@ -106,5 +110,19 @@ struct GroupsListView: View {
             }
         }
         .refreshingIndicator(viewModel.isRefreshing)
+    }
+}
+
+// MARK: - Optional Search
+
+private extension View {
+
+    @ViewBuilder
+    func searchable(if isAvailable: Bool, text: Binding<String>, prompt: String) -> some View {
+        if isAvailable {
+            searchable(text: text, prompt: prompt)
+        } else {
+            self
+        }
     }
 }
