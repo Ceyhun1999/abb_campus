@@ -1,7 +1,7 @@
 import SwiftUI
 
 enum EmployeeRoute: Hashable {
-    case teachers
+    case announcements
 }
 
 // MARK: - Destinations
@@ -42,10 +42,10 @@ private struct EmployeeDestinations: ViewModifier {
             }
             .navigationDestination(for: EmployeeRoute.self) { route in
                 switch route {
-                case .teachers:
-                    TeachersListView(
-                        viewModel: TeachersListViewModel(
-                            teacherService: dependencies.teacherService,
+                case .announcements:
+                    AnnouncementsListView(
+                        viewModel: AnnouncementsListViewModel(
+                            announcementService: dependencies.announcementService,
                             groupService: dependencies.groupService
                         )
                     )

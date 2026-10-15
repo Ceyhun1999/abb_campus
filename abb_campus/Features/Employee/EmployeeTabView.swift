@@ -46,16 +46,16 @@ struct EmployeeTabView: View {
             }
 
             NavigationStack {
-                AnnouncementsListView(
-                    viewModel: AnnouncementsListViewModel(
-                        announcementService: dependencies.announcementService,
+                TeachersListView(
+                    viewModel: TeachersListViewModel(
+                        teacherService: dependencies.teacherService,
                         groupService: dependencies.groupService
                     )
                 )
                 .employeeDestinations()
             }
             .tabItem {
-                Label("Elanlar", systemImage: "megaphone.fill")
+                Label("Müəllimlər", systemImage: "person.crop.rectangle.stack.fill")
             }
 
             ProfileView(

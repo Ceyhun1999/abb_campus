@@ -46,6 +46,15 @@ final class EmployeeUITests: XCTestCase {
         XCTAssertFalse(app.buttons["import_submit"].isEnabled)
     }
 
+    func testTeachersTabAndAllAnnouncementsFromHome() {
+        signInAsEmployee()
+
+        XCTAssertTrue(app.tap(app.buttons["all_announcements_button"], until: app.buttons["new_announcement_button"]))
+
+        XCTAssertTrue(app.tap(app.tabBars.buttons["Müəllimlər"], until: app.navigationBars["Müəllimlər"]))
+        XCTAssertTrue(app.segmentedControls["teacher_position_filter"].exists)
+    }
+
     private func signInAsEmployee() {
         XCTAssertTrue(app.openLogin(role: "employee"))
 

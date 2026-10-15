@@ -76,17 +76,12 @@ struct EmployeeHomeView: View {
                 value: summary.activeStudentsCount
             )
 
-            NavigationLink(value: EmployeeRoute.teachers) {
-                DashboardTile(
-                    icon: "person.2.fill",
-                    tint: .blue,
-                    title: "Müəllimlər",
-                    value: summary.teachersCount,
-                    showsChevron: true
-                )
-            }
-            .buttonStyle(.plain)
-            .accessibilityIdentifier("teachers_tile")
+            DashboardTile(
+                icon: "person.2.fill",
+                tint: .blue,
+                title: "Müəllimlər",
+                value: summary.teachersCount
+            )
 
             DashboardTile(
                 icon: "square.grid.2x2.fill",
@@ -106,14 +101,32 @@ struct EmployeeHomeView: View {
 
     // MARK: - Announcements
 
-    @ViewBuilder
     private func recentAnnouncements(_ announcements: [Announcement]) -> some View {
-        if !announcements.isEmpty {
-            VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
                 Text("Son elanlar")
                     .font(.manropeBold(20))
                     .foregroundStyle(.textPrimary)
 
+                Spacer()
+
+                NavigationLink(value: EmployeeRoute.announcements) {
+                    HStack(spacing: 4) {
+                        Text("Hamısı")
+
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 13, weight: .semibold))
+                    }
+                    .font(.manropeSemiBold(15))
+                }
+                .accessibilityIdentifier("all_announcements_button")
+            }
+
+            if announcements.isEmpty {
+                Text("Hələ elan yoxdur. Yeni elan yaratmaq üçün «Hamısı» bölməsinə keçin.")
+                    .font(.manropeRegular(15))
+                    .foregroundStyle(.textSecondary)
+            } else {
                 VStack(spacing: 0) {
                     ForEach(announcements) { announcement in
                         NavigationLink(value: announcement) {
