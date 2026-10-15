@@ -3,9 +3,11 @@ import SwiftUI
 struct StudentsListView: View {
 
     @State private var viewModel: StudentsListViewModel
+    @Binding private var filterRequest: StudentStatusFilter?
 
-    init(viewModel: StudentsListViewModel) {
+    init(viewModel: StudentsListViewModel, filterRequest: Binding<StudentStatusFilter?> = .constant(nil)) {
         _viewModel = State(initialValue: viewModel)
+        _filterRequest = filterRequest
     }
 
     var body: some View {
@@ -49,6 +51,12 @@ struct StudentsListView: View {
             placement: .navigationBarDrawer(displayMode: .always),
             prompt: "Ad, soyad və ya qrup üzrə axtar"
         )
+        .onChange(of: filterRequest, initial: true) { _, filter in
+            if let filter {
+                viewModel.statusFilter = filter
+                filterRequest = nil
+            }
+        }
         .task(id: viewModel.query) {
             await viewModel.queryChanged()
         }
