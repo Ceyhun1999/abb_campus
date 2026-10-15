@@ -55,6 +55,8 @@ struct StudentsListView: View {
     }
 }
 
+// MARK: - Student Row
+
 private struct StudentRow: View {
 
     let student: DirectoryStudent

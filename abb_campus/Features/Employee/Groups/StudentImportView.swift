@@ -157,6 +157,8 @@ struct StudentImportView: View {
     }
 }
 
+// MARK: - Result Row
+
 private struct ResultRow: View {
 
     let icon: String
@@ -184,6 +186,8 @@ private struct ResultRow: View {
         .padding(16)
     }
 }
+
+// MARK: - Errors
 
 private struct ImportErrorsView: View {
 

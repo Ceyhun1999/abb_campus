@@ -153,6 +153,8 @@ struct TeachersListView: View {
     }
 }
 
+// MARK: - Position Badge
+
 struct PositionBadge: View {
 
     let position: TeacherPosition

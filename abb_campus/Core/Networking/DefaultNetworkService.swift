@@ -13,6 +13,8 @@ final class DefaultNetworkService: NetworkService {
         self.tokenProvider = tokenProvider
     }
 
+    // MARK: - Request
+
     func request<T: Decodable>(
         _ endpoint: any Endpoint
     ) async throws -> T {

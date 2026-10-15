@@ -11,6 +11,8 @@ final class KeychainService: SecureStorage {
         self.service = service
     }
 
+    // MARK: - Save
+
     func save(_ data: Data, for account: String) throws {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
@@ -33,6 +35,8 @@ final class KeychainService: SecureStorage {
             throw KeychainServiceError.unexpectedStatus(status)
         }
     }
+
+    // MARK: - Read
 
     func read(for account: String) throws -> Data? {
         let query: [String: Any] = [
@@ -65,6 +69,8 @@ final class KeychainService: SecureStorage {
         return data
     }
 
+    // MARK: - Delete
+
     func delete(for account: String) throws {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
@@ -81,6 +87,8 @@ final class KeychainService: SecureStorage {
             throw KeychainServiceError.unexpectedStatus(status)
         }
     }
+
+    // MARK: - Update
 
     private func update(
         _ data: Data,

@@ -67,6 +67,8 @@ struct ForgotPasswordView: View {
         }
     }
 
+    // MARK: - Step Content
+
     @ViewBuilder
     private var stepContent: some View {
         @Bindable var viewModel = viewModel
@@ -119,6 +121,8 @@ struct ForgotPasswordView: View {
     }
 }
 
+// MARK: - Step Header
+
 private struct StepHeaderView: View {
 
     let step: ForgotPasswordViewModel.Step
@@ -143,6 +147,8 @@ private struct StepHeaderView: View {
         }
     }
 }
+
+// MARK: - Step Texts
 
 private extension ForgotPasswordViewModel.Step {
 

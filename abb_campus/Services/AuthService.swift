@@ -32,6 +32,8 @@ final class DefaultAuthService: AuthService {
         self.networkService = networkService
     }
 
+    // MARK: - Login
+
     func login(
         email: String,
         password: String,
@@ -48,6 +50,8 @@ final class DefaultAuthService: AuthService {
 
         return try await networkService.request(endpoint)
     }
+
+    // MARK: - Session
 
     func me(
         token: String
@@ -76,6 +80,8 @@ final class DefaultAuthService: AuthService {
             endpoint
         )
     }
+
+    // MARK: - Password
 
     func changePassword(
         token: String,

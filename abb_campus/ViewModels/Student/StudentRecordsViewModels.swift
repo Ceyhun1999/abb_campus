@@ -1,6 +1,8 @@
 import Foundation
 import Observation
 
+// MARK: - Grades
+
 @MainActor
 @Observable
 final class StudentGradesViewModel {
@@ -25,6 +27,8 @@ final class StudentGradesViewModel {
         }
     }
 }
+
+// MARK: - Module Grades
 
 @MainActor
 @Observable
@@ -53,6 +57,8 @@ final class ModuleGradesViewModel {
     }
 }
 
+// MARK: - Attendance
+
 @MainActor
 @Observable
 final class AttendanceViewModel {
@@ -77,6 +83,8 @@ final class AttendanceViewModel {
         }
     }
 }
+
+// MARK: - Notifications
 
 @MainActor
 @Observable

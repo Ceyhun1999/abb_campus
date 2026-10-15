@@ -5,6 +5,8 @@ import Testing
 @Suite("Networking")
 struct EmployeeEndpointTests {
 
+    // MARK: - Students
+
     @Test("Students request has search and status query items")
     func studentsRequest() throws {
         let request = try EmployeeEndpoint.students(search: "Nihad", status: .active).makeRequest()
@@ -36,6 +38,8 @@ struct EmployeeEndpointTests {
         #expect(json == ["isActive": false])
     }
 
+    // MARK: - Import
+
     @Test("Import uses multipart form data")
     func importRequest() throws {
         var form = MultipartFormData()
@@ -48,6 +52,8 @@ struct EmployeeEndpointTests {
         #expect(body.contains("filename=\"a.csv\""))
         #expect(body.hasSuffix("--\r\n"))
     }
+
+    // MARK: - Auth
 
     @Test("Change password is an authorized POST with snake_case keys")
     func changePasswordRequest() throws {
@@ -63,6 +69,8 @@ struct EmployeeEndpointTests {
         #expect(json["password_confirmation"] == "NewPass456!")
     }
 
+    // MARK: - Teachers
+
     @Test("Teacher filters are sent as query parameters")
     func teacherFilterQuery() throws {
         let request = try EmployeeEndpoint.teachers(search: "", position: .mentor, specialty: "UI/UX Design").makeRequest()
@@ -72,6 +80,8 @@ struct EmployeeEndpointTests {
         #expect(items.contains(URLQueryItem(name: "specialty", value: "UI/UX Design")))
         #expect(!items.contains { $0.name == "search" })
     }
+
+    // MARK: - Groups
 
     @Test("Editing a group is a PATCH that sends an empty teacher as null")
     func updateGroupRequest() throws {
@@ -86,6 +96,8 @@ struct EmployeeEndpointTests {
         #expect(json["teacherId"] is NSNull)
         #expect(json["mentorIds"] as? [Int] == [3, 4])
     }
+
+    // MARK: - Authorization
 
     @Test("All employee endpoints require authorization")
     func requiresAuthorization() {

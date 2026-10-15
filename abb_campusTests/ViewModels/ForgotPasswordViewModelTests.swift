@@ -8,12 +8,16 @@ struct ForgotPasswordViewModelTests {
 
     private let service = MockPasswordResetService()
 
+    // MARK: - Helpers
+
     private func makeSUT(email: String = "student@abb.local") -> ForgotPasswordViewModel {
         ForgotPasswordViewModel(
             email: email,
             passwordResetService: service
         )
     }
+
+    // MARK: - Email Step
 
     @Test("Full flow goes email → code → new password → completed")
     func fullFlowSuccess() async {
@@ -63,6 +67,8 @@ struct ForgotPasswordViewModelTests {
         #expect(sut.isLoading == false)
     }
 
+    // MARK: - Code Step
+
     @Test("Code must contain exactly 6 digits", arguments: ["", "12345", "12345a", "1234567"])
     func invalidCode(code: String) async {
         let sut = makeSUT()
@@ -92,6 +98,8 @@ struct ForgotPasswordViewModelTests {
         #expect(sut.errorMessage == "Kod yanlışdır.")
     }
 
+    // MARK: - New Password Step
+
     @Test("Passwords must match")
     func passwordsMismatch() async {
         let sut = await makeSUTOnNewPasswordStep()
@@ -116,6 +124,8 @@ struct ForgotPasswordViewModelTests {
         #expect(sut.step == .newPassword)
         #expect(sut.errorMessage == ValidationMessage.shortNewPassword)
     }
+
+    // MARK: - Navigation
 
     @Test("Going back returns to the previous step and clears the error")
     func goBack() async {

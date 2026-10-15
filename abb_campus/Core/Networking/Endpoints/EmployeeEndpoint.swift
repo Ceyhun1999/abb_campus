@@ -22,6 +22,8 @@ extension EmployeeEndpoint: Endpoint {
 
     private static let pageSize = "200"
 
+    // MARK: - Path
+
     var path: String {
         switch self {
         case .dashboard:
@@ -62,6 +64,8 @@ extension EmployeeEndpoint: Endpoint {
         }
     }
 
+    // MARK: - Method
+
     var method: HTTPMethod {
         switch self {
         case .setUserStatus, .updateGroup:
@@ -75,6 +79,8 @@ extension EmployeeEndpoint: Endpoint {
         }
     }
 
+    // MARK: - Headers
+
     var headers: [String: String]? {
         switch self {
         case .importStudents:
@@ -84,6 +90,8 @@ extension EmployeeEndpoint: Endpoint {
             return HTTPHeader.json
         }
     }
+
+    // MARK: - Query
 
     var queryItems: [URLQueryItem]? {
         switch self {
@@ -116,6 +124,8 @@ extension EmployeeEndpoint: Endpoint {
         }
     }
 
+    // MARK: - Body
+
     var httpBody: (any Encodable)? {
         switch self {
         case .setUserStatus(_, let isActive):
@@ -139,6 +149,8 @@ extension EmployeeEndpoint: Endpoint {
 
         return nil
     }
+
+    // MARK: - Authorization
 
     var requiresAuthorization: Bool {
         true

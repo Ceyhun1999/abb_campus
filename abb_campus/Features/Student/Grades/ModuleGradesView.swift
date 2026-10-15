@@ -42,6 +42,8 @@ struct ModuleGradesView: View {
         }
     }
 
+    // MARK: - Total
+
     private func totalCard(_ grades: ModuleGrades) -> some View {
         VStack(spacing: 8) {
             Text("Modul balı")
@@ -59,6 +61,8 @@ struct ModuleGradesView: View {
         .clipShape(RoundedRectangle(cornerRadius: 22))
     }
 }
+
+// MARK: - Category Row
 
 private struct CategoryScoreRow: View {
 

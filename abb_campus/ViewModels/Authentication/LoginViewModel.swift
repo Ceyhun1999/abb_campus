@@ -31,6 +31,8 @@ final class LoginViewModel {
         errorMessage = nil
     }
 
+    // MARK: - Login
+
     var selectedRole: UserRole? {
         authenticationState.selectedRole
     }
@@ -80,9 +82,13 @@ final class LoginViewModel {
         }
     }
 
+    // MARK: - Navigation
+
     func showForgotPassword() {
         isForgotPasswordPresented = true
     }
+
+    // MARK: - Validation
 
     private func validate() -> String? {
         if let emailError = ValidationHelper.emailError(email) {

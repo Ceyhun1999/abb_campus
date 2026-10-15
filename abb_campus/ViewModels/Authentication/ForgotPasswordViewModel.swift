@@ -35,6 +35,8 @@ final class ForgotPasswordViewModel {
         errorMessage = nil
     }
 
+    // MARK: - Actions
+
     func submit() async {
         guard !isLoading else {
             return
@@ -69,6 +71,8 @@ final class ForgotPasswordViewModel {
             break
         }
     }
+
+    // MARK: - Steps
 
     private func requestCode() async {
         if let emailError = ValidationHelper.emailError(email) {
@@ -116,6 +120,8 @@ final class ForgotPasswordViewModel {
             )
         }
     }
+
+    // MARK: - Helpers
 
     private func perform(
         nextStep: Step,

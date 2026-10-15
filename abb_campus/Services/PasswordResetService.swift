@@ -28,6 +28,8 @@ final class DefaultPasswordResetService: PasswordResetService {
         self.networkService = networkService
     }
 
+    // MARK: - Request Code
+
     func requestCode(
         email: String
     ) async throws {
@@ -40,6 +42,8 @@ final class DefaultPasswordResetService: PasswordResetService {
             endpoint
         )
     }
+
+    // MARK: - Verify Code
 
     func verifyCode(
         email: String,
@@ -57,6 +61,8 @@ final class DefaultPasswordResetService: PasswordResetService {
             endpoint
         )
     }
+
+    // MARK: - Reset Password
 
     func resetPassword(
         email: String,

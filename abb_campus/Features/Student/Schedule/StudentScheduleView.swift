@@ -50,6 +50,8 @@ struct StudentScheduleView: View {
     }
 }
 
+// MARK: - Lesson Row
+
 private struct LessonRow: View {
 
     let lesson: ScheduleLesson

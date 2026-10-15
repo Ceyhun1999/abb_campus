@@ -73,6 +73,8 @@ struct GroupDetailView: View {
         }
     }
 
+    // MARK: - Info
+
     private func infoCard(_ group: StudyGroup) -> some View {
         InfoCard {
             HStack {
@@ -92,6 +94,8 @@ struct GroupDetailView: View {
         }
     }
 
+    // MARK: - Formatting
+
     private func mentorNames(_ group: StudyGroup) -> String {
         let names = group.mentors?.map(\.fullName) ?? []
         return names.isEmpty ? "Təyin edilməyib" : names.joined(separator: "\n")
@@ -103,6 +107,8 @@ struct GroupDetailView: View {
 
         return "\(start) – \(end)"
     }
+
+    // MARK: - Students
 
     @ViewBuilder
     private func studentsSection(_ students: [GroupStudent]) -> some View {

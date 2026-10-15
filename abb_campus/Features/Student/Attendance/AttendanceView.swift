@@ -40,6 +40,8 @@ struct AttendanceView: View {
         }
     }
 
+    // MARK: - Summary
+
     private func summaryHeader(_ summary: AttendanceSummary) -> some View {
         HStack(spacing: 20) {
             ProgressRing(progress: Int(summary.attendancePercentage.rounded()), size: 76)
@@ -58,6 +60,8 @@ struct AttendanceView: View {
         .padding(.vertical, 8)
     }
 }
+
+// MARK: - Attendance Row
 
 private struct AttendanceRow: View {
 
@@ -81,6 +85,8 @@ private struct AttendanceRow: View {
         }
     }
 }
+
+// MARK: - Status Color
 
 private extension AttendanceStatus {
 

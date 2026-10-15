@@ -26,6 +26,8 @@ final class StudentDetailViewModel {
         actionErrorMessage = nil
     }
 
+    // MARK: - Titles
+
     var statusActionTitle: String {
         state.value?.isActive == true ? "Deaktiv et" : "Aktiv et"
     }
@@ -36,6 +38,8 @@ final class StudentDetailViewModel {
             : "Tələbə hesabı yenidən aktiv edilsin?"
     }
 
+    // MARK: - Load
+
     func load() async {
         do {
             state = .loaded(try await studentService.fetchStudent(id: studentId))
@@ -45,6 +49,8 @@ final class StudentDetailViewModel {
             }
         }
     }
+
+    // MARK: - Status
 
     func requestStatusChange() {
         isStatusConfirmationPresented = true

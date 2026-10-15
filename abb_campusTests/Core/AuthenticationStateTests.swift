@@ -9,12 +9,16 @@ struct AuthenticationStateTests {
     private let authService = MockAuthService()
     private let secureStorage = MockSecureStorage()
 
+    // MARK: - Helpers
+
     private func makeSUT() -> AuthenticationState {
         AuthenticationState(
             secureStorage: secureStorage,
             authService: authService
         )
     }
+
+    // MARK: - Restore Session
 
     @Test("Without a saved token the user stays signed out")
     func restoreWithoutToken() async {
@@ -52,6 +56,8 @@ struct AuthenticationStateTests {
         #expect(sut.isAuthenticated == false)
         #expect(secureStorage.storage.isEmpty)
     }
+
+    // MARK: - Logout
 
     @Test("Logout clears local session even if the API call fails")
     func logoutWhenServerFails() async throws {

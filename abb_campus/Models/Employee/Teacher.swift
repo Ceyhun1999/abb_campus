@@ -1,5 +1,7 @@
 import Foundation
 
+// MARK: - Position
+
 enum TeacherPosition: String, Decodable, Hashable {
     case teacher
     case mentor
@@ -31,6 +33,8 @@ enum TeacherPositionFilter: String, CaseIterable, Identifiable {
         self == .all ? nil : rawValue
     }
 }
+
+// MARK: - Teacher
 
 struct Teacher: Decodable, Identifiable, Hashable {
     let id: Int

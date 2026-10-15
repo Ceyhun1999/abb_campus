@@ -57,6 +57,8 @@ struct StudentDetailView: View {
         }
     }
 
+    // MARK: - Header
+
     private func header(_ student: DirectoryStudent) -> some View {
         VStack(spacing: 10) {
             AvatarView(firstName: student.firstName, lastName: student.lastName, size: 96)
@@ -72,6 +74,8 @@ struct StudentDetailView: View {
         }
     }
 
+    // MARK: - Summary
+
     private func summaryCards(_ student: DirectoryStudent) -> some View {
         HStack(spacing: 12) {
             SummaryCard(icon: "square.grid.2x2.fill", title: "Qrup", value: student.group?.name ?? "—")
@@ -84,6 +88,8 @@ struct StudentDetailView: View {
             )
         }
     }
+
+    // MARK: - Status
 
     @ViewBuilder
     private func statusButton(_ student: DirectoryStudent) -> some View {

@@ -19,6 +19,8 @@ protocol Endpoint {
     var requiresAuthorization: Bool { get }
 }
 
+// MARK: - Defaults
+
 extension Endpoint {
     var baseUrl: String {
         APIConfiguration.baseURL
@@ -44,6 +46,8 @@ extension Endpoint {
         false
     }
 }
+
+// MARK: - Request
 
 extension Endpoint {
 

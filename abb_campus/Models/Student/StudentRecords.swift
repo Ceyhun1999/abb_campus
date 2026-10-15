@@ -1,5 +1,7 @@
 import Foundation
 
+// MARK: - Grades
+
 struct GradesOverview: Decodable, Equatable {
     let modules: [ModuleScore]
     let averageScore: Double
@@ -40,6 +42,8 @@ struct ModuleGrades: Decodable, Equatable {
     let maxScore: Double
 }
 
+// MARK: - Attendance
+
 enum AttendanceStatus: String, Decodable {
     case present
     case absent
@@ -69,6 +73,8 @@ struct AttendanceSummary: Decodable, Equatable {
     let presentDays: Int
     let attendancePercentage: Double
 }
+
+// MARK: - Schedule
 
 struct ScheduleLesson: Decodable, Identifiable, Hashable {
     let id: Int

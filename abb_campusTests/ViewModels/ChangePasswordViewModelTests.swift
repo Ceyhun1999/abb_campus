@@ -14,6 +14,8 @@ struct ChangePasswordViewModelTests {
         try state.startSession(user: .stub(), token: "token")
     }
 
+    // MARK: - Helpers
+
     private func makeSUT(current: String = "Password123!", new: String = "NewPass456!", confirmation: String? = nil) -> ChangePasswordViewModel {
         let sut = ChangePasswordViewModel(authenticationState: state)
         sut.currentPassword = current
@@ -21,6 +23,8 @@ struct ChangePasswordViewModelTests {
         sut.passwordConfirmation = confirmation ?? new
         return sut
     }
+
+    // MARK: - Save
 
     @Test("Valid form sends the request with the session token")
     func success() async throws {
@@ -78,6 +82,8 @@ struct ChangePasswordViewModelTests {
 
         #expect(authService.changePasswordRequests.count == 1)
     }
+
+    // MARK: - Profile
 
     @Test("Profile opens the change password form")
     func profileOpensForm() {

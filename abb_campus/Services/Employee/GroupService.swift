@@ -18,6 +18,8 @@ final class DefaultGroupService: GroupService {
         self.networkService = networkService
     }
 
+    // MARK: - Groups
+
     func fetchGroups(search: String) async throws -> [StudyGroup] {
         let response: PaginatedResponse<StudyGroup> = try await networkService.request(
             EmployeeEndpoint.groups(search: search)
@@ -42,6 +44,8 @@ final class DefaultGroupService: GroupService {
         return response.data
     }
 
+    // MARK: - Courses
+
     func fetchCourses() async throws -> [Course] {
         let response: PaginatedResponse<Course> = try await networkService.request(
             EmployeeEndpoint.courses
@@ -49,6 +53,8 @@ final class DefaultGroupService: GroupService {
 
         return response.data
     }
+
+    // MARK: - Create & Update
 
     func createGroup(_ request: GroupFormRequest) async throws -> StudyGroup {
         let response: APIResponse<StudyGroup> = try await networkService.request(
@@ -65,6 +71,8 @@ final class DefaultGroupService: GroupService {
 
         return response.data
     }
+
+    // MARK: - Import
 
     func importStudents(groupId: Int, fileName: String, fileData: Data) async throws -> StudentImportResult {
         var form = MultipartFormData()

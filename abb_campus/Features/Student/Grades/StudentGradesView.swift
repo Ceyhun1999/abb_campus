@@ -43,6 +43,8 @@ struct StudentGradesView: View {
         }
     }
 
+    // MARK: - Summary
+
     private func summaryCard(_ overview: GradesOverview) -> some View {
         HStack(spacing: 12) {
             SummaryCard(
@@ -60,6 +62,8 @@ struct StudentGradesView: View {
         }
     }
 }
+
+// MARK: - Module Row
 
 private struct ModuleScoreRow: View {
 

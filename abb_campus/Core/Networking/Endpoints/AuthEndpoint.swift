@@ -12,6 +12,8 @@ enum AuthEndpoint {
 
 extension AuthEndpoint: Endpoint {
 
+    // MARK: - Path
+
     var path: String {
         switch self {
         case .login:
@@ -37,6 +39,8 @@ extension AuthEndpoint: Endpoint {
         }
     }
 
+    // MARK: - Method
+
     var method: HTTPMethod {
         switch self {
         case .me:
@@ -52,6 +56,8 @@ extension AuthEndpoint: Endpoint {
         }
     }
 
+    // MARK: - Headers
+
     var headers: [String: String]? {
         switch self {
         case .me(let token),
@@ -66,6 +72,8 @@ extension AuthEndpoint: Endpoint {
             return HTTPHeader.json
         }
     }
+
+    // MARK: - Body
 
     var httpBody: (any Encodable)? {
         switch self {

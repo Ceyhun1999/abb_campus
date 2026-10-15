@@ -79,6 +79,8 @@ struct NewAnnouncementView: View {
         }
     }
 
+    // MARK: - Group Picker
+
     @ViewBuilder
     private var groupPicker: some View {
         @Bindable var viewModel = viewModel

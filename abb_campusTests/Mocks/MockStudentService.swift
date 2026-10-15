@@ -3,6 +3,8 @@ import Foundation
 
 final class MockStudentService: StudentService {
 
+    // MARK: - Results
+
     var gradesResult: Result<GradesOverview, Error> = .success(
         GradesOverview(
             modules: [ModuleScore(moduleId: 1, moduleName: "Swift əsasları", totalScore: 86, maxScore: 100)],
@@ -25,6 +27,8 @@ final class MockStudentService: StudentService {
     var announcementsResult: Result<[Announcement], Error> = .success([.stub()])
 
     private(set) var requestedModuleIds: [Int] = []
+
+    // MARK: - StudentService
 
     func fetchGradesOverview() async throws -> GradesOverview {
         try gradesResult.get()

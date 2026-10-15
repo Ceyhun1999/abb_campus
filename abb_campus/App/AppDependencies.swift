@@ -24,6 +24,8 @@ struct AppDependencies {
     }
 }
 
+// MARK: - Live
+
 extension AppDependencies {
 
     static var live: AppDependencies {
@@ -74,9 +76,13 @@ extension AppDependencies {
     }
 }
 
+// MARK: - Launch Arguments
+
 enum LaunchArgument {
     static let uiTesting = "-ui-testing"
 }
+
+// MARK: - Environment
 
 extension EnvironmentValues {
     @Entry var dependencies: AppDependencies = .live
