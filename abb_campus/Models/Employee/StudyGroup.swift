@@ -13,9 +13,14 @@ struct StudyGroup: Decodable, Identifiable, Hashable {
         let id: Int
         let firstName: String
         let lastName: String
+        var isActive: Bool?
 
         var fullName: String {
             "\(firstName) \(lastName)"
+        }
+
+        var isInactive: Bool {
+            isActive == false
         }
     }
 
@@ -24,6 +29,10 @@ struct StudyGroup: Decodable, Identifiable, Hashable {
     let course: Course?
     let teacher: TeacherReference?
     let mentors: [TeacherReference]?
+
+    var inactiveStaff: [TeacherReference] {
+        ([teacher].compactMap { $0 } + (mentors ?? [])).filter(\.isInactive)
+    }
     let startDate: String?
     let endDate: String?
     let isActive: Bool

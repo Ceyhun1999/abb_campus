@@ -107,6 +107,43 @@ struct EmployeeFormViewModelTests {
         #expect(groupService.createdRequests.isEmpty)
     }
 
+    @Test("Inactive teachers and mentors are not offered")
+    func inactiveStaffHidden() async {
+        let teacherService = MockTeacherService()
+        teacherService.teachersResult = .success([
+            .stub(id: 1, position: .teacher, isActive: false),
+            .stub(id: 2, position: .teacher),
+            .stub(id: 3, position: .mentor, isActive: false),
+            .stub(id: 4, position: .mentor)
+        ])
+        let sut = GroupFormViewModel(groupService: MockGroupService(), teacherService: teacherService)
+        await sut.loadOptions()
+
+        sut.selectedCourseId = 7
+
+        #expect(sut.availableTeachers.map(\.id) == [2])
+        #expect(sut.availableMentors.map(\.id) == [4])
+    }
+
+    @Test("Editing drops inactive staff from the selection and names them")
+    func editingDropsInactiveStaff() {
+        let group = StudyGroup(
+            id: 5, name: "IOS-05", course: Course(id: 7, name: "Mobile Development iOS"),
+            teacher: .init(id: 21, firstName: "Kamal", lastName: "Əliyev", isActive: false),
+            mentors: [
+                .init(id: 31, firstName: "Fidan", lastName: "Kərimova", isActive: false),
+                .init(id: 32, firstName: "Elvin", lastName: "Həsənov", isActive: true)
+            ],
+            startDate: "2026-09-01", endDate: "2027-03-01", isActive: true, studentsCount: 0, progress: nil
+        )
+
+        let sut = GroupFormViewModel(group: group, groupService: MockGroupService(), teacherService: MockTeacherService())
+
+        #expect(sut.selectedTeacherId == nil)
+        #expect(sut.removedInactiveStaff == ["Kamal Əliyev", "Fidan Kərimova"])
+        #expect(group.inactiveStaff.count == 2)
+    }
+
     @Test("Changing the course clears a teacher from another course")
     func courseChangeClearsTeacher() async {
         let groupService = MockGroupService()

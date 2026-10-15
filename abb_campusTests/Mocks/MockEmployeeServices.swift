@@ -191,7 +191,8 @@ extension Teacher {
     static func stub(
         id: Int = 21,
         specialty: String = "Mobile Development iOS",
-        position: TeacherPosition = .teacher
+        position: TeacherPosition = .teacher,
+        isActive: Bool = true
     ) -> Teacher {
         Teacher(
             id: id,
@@ -201,7 +202,7 @@ extension Teacher {
             phone: nil,
             specialty: specialty,
             position: position,
-            isActive: true,
+            isActive: isActive,
             groupsCount: 2,
             groups: nil
         )

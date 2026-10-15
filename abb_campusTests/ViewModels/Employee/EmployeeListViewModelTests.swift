@@ -281,4 +281,11 @@ struct EmployeeListViewModelTests {
         #expect(sut.state.value?.isActive == true)
         #expect(sut.actionErrorMessage != nil)
     }
+
+    @Test("Deactivation warning mentions the teacher's groups")
+    func deactivationWarningMentionsGroups() {
+        let sut = TeacherDetailViewModel(teacher: .stub(id: 21), teacherService: MockTeacherService())
+
+        #expect(sut.statusConfirmationTitle.contains("2 qrupda"))
+    }
 }

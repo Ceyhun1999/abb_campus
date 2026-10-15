@@ -84,9 +84,21 @@ struct GroupDetailView: View {
                     .padding(.trailing, 16)
             }
             InfoDivider()
-            InfoRow(icon: "person", title: "Müəllim", value: group.teacher?.fullName ?? "Təyin edilməyib")
+            InfoRow(icon: "person", title: "Müəllim", value: group.teacher.map(staffName) ?? "Təyin edilməyib")
             InfoDivider()
             InfoRow(icon: "person.2", title: "Mentorlar", value: mentorNames(group))
+
+            if !group.inactiveStaff.isEmpty {
+                InfoDivider()
+                Label(
+                    "Qrupda deaktiv müəllim və ya mentor var. Qrupu redaktə edib başqasını təyin edin.",
+                    systemImage: "exclamationmark.triangle.fill"
+                )
+                .font(.manropeRegular(14))
+                .foregroundStyle(.red)
+                .padding(16)
+                .accessibilityIdentifier("inactive_staff_warning")
+            }
             InfoDivider()
             InfoRow(icon: "calendar", title: "Müddət", value: period(group))
             InfoDivider()
@@ -97,8 +109,12 @@ struct GroupDetailView: View {
     // MARK: - Formatting
 
     private func mentorNames(_ group: StudyGroup) -> String {
-        let names = group.mentors?.map(\.fullName) ?? []
+        let names = group.mentors?.map(staffName) ?? []
         return names.isEmpty ? "Təyin edilməyib" : names.joined(separator: "\n")
+    }
+
+    private func staffName(_ person: StudyGroup.TeacherReference) -> String {
+        person.isInactive ? "\(person.fullName) (deaktiv)" : person.fullName
     }
 
     private func period(_ group: StudyGroup) -> String {

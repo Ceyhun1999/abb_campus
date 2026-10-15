@@ -137,9 +137,17 @@ final class TeacherDetailViewModel {
     }
 
     var statusConfirmationTitle: String {
-        state.value?.isActive == true
-            ? "Müəllim hesabı deaktiv edilsin? Müəllim tətbiqə daxil ola bilməyəcək."
-            : "Müəllim hesabı yenidən aktiv edilsin?"
+        guard let teacher = state.value, teacher.isActive else {
+            return "Müəllim hesabı yenidən aktiv edilsin?"
+        }
+
+        let base = "Müəllim hesabı deaktiv edilsin? Müəllim tətbiqə daxil ola bilməyəcək."
+
+        guard let groupsCount = teacher.groupsCount, groupsCount > 0 else {
+            return base
+        }
+
+        return base + " Bu müəllim \(groupsCount) qrupda müəllim və ya mentordur: qruplarda qalacaq, onu redaktə ilə əvəz edin."
     }
 
     func requestStatusChange() {

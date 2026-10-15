@@ -21,6 +21,7 @@ final class GroupFormViewModel {
     var startDate = Date()
     var endDate = Calendar.current.date(byAdding: .month, value: 6, to: Date()) ?? Date()
     var isActive = true
+    private(set) var removedInactiveStaff: [String] = []
 
     private(set) var options: ViewState<GroupFormOptions> = .idle
     private(set) var isSaving = false
@@ -42,8 +43,9 @@ final class GroupFormViewModel {
         if let group {
             name = group.name
             selectedCourseId = group.course?.id
-            selectedTeacherId = group.teacher?.id
-            selectedMentorIds = Set(group.mentors?.map(\.id) ?? [])
+            selectedTeacherId = group.teacher.flatMap { $0.isInactive ? nil : $0.id }
+            selectedMentorIds = Set((group.mentors ?? []).filter { !$0.isInactive }.map(\.id))
+            removedInactiveStaff = group.inactiveStaff.map(\.fullName)
             startDate = group.startDate.flatMap(DateFormatting.date(fromAPI:)) ?? Date()
             endDate = group.endDate.flatMap(DateFormatting.date(fromAPI:))
                 ?? Calendar.current.date(byAdding: .month, value: 6, to: startDate)
@@ -101,7 +103,7 @@ final class GroupFormViewModel {
         }
 
         return options.teachers
-            .filter { $0.specialty == course.name }
+            .filter { $0.isActive && $0.specialty == course.name }
             .sorted { $0.fullName < $1.fullName }
     }
 

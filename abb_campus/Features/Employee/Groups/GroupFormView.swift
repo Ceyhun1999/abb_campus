@@ -88,6 +88,16 @@ struct GroupFormView: View {
                 DatePicker("Bitmə tarixi", selection: $viewModel.endDate, displayedComponents: .date)
             }
 
+            if !viewModel.removedInactiveStaff.isEmpty {
+                Section {
+                    Label(
+                        "Deaktiv: \(viewModel.removedInactiveStaff.joined(separator: ", ")). Yadda saxlayanda qrupdan çıxarılacaq.",
+                        systemImage: "exclamationmark.triangle.fill"
+                    )
+                    .foregroundStyle(.red)
+                }
+            }
+
             if viewModel.isEditing {
                 Section("Status") {
                     Toggle("Aktiv qrup", isOn: $viewModel.isActive)
