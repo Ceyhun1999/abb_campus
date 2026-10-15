@@ -85,7 +85,24 @@ struct GroupFormView: View {
             Section("Müddət") {
                 DatePicker("Başlama tarixi", selection: $viewModel.startDate, displayedComponents: .date)
 
-                DatePicker("Bitmə tarixi", selection: $viewModel.endDate, displayedComponents: .date)
+                if viewModel.endDate == nil {
+                    LabeledContent("Bitmə tarixi") {
+                        Button("Tarix seçin") {
+                            viewModel.endDate = viewModel.startDate
+                        }
+                        .accessibilityIdentifier("group_form_end_date")
+                    }
+                } else {
+                    DatePicker(
+                        "Bitmə tarixi",
+                        selection: Binding(
+                            get: { viewModel.endDate ?? viewModel.startDate },
+                            set: { viewModel.endDate = $0 }
+                        ),
+                        in: viewModel.startDate...,
+                        displayedComponents: .date
+                    )
+                }
             }
 
             if !viewModel.removedInactiveStaff.isEmpty {

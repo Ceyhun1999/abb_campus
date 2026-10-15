@@ -19,7 +19,7 @@ final class GroupFormViewModel {
     var selectedTeacherId: Int?
     private(set) var selectedMentorIds: Set<Int> = []
     var startDate = Date()
-    var endDate = Calendar.current.date(byAdding: .month, value: 6, to: Date()) ?? Date()
+    var endDate: Date?
     var isActive = true
     private(set) var removedInactiveStaff: [String] = []
 
@@ -48,8 +48,6 @@ final class GroupFormViewModel {
             removedInactiveStaff = group.inactiveStaff.map(\.fullName)
             startDate = group.startDate.flatMap(DateFormatting.date(fromAPI:)) ?? Date()
             endDate = group.endDate.flatMap(DateFormatting.date(fromAPI:))
-                ?? Calendar.current.date(byAdding: .month, value: 6, to: startDate)
-                ?? startDate
             isActive = group.isActive
         }
     }
@@ -162,6 +160,11 @@ final class GroupFormViewModel {
 
         guard let courseId = selectedCourseId else {
             errorMessage = ValidationMessage.courseNotSelected
+            return nil
+        }
+
+        guard let endDate else {
+            errorMessage = ValidationMessage.endDateNotSelected
             return nil
         }
 

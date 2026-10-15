@@ -20,6 +20,22 @@ struct EmployeeFormViewModelTests {
         #expect(sut.availableMentors.isEmpty)
     }
 
+    @Test("End date has to be chosen for a new group")
+    func endDateRequired() async {
+        let service = MockGroupService()
+        let sut = GroupFormViewModel(groupService: service, teacherService: MockTeacherService())
+        await sut.loadOptions()
+        sut.name = "IOS-09"
+        sut.selectedCourseId = 7
+
+        #expect(sut.endDate == nil)
+
+        _ = await sut.save()
+
+        #expect(sut.errorMessage == ValidationMessage.endDateNotSelected)
+        #expect(service.createdRequests.isEmpty)
+    }
+
     @Test("A group without a course is rejected")
     func courseRequired() async {
         let service = MockGroupService()
@@ -86,7 +102,7 @@ struct EmployeeFormViewModelTests {
             id: 5, name: "IOS-05", course: Course(id: 7, name: "Mobile Development iOS"),
             teacher: .init(id: 21, firstName: "Kamal", lastName: "Əliyev"),
             mentors: [.init(id: 31, firstName: "Fidan", lastName: "Kərimova")],
-            startDate: "2026-09-01", endDate: nil, isActive: true, studentsCount: 0, progress: nil
+            startDate: "2026-09-01", endDate: "2027-03-01", isActive: true, studentsCount: 0, progress: nil
         )
         let sut = GroupFormViewModel(group: group, groupService: groupService, teacherService: teacherService)
         await sut.loadOptions()
@@ -94,7 +110,7 @@ struct EmployeeFormViewModelTests {
         #expect(sut.isEditing)
         #expect(sut.name == "IOS-05")
         #expect(sut.selectedTeacherId == 21)
-        #expect(Calendar.current.dateComponents([.month], from: sut.startDate, to: sut.endDate).month == 6)
+        #expect(sut.endDate.map(DateFormatting.apiString(from:)) == "2027-03-01")
 
         sut.toggleMentor(.stub(id: 32))
         sut.isActive = false
@@ -249,6 +265,7 @@ struct EmployeeFormViewModelTests {
         let sut = GroupFormViewModel(groupService: service, teacherService: MockTeacherService())
         sut.name = "IOS-08"
         sut.selectedCourseId = 7
+        sut.endDate = Calendar.current.date(byAdding: .month, value: 6, to: sut.startDate)
 
         async let first = sut.save()
         async let second = sut.save()
@@ -265,6 +282,7 @@ struct EmployeeFormViewModelTests {
         let sut = GroupFormViewModel(groupService: service, teacherService: MockTeacherService())
         sut.name = "IOS-01"
         sut.selectedCourseId = 7
+        sut.endDate = Calendar.current.date(byAdding: .month, value: 6, to: sut.startDate)
 
         let group = await sut.save()
 
