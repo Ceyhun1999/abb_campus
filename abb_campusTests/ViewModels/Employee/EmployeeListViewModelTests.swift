@@ -317,6 +317,11 @@ struct EmployeeListViewModelTests {
         await sut.load()
         #expect(sut.isCourseFilterEnabled == false)
 
+        sut.searchText = "IOS"
+        await sut.load()
+        #expect(sut.isCourseFilterEnabled == false)
+
+        sut.searchText = ""
         sut.courseFilterId = 7
         #expect(sut.isCourseFilterEnabled)
 

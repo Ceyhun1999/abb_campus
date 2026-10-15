@@ -35,7 +35,7 @@ final class GroupsListViewModel {
     }
 
     var isCourseFilterEnabled: Bool {
-        courseFilterId != nil || !trimmedSearch.isEmpty || state.value?.isEmpty == false
+        courseFilterId != nil || state.value?.isEmpty == false
     }
 
     var courseFilterName: String? {
