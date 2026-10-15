@@ -83,6 +83,14 @@ struct EmployeeEndpointTests {
 
     // MARK: - Groups
 
+    @Test("Group course filter is sent as courseId")
+    func groupCourseQuery() throws {
+        let request = try EmployeeEndpoint.groups(search: "", courseId: 4).makeRequest()
+        let items = URLComponents(url: try #require(request.url), resolvingAgainstBaseURL: false)?.queryItems ?? []
+
+        #expect(items.contains(URLQueryItem(name: "courseId", value: "4")))
+    }
+
     @Test("Editing a group is a PATCH that sends an empty teacher as null")
     func updateGroupRequest() throws {
         let form = GroupFormRequest(name: "IOS-05", courseId: 1, teacherId: nil, mentorIds: [3, 4],

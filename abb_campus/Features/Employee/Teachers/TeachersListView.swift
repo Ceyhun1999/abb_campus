@@ -23,7 +23,9 @@ struct TeachersListView: View {
             .accessibilityIdentifier("teacher_position_filter")
 
             if let specialty = viewModel.specialtyFilter {
-                specialtyChip(specialty)
+                FilterChip(title: specialty) {
+                    viewModel.specialtyFilter = nil
+                }
             }
 
             teacherList
@@ -64,33 +66,6 @@ struct TeachersListView: View {
         }
         .accessibilityLabel("İxtisas filtri")
         .accessibilityIdentifier("teacher_specialty_filter")
-    }
-
-    private func specialtyChip(_ specialty: String) -> some View {
-        HStack {
-            Button {
-                viewModel.specialtyFilter = nil
-            } label: {
-                HStack(spacing: 6) {
-                    Text(specialty)
-                        .lineLimit(1)
-
-                    Image(systemName: "xmark")
-                        .font(.system(size: 11, weight: .bold))
-                }
-                .font(.manropeSemiBold(13))
-                .foregroundStyle(.blue)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-                .background(Color.blue.opacity(0.12))
-                .clipShape(Capsule())
-            }
-            .accessibilityLabel("\(specialty) filtrini sil")
-
-            Spacer()
-        }
-        .padding(.horizontal, AppLayout.horizontalPadding)
-        .padding(.bottom, 8)
     }
 
     // MARK: - List

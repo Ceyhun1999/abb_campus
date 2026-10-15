@@ -288,4 +288,23 @@ struct EmployeeListViewModelTests {
 
         #expect(sut.statusConfirmationTitle.contains("2 qrupda"))
     }
+
+    // MARK: - Group course filter
+
+    @Test("Course filter is sent to the service and shown by name")
+    func groupCourseFilter() async {
+        let service = MockGroupService()
+        let sut = GroupsListViewModel(groupService: service, teacherService: MockTeacherService())
+        await sut.loadCourses()
+
+        sut.courseFilterId = 7
+
+        #expect(sut.state.isLoading)
+        #expect(sut.courseFilterName == "Mobile Development iOS")
+
+        await sut.load()
+
+        #expect(service.groupCourseIds.last == 7)
+        #expect(sut.emptyMessage == "Bu filtrə uyğun qrup yoxdur.")
+    }
 }

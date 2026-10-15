@@ -11,11 +11,79 @@ struct GroupsListView: View {
     var body: some View {
         @Bindable var viewModel = viewModel
 
+        VStack(spacing: 0) {
+            if let courseName = viewModel.courseFilterName {
+                FilterChip(title: courseName) {
+                    viewModel.courseFilterId = nil
+                }
+            }
+
+            groupList
+        }
+        .background(.appBackground)
+        .navigationTitle("Qruplar")
+        .searchable(text: $viewModel.searchText, prompt: "Qrup adı üzrə axtar")
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                courseMenu
+            }
+
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    viewModel.showCreateGroup()
+                } label: {
+                    Image(systemName: "plus")
+                }
+                .accessibilityLabel("Yeni qrup")
+            }
+        }
+        .sheet(isPresented: $viewModel.isCreateGroupPresented) {
+            if let createGroupViewModel = viewModel.createGroupViewModel {
+                GroupFormView(viewModel: createGroupViewModel) {
+                    Task {
+                        await viewModel.groupCreated()
+                    }
+                }
+            }
+        }
+        .task {
+            await viewModel.loadCourses()
+        }
+        .task(id: viewModel.query) {
+            await viewModel.queryChanged()
+        }
+    }
+
+    // MARK: - Course Filter
+
+    private var courseMenu: some View {
+        @Bindable var viewModel = viewModel
+
+        return Menu {
+            Picker("Kurs", selection: $viewModel.courseFilterId) {
+                Text("Bütün kurslar").tag(Int?.none)
+
+                ForEach(viewModel.courses) { course in
+                    Text(course.name).tag(Optional(course.id))
+                }
+            }
+        } label: {
+            Image(systemName: viewModel.courseFilterId == nil
+                  ? "line.3.horizontal.decrease.circle"
+                  : "line.3.horizontal.decrease.circle.fill")
+        }
+        .accessibilityLabel("Kurs filtri")
+        .accessibilityIdentifier("group_course_filter")
+    }
+
+    // MARK: - List
+
+    private var groupList: some View {
         AsyncContentView(
             state: viewModel.state,
             isEmpty: \.isEmpty,
             emptyTitle: "Qrup tapılmadı",
-            emptyMessage: "Yeni qrup yaratmaq üçün + düyməsinə toxunun.",
+            emptyMessage: viewModel.emptyMessage,
             emptyIcon: "square.grid.2x2",
             retry: viewModel.load
         ) { groups in
@@ -37,30 +105,5 @@ struct GroupsListView: View {
             }
         }
         .refreshingIndicator(viewModel.isRefreshing)
-        .background(.appBackground)
-        .navigationTitle("Qruplar")
-        .searchable(text: $viewModel.searchText, prompt: "Qrup adı üzrə axtar")
-        .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                Button {
-                    viewModel.showCreateGroup()
-                } label: {
-                    Image(systemName: "plus")
-                }
-                .accessibilityLabel("Yeni qrup")
-            }
-        }
-        .sheet(isPresented: $viewModel.isCreateGroupPresented) {
-            if let createGroupViewModel = viewModel.createGroupViewModel {
-                GroupFormView(viewModel: createGroupViewModel) {
-                    Task {
-                        await viewModel.groupCreated()
-                    }
-                }
-            }
-        }
-        .task(id: viewModel.searchText) {
-            await viewModel.queryChanged()
-        }
     }
 }

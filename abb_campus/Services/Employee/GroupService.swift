@@ -1,7 +1,7 @@
 import Foundation
 
 protocol GroupService {
-    func fetchGroups(search: String) async throws -> [StudyGroup]
+    func fetchGroups(search: String, courseId: Int?) async throws -> [StudyGroup]
     func fetchGroup(id: Int) async throws -> StudyGroup
     func fetchStudents(groupId: Int) async throws -> [GroupStudent]
     func fetchCourses() async throws -> [Course]
@@ -20,9 +20,9 @@ final class DefaultGroupService: GroupService {
 
     // MARK: - Groups
 
-    func fetchGroups(search: String) async throws -> [StudyGroup] {
+    func fetchGroups(search: String, courseId: Int?) async throws -> [StudyGroup] {
         let response: PaginatedResponse<StudyGroup> = try await networkService.request(
-            EmployeeEndpoint.groups(search: search)
+            EmployeeEndpoint.groups(search: search, courseId: courseId)
         )
 
         return response.data

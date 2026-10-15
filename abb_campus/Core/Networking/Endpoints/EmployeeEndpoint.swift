@@ -7,7 +7,7 @@ enum EmployeeEndpoint {
     case setUserStatus(userId: Int, isActive: Bool)
     case teachers(search: String, position: TeacherPositionFilter, specialty: String?)
     case teacher(id: Int)
-    case groups(search: String)
+    case groups(search: String, courseId: Int?)
     case group(id: Int)
     case groupStudents(groupId: Int)
     case createGroup(GroupFormRequest)
@@ -110,10 +110,11 @@ extension EmployeeEndpoint: Endpoint {
                 specialty.map { URLQueryItem(name: "specialty", value: $0) }
             ].compactMap { $0 }
 
-        case .groups(let search):
+        case .groups(let search, let courseId):
             return [
                 URLQueryItem(name: "perPage", value: Self.pageSize),
-                search.isEmpty ? nil : URLQueryItem(name: "search", value: search)
+                search.isEmpty ? nil : URLQueryItem(name: "search", value: search),
+                courseId.map { URLQueryItem(name: "courseId", value: String($0)) }
             ].compactMap { $0 }
 
         case .groupStudents, .courses, .announcements:

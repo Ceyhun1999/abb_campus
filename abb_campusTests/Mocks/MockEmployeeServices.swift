@@ -90,8 +90,11 @@ final class MockGroupService: GroupService {
     private(set) var updatedRequests: [(id: Int, request: GroupFormRequest)] = []
     private(set) var importedFiles: [(groupId: Int, fileName: String, data: Data)] = []
 
-    func fetchGroups(search: String) async throws -> [StudyGroup] {
-        try groupsResult.get()
+    private(set) var groupCourseIds: [Int?] = []
+
+    func fetchGroups(search: String, courseId: Int?) async throws -> [StudyGroup] {
+        groupCourseIds.append(courseId)
+        return try groupsResult.get()
     }
 
     func fetchGroup(id: Int) async throws -> StudyGroup {

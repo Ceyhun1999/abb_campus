@@ -194,8 +194,11 @@ final class UITestingDirectory: EmployeeDashboardService, StudentDirectoryServic
         teachers[0]
     }
 
-    func fetchGroups(search: String) async throws -> [StudyGroup] {
-        search.isEmpty ? groups : groups.filter { $0.name.localizedCaseInsensitiveContains(search) }
+    func fetchGroups(search: String, courseId: Int?) async throws -> [StudyGroup] {
+        groups.filter { group in
+            (search.isEmpty || group.name.localizedCaseInsensitiveContains(search))
+                && (courseId == nil || group.course?.id == courseId)
+        }
     }
 
     func fetchGroup(id: Int) async throws -> StudyGroup {

@@ -92,7 +92,7 @@ final class NewAnnouncementViewModel {
         groups = .loading
 
         do {
-            groups = .loaded(try await groupService.fetchGroups(search: ""))
+            groups = .loaded(try await groupService.fetchGroups(search: "", courseId: nil))
         } catch {
             groups = .failed(error.localizedDescription)
         }

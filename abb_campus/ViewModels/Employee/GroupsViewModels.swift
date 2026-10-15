@@ -6,7 +6,15 @@ import Observation
 final class GroupsListViewModel {
 
     var searchText = ""
+    var courseFilterId: Int? {
+        didSet {
+            if courseFilterId != oldValue {
+                state = .loading
+            }
+        }
+    }
     var isCreateGroupPresented = false
+    private(set) var courses: [Course] = []
     private(set) var state: ViewState<[StudyGroup]> = .idle
     private(set) var isRefreshing = false
     private var loadedQuery: String?
@@ -22,8 +30,30 @@ final class GroupsListViewModel {
 
     // MARK: - Search
 
-    private var query: String {
+    var query: String {
+        "\(courseFilterId.map(String.init) ?? "")|\(trimmedSearch)"
+    }
+
+    var courseFilterName: String? {
+        courses.first { $0.id == courseFilterId }?.name
+    }
+
+    var emptyMessage: String {
+        courseFilterId == nil && trimmedSearch.isEmpty
+            ? "Yeni qrup yaratmaq üçün + düyməsinə toxunun."
+            : "Bu filtrə uyğun qrup yoxdur."
+    }
+
+    private var trimmedSearch: String {
         searchText.trimmingCharacters(in: .whitespaces)
+    }
+
+    func loadCourses() async {
+        guard courses.isEmpty else {
+            return
+        }
+
+        courses = (try? await groupService.fetchCourses()) ?? []
     }
 
     func queryChanged() async {
@@ -53,7 +83,8 @@ final class GroupsListViewModel {
 
         do {
             state = .loaded(try await groupService.fetchGroups(
-                search: requestedQuery
+                search: trimmedSearch,
+                courseId: courseFilterId
             ))
             loadedQuery = requestedQuery
         } catch is CancellationError {
