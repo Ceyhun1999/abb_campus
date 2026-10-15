@@ -6,17 +6,8 @@ struct EmployeeHomeView: View {
 
     @State private var viewModel: EmployeeHomeViewModel
 
-    private let onOpenStudents: (StudentStatusFilter) -> Void
-    private let onOpenTab: (EmployeeTab) -> Void
-
-    init(
-        viewModel: EmployeeHomeViewModel,
-        onOpenStudents: @escaping (StudentStatusFilter) -> Void = { _ in },
-        onOpenTab: @escaping (EmployeeTab) -> Void = { _ in }
-    ) {
+    init(viewModel: EmployeeHomeViewModel) {
         _viewModel = State(initialValue: viewModel)
-        self.onOpenStudents = onOpenStudents
-        self.onOpenTab = onOpenTab
     }
 
     var body: some View {
@@ -25,16 +16,10 @@ struct EmployeeHomeView: View {
                 VStack(alignment: .leading, spacing: 24) {
                     headerView
 
-                    Button {
-                        onOpenStudents(.all)
-                    } label: {
-                        TotalStudentsCard(
-                            count: summary.studentsCount,
-                            newThisMonth: summary.newStudentsThisMonth
-                        )
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityIdentifier("total_students_card")
+                    TotalStudentsCard(
+                        count: summary.studentsCount,
+                        newThisMonth: summary.newStudentsThisMonth
+                    )
 
                     statisticsGrid(summary)
 
@@ -84,19 +69,12 @@ struct EmployeeHomeView: View {
             columns: [GridItem(.flexible(), spacing: 14), GridItem(.flexible(), spacing: 14)],
             spacing: 14
         ) {
-            Button {
-                onOpenStudents(.active)
-            } label: {
-                DashboardTile(
-                    icon: "chart.bar.fill",
-                    tint: .green,
-                    title: "Aktiv tələbə",
-                    value: summary.activeStudentsCount,
-                    showsChevron: true
-                )
-            }
-            .buttonStyle(.plain)
-            .accessibilityIdentifier("active_students_tile")
+            DashboardTile(
+                icon: "chart.bar.fill",
+                tint: .green,
+                title: "Aktiv tələbə",
+                value: summary.activeStudentsCount
+            )
 
             NavigationLink(value: EmployeeRoute.teachers) {
                 DashboardTile(
@@ -110,33 +88,19 @@ struct EmployeeHomeView: View {
             .buttonStyle(.plain)
             .accessibilityIdentifier("teachers_tile")
 
-            Button {
-                onOpenTab(.groups)
-            } label: {
-                DashboardTile(
-                    icon: "square.grid.2x2.fill",
-                    tint: .indigo,
-                    title: "Qruplar",
-                    value: summary.groupsCount,
-                    showsChevron: true
-                )
-            }
-            .buttonStyle(.plain)
-            .accessibilityIdentifier("groups_tile")
+            DashboardTile(
+                icon: "square.grid.2x2.fill",
+                tint: .indigo,
+                title: "Qruplar",
+                value: summary.groupsCount
+            )
 
-            Button {
-                onOpenTab(.announcements)
-            } label: {
-                DashboardTile(
-                    icon: "megaphone.fill",
-                    tint: .red,
-                    title: "Elanlar",
-                    value: summary.announcementsCount,
-                    showsChevron: true
-                )
-            }
-            .buttonStyle(.plain)
-            .accessibilityIdentifier("announcements_tile")
+            DashboardTile(
+                icon: "megaphone.fill",
+                tint: .red,
+                title: "Elanlar",
+                value: summary.announcementsCount
+            )
         }
     }
 

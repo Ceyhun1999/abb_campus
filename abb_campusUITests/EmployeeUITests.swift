@@ -46,17 +46,6 @@ final class EmployeeUITests: XCTestCase {
         XCTAssertFalse(app.buttons["import_submit"].isEnabled)
     }
 
-    func testHomeTilesOpenTheirTabs() {
-        signInAsEmployee()
-
-        let activeStudent = app.buttons["student_row_11"]
-        XCTAssertTrue(app.tap(app.buttons["active_students_tile"], until: activeStudent))
-        XCTAssertFalse(app.buttons["student_row_13"].exists)
-
-        XCTAssertTrue(app.tap(app.tabBars.buttons["Ana səhifə"], until: app.buttons["groups_tile"]))
-        XCTAssertTrue(app.tap(app.buttons["groups_tile"], until: app.buttons["group_row_1"]))
-    }
-
     private func signInAsEmployee() {
         XCTAssertTrue(app.openLogin(role: "employee"))
 
