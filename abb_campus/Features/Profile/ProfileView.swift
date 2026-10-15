@@ -132,6 +132,7 @@ struct ProfileView: View {
                 Group {
                     if viewModel.isLoggingOut {
                         ProgressView()
+                            .tint(.white)
                     } else {
                         Image(systemName: "rectangle.portrait.and.arrow.right")
                             .font(.system(size: 18))
@@ -144,10 +145,11 @@ struct ProfileView: View {
 
                 Spacer()
             }
-            .foregroundStyle(.red)
+            .foregroundStyle(.white)
             .padding(.horizontal, 16)
             .frame(height: 56)
-            .cardStyle(cornerRadius: 16)
+            .background(.red)
+            .clipShape(RoundedRectangle(cornerRadius: 16))
         }
         .buttonStyle(.plain)
         .disabled(viewModel.isLoggingOut)
