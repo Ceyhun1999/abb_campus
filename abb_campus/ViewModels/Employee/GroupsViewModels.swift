@@ -35,7 +35,7 @@ final class GroupsListViewModel {
         "\(courseFilterId.map(String.init) ?? "")|\(trimmedSearch)"
     }
 
-    var isSearchAvailable: Bool {
+    var isSearchEnabled: Bool {
         hasGroups || !trimmedSearch.isEmpty
     }
 

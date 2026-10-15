@@ -331,22 +331,22 @@ struct EmployeeListViewModelTests {
         #expect(sut.isCourseFilterEnabled)
     }
 
-    @Test("Search is hidden while there are no groups, but stays once the user typed")
+    @Test("Search is disabled while there are no groups, but stays enabled once the user typed")
     func searchAvailability() async {
         let service = MockGroupService()
         service.groupsResult = .success([])
         let sut = GroupsListViewModel(groupService: service, teacherService: MockTeacherService())
 
         await sut.load()
-        #expect(sut.isSearchAvailable == false)
+        #expect(sut.isSearchEnabled == false)
 
         service.groupsResult = .success([.stub()])
         await sut.load()
-        #expect(sut.isSearchAvailable)
+        #expect(sut.isSearchEnabled)
 
         service.groupsResult = .success([])
         sut.searchText = "XYZ"
         await sut.load()
-        #expect(sut.isSearchAvailable)
+        #expect(sut.isSearchEnabled)
     }
 }

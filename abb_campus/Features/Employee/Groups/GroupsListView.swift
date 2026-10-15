@@ -12,6 +12,12 @@ struct GroupsListView: View {
         @Bindable var viewModel = viewModel
 
         VStack(spacing: 0) {
+            SearchField(prompt: "Qrup adı üzrə axtar", text: $viewModel.searchText)
+                .disabled(!viewModel.isSearchEnabled)
+                .padding(.horizontal, AppLayout.horizontalPadding)
+                .padding(.bottom, 8)
+                .accessibilityIdentifier("group_search_field")
+
             if let courseName = viewModel.courseFilterName {
                 FilterChip(title: courseName) {
                     viewModel.courseFilterId = nil
@@ -22,11 +28,6 @@ struct GroupsListView: View {
         }
         .background(.appBackground)
         .navigationTitle("Qruplar")
-        .searchable(
-            if: viewModel.isSearchAvailable,
-            text: $viewModel.searchText,
-            prompt: "Qrup adı üzrə axtar"
-        )
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 courseMenu
@@ -110,19 +111,5 @@ struct GroupsListView: View {
             }
         }
         .refreshingIndicator(viewModel.isRefreshing)
-    }
-}
-
-// MARK: - Optional Search
-
-private extension View {
-
-    @ViewBuilder
-    func searchable(if isAvailable: Bool, text: Binding<String>, prompt: String) -> some View {
-        if isAvailable {
-            searchable(text: text, prompt: prompt)
-        } else {
-            self
-        }
     }
 }
