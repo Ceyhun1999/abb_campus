@@ -4,14 +4,22 @@ struct PrimaryButton: View {
 
     let title: String
     var isLoading: Bool = false
+    var loadingTitle: String?
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
             Group {
                 if isLoading {
-                    ProgressView()
-                        .tint(.white)
+                    HStack(spacing: 10) {
+                        ProgressView()
+                            .tint(.white)
+
+                        if let loadingTitle {
+                            Text(loadingTitle)
+                                .font(.manropeSemiBold(17))
+                        }
+                    }
                 } else {
                     Text(title)
                         .font(.manropeSemiBold(17))
@@ -26,8 +34,7 @@ struct PrimaryButton: View {
             )
         }
         .buttonStyle(.plain)
-        .disabled(isLoading)
-        .opacity(isLoading ? 0.7 : 1)
+        .allowsHitTesting(!isLoading)
     }
 }
 

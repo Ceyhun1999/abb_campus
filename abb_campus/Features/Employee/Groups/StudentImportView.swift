@@ -32,15 +32,25 @@ struct StudentImportView: View {
 
                 PrimaryButton(
                     title: "Tələbələri idxal et",
-                    isLoading: viewModel.result.isLoading
+                    isLoading: viewModel.result.isLoading,
+                    loadingTitle: "İdxal edilir…"
                 ) {
                     Task {
                         await viewModel.importStudents()
                     }
                 }
-                .disabled(!viewModel.canImport)
-                .opacity(viewModel.canImport ? 1 : 0.5)
+                .disabled(viewModel.selectedFile == nil)
+                .opacity(viewModel.selectedFile == nil ? 0.5 : 1)
                 .accessibilityIdentifier("import_submit")
+
+                if viewModel.result.isLoading {
+                    Text("Fayl yoxlanılır və tələbələr əlavə olunur. Bir neçə saniyə çəkə bilər.")
+                        .font(.manropeRegular(14))
+                        .foregroundStyle(.textSecondary)
+                        .frame(maxWidth: .infinity)
+                        .multilineTextAlignment(.center)
+                        .accessibilityIdentifier("import_progress")
+                }
 
                 if let result = viewModel.result.value {
                     resultSection(result)
@@ -89,6 +99,7 @@ struct StudentImportView: View {
                 viewModel.showFilePicker()
             }
             .buttonStyle(.borderedProminent)
+            .disabled(viewModel.result.isLoading)
             .accessibilityIdentifier("pick_file_button")
         }
         .frame(maxWidth: .infinity)
@@ -123,6 +134,7 @@ struct StudentImportView: View {
                 Image(systemName: "xmark")
                     .foregroundStyle(.secondary)
             }
+            .disabled(viewModel.result.isLoading)
             .accessibilityLabel("Faylı sil")
         }
         .padding(14)
