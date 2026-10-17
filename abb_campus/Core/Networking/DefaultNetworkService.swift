@@ -56,7 +56,7 @@ final class DefaultNetworkService: NetworkService {
 
                 throw NetworkError.serverError(
                     statusCode: httpResponse.statusCode,
-                    message: apiError?.firstErrorMessage
+                    message: apiError?.combinedErrorMessage
                 )
             }
 

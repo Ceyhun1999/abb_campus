@@ -46,7 +46,7 @@ struct GroupDetailView: View {
         }
         .sheet(isPresented: $viewModel.isEditPresented) {
             if let editViewModel = viewModel.editViewModel {
-                GroupFormView(viewModel: editViewModel) {
+                GroupFormView(viewModel: editViewModel) { _ in
                     Task {
                         await viewModel.groupSaved()
                     }

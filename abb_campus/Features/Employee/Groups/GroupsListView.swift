@@ -42,13 +42,20 @@ struct GroupsListView: View {
                 .accessibilityLabel("Yeni qrup")
             }
         }
-        .sheet(isPresented: $viewModel.isCreateGroupPresented) {
+        .sheet(isPresented: $viewModel.isCreateGroupPresented, onDismiss: {
+            Task {
+                await viewModel.createSheetDismissed()
+            }
+        }) {
             if let createGroupViewModel = viewModel.createGroupViewModel {
-                GroupFormView(viewModel: createGroupViewModel) {
-                    Task {
-                        await viewModel.groupCreated()
-                    }
+                GroupFormView(viewModel: createGroupViewModel) { group in
+                    viewModel.groupCreated(group)
                 }
+            }
+        }
+        .navigationDestination(isPresented: $viewModel.isCreatedGroupPresented) {
+            if let createdGroupViewModel = viewModel.createdGroupViewModel {
+                GroupDetailView(viewModel: createdGroupViewModel)
             }
         }
         .task {

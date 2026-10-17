@@ -22,6 +22,7 @@ final class GroupFormViewModel {
     var endDate: Date?
     var isActive = true
     private(set) var removedInactiveStaff: [String] = []
+    private var initialSnapshot: Snapshot?
 
     private(set) var options: ViewState<GroupFormOptions> = .idle
     private(set) var isSaving = false
@@ -50,10 +51,40 @@ final class GroupFormViewModel {
             endDate = group.endDate.flatMap(DateFormatting.date(fromAPI:))
             isActive = group.isActive
         }
+
+        initialSnapshot = snapshot
     }
 
     func dismissError() {
         errorMessage = nil
+    }
+
+    // MARK: - Changes
+
+    private struct Snapshot: Equatable {
+        let name: String
+        let courseId: Int?
+        let teacherId: Int?
+        let mentorIds: Set<Int>
+        let startDate: String
+        let endDate: String?
+        let isActive: Bool
+    }
+
+    private var snapshot: Snapshot {
+        Snapshot(
+            name: name.trimmingCharacters(in: .whitespacesAndNewlines),
+            courseId: selectedCourseId,
+            teacherId: selectedTeacherId,
+            mentorIds: selectedMentorIds,
+            startDate: DateFormatting.apiString(from: startDate),
+            endDate: endDate.map(DateFormatting.apiString(from:)),
+            isActive: isActive
+        )
+    }
+
+    var hasChanges: Bool {
+        snapshot != initialSnapshot
     }
 
     var isEditing: Bool {

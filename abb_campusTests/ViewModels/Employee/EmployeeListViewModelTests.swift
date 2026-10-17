@@ -349,4 +349,36 @@ struct EmployeeListViewModelTests {
         await sut.load()
         #expect(sut.isSearchEnabled)
     }
+
+    @Test("A created group is opened and the list filters are cleared")
+    func createdGroupIsOpened() async {
+        let sut = GroupsListViewModel(groupService: MockGroupService(), teacherService: MockTeacherService())
+        sut.searchText = "XYZ"
+        sut.courseFilterId = 7
+        sut.showCreateGroup()
+
+        sut.groupCreated(.stub(id: 42))
+
+        #expect(sut.isCreateGroupPresented == false)
+        #expect(sut.isCreatedGroupPresented == false)
+
+        await sut.createSheetDismissed()
+
+        #expect(sut.isCreatedGroupPresented)
+        #expect(sut.createdGroupViewModel?.group.id == 42)
+        #expect(sut.searchText.isEmpty)
+        #expect(sut.courseFilterId == nil)
+    }
+
+    @Test("Closing the create sheet without saving opens nothing")
+    func cancelledCreateOpensNothing() async {
+        let sut = GroupsListViewModel(groupService: MockGroupService(), teacherService: MockTeacherService())
+        sut.showCreateGroup()
+        sut.isCreateGroupPresented = false
+
+        await sut.createSheetDismissed()
+
+        #expect(sut.isCreatedGroupPresented == false)
+        #expect(sut.createdGroupViewModel == nil)
+    }
 }

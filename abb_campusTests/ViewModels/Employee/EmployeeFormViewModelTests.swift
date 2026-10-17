@@ -36,6 +36,39 @@ struct EmployeeFormViewModelTests {
         #expect(service.createdRequests.isEmpty)
     }
 
+    @Test("A new form has no changes until something is entered")
+    func newFormChanges() async {
+        let sut = GroupFormViewModel(groupService: MockGroupService(), teacherService: MockTeacherService())
+        await sut.loadOptions()
+
+        #expect(sut.hasChanges == false)
+
+        sut.name = "IOS-10"
+
+        #expect(sut.hasChanges)
+
+        sut.name = ""
+
+        #expect(sut.hasChanges == false)
+    }
+
+    @Test("Editing has no changes until a field differs from the group")
+    func editFormChanges() async {
+        let group = StudyGroup(
+            id: 5, name: "IOS-05", course: Course(id: 7, name: "Mobile Development iOS"),
+            teacher: nil, mentors: [], startDate: "2026-09-01", endDate: "2027-03-01",
+            isActive: true, studentsCount: 0, progress: nil
+        )
+        let sut = GroupFormViewModel(group: group, groupService: MockGroupService(), teacherService: MockTeacherService())
+        await sut.loadOptions()
+
+        #expect(sut.hasChanges == false)
+
+        sut.isActive = false
+
+        #expect(sut.hasChanges)
+    }
+
     @Test("A group without a course is rejected")
     func courseRequired() async {
         let service = MockGroupService()

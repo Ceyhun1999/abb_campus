@@ -20,6 +20,9 @@ final class GroupsListViewModel {
     private(set) var isRefreshing = false
     private var loadedQuery: String?
     private(set) var createGroupViewModel: GroupFormViewModel?
+    var isCreatedGroupPresented = false
+    private(set) var createdGroupViewModel: GroupDetailViewModel?
+    private var pendingCreatedGroup: StudyGroup?
 
     private let groupService: any GroupService
     private let teacherService: any TeacherService
@@ -112,9 +115,26 @@ final class GroupsListViewModel {
         isCreateGroupPresented = true
     }
 
-    func groupCreated() async {
+    func groupCreated(_ group: StudyGroup) {
+        pendingCreatedGroup = group
         isCreateGroupPresented = false
         createGroupViewModel = nil
+    }
+
+    func createSheetDismissed() async {
+        guard let group = pendingCreatedGroup else {
+            return
+        }
+
+        pendingCreatedGroup = nil
+        searchText = ""
+        courseFilterId = nil
+        createdGroupViewModel = GroupDetailViewModel(
+            group: group,
+            groupService: groupService,
+            teacherService: teacherService
+        )
+        isCreatedGroupPresented = true
         await load()
     }
 }

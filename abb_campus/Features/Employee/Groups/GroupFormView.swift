@@ -6,10 +6,11 @@ struct GroupFormView: View {
 
     @State private var viewModel: GroupFormViewModel
     @State private var isEndDatePickerPresented = false
+    @State private var isDiscardConfirmationPresented = false
 
-    let onSaved: () -> Void
+    let onSaved: (StudyGroup) -> Void
 
-    init(viewModel: GroupFormViewModel, onSaved: @escaping () -> Void) {
+    init(viewModel: GroupFormViewModel, onSaved: @escaping (StudyGroup) -> Void) {
         _viewModel = State(initialValue: viewModel)
         self.onSaved = onSaved
     }
@@ -25,7 +26,24 @@ struct GroupFormView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Ləğv et") {
-                        dismiss()
+                        if viewModel.hasChanges {
+                            isDiscardConfirmationPresented = true
+                        } else {
+                            dismiss()
+                        }
+                    }
+                    .confirmationDialog(
+                        "Dəyişikliklər yadda saxlanmayıb",
+                        isPresented: $isDiscardConfirmationPresented,
+                        titleVisibility: .visible
+                    ) {
+                        Button("Dəyişiklikləri sil", role: .destructive) {
+                            dismiss()
+                        }
+
+                        Button("Redaktəyə davam et", role: .cancel) {}
+                    } message: {
+                        Text("Çıxsanız, daxil etdiyiniz məlumatlar itəcək.")
                     }
                 }
 
@@ -35,8 +53,8 @@ struct GroupFormView: View {
                     } else {
                         Button(viewModel.saveTitle) {
                             Task {
-                                if await viewModel.save() != nil {
-                                    onSaved()
+                                if let group = await viewModel.save() {
+                                    onSaved(group)
                                 }
                             }
                         }
@@ -46,6 +64,7 @@ struct GroupFormView: View {
                 }
             }
         }
+        .interactiveDismissDisabled(viewModel.hasChanges)
         .sheet(isPresented: $isEndDatePickerPresented) {
             EndDatePickerSheet(
                 startDate: viewModel.startDate,
