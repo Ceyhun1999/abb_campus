@@ -1,28 +1,6 @@
 import Foundation
 import Observation
 
-enum SchedulePeriod: String, CaseIterable, Identifiable {
-    case upcoming
-    case past
-
-    var id: String { rawValue }
-
-    var title: String {
-        switch self {
-        case .upcoming: return "Gələcək"
-        case .past: return "Keçmiş"
-        }
-    }
-}
-
-struct ScheduleSection: Identifiable, Equatable {
-    let date: String
-    let title: String
-    let lessons: [ScheduleLesson]
-
-    var id: String { date }
-}
-
 @MainActor
 @Observable
 final class ScheduleViewModel {
@@ -44,22 +22,7 @@ final class ScheduleViewModel {
     // MARK: - Sections
 
     var sections: [ScheduleSection] {
-        guard let lessons = state.value else {
-            return []
-        }
-
-        let todayString = DateFormatting.apiString(from: today())
-        let filtered = lessons.filter { period == .upcoming ? $0.date >= todayString : $0.date < todayString }
-        let byDate = Dictionary(grouping: filtered, by: \.date)
-        let dates = byDate.keys.sorted(by: period == .upcoming ? (<) : (>))
-
-        return dates.map { date in
-            ScheduleSection(
-                date: date,
-                title: date == todayString ? "Bu gün" : DateFormatting.dayTitle(fromAPI: date),
-                lessons: (byDate[date] ?? []).sorted { $0.startsAt < $1.startsAt }
-            )
-        }
+        ScheduleSection.sections(from: state.value ?? [], period: period, today: today())
     }
 
     var emptyMessage: String {
