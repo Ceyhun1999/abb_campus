@@ -69,6 +69,17 @@ struct EmployeeFormViewModelTests {
         #expect(sut.hasChanges)
     }
 
+    @Test("Group name is cut to 20 characters")
+    func nameLimit() {
+        let sut = GroupFormViewModel(groupService: MockGroupService(), teacherService: MockTeacherService())
+
+        sut.name = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        sut.enforceNameLimit()
+
+        #expect(sut.name == "ABCDEFGHIJKLMNOPQRST")
+        #expect(sut.nameCounter == "20/20")
+    }
+
     @Test("A group without a course is rejected")
     func courseRequired() async {
         let service = MockGroupService()

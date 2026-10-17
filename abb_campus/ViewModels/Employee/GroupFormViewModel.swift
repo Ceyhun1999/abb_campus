@@ -10,6 +10,8 @@ struct GroupFormOptions: Equatable {
 @Observable
 final class GroupFormViewModel {
 
+    static let maxNameLength = 20
+
     var name = ""
     var selectedCourseId: Int? {
         didSet {
@@ -85,6 +87,16 @@ final class GroupFormViewModel {
 
     var hasChanges: Bool {
         snapshot != initialSnapshot
+    }
+
+    func enforceNameLimit() {
+        if name.count > Self.maxNameLength {
+            name = String(name.prefix(Self.maxNameLength))
+        }
+    }
+
+    var nameCounter: String {
+        "\(name.count)/\(Self.maxNameLength)"
     }
 
     var isEditing: Bool {
@@ -186,6 +198,11 @@ final class GroupFormViewModel {
 
         guard !trimmedName.isEmpty else {
             errorMessage = ValidationMessage.emptyGroupName
+            return nil
+        }
+
+        guard trimmedName.count <= Self.maxNameLength else {
+            errorMessage = ValidationMessage.longGroupName
             return nil
         }
 

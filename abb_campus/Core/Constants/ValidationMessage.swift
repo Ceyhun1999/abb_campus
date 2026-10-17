@@ -12,6 +12,7 @@ enum ValidationMessage {
     static let invalidResetCode = "Kod 6 rəqəmdən ibarət olmalıdır."
     static let roleNotSelected = "Rol seçilməyib."
     static let emptyGroupName = "Qrup adını daxil edin."
+    static let longGroupName = "Qrup adı 20 simvoldan uzun ola bilməz."
     static let courseNotSelected = "Kursu seçin."
     static let endDateNotSelected = "Bitmə tarixini seçin."
     static let invalidEndDate = "Bitmə tarixi başlama tarixindən əvvəl ola bilməz."

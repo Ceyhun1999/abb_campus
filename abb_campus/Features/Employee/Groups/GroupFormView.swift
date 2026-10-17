@@ -82,11 +82,22 @@ struct GroupFormView: View {
         @Bindable var viewModel = viewModel
 
         return Form {
-            Section("Qrup") {
-                TextField("Qrup adı, məs. IOS-03", text: $viewModel.name)
-                    .textInputAutocapitalization(.characters)
-                    .autocorrectionDisabled()
-                    .accessibilityIdentifier("group_form_name")
+            Section {
+                HStack {
+                    TextField("Qrup adı, məs. IOS-03", text: $viewModel.name)
+                        .textInputAutocapitalization(.characters)
+                        .autocorrectionDisabled()
+                        .accessibilityIdentifier("group_form_name")
+                        .onChange(of: viewModel.name) {
+                            viewModel.enforceNameLimit()
+                        }
+
+                    Text(viewModel.nameCounter)
+                        .font(.footnote)
+                        .monospacedDigit()
+                        .foregroundStyle(.secondary)
+                        .accessibilityLabel("Ən çox \(GroupFormViewModel.maxNameLength) simvol, \(viewModel.name.count) yazılıb")
+                }
 
                 Picker("Kurs", selection: $viewModel.selectedCourseId) {
                     Text("Seçilməyib").tag(Int?.none)
@@ -106,6 +117,8 @@ struct GroupFormView: View {
                 }
                 .pickerStyle(.navigationLink)
                 .disabled(!viewModel.hasCourse)
+            } header: {
+                Text("Qrup")
             }
 
             mentorsSection
