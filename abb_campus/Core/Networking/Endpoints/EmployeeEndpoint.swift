@@ -14,6 +14,8 @@ enum EmployeeEndpoint {
     case updateGroup(id: Int, GroupFormRequest)
     case courses
     case importStudents(groupId: Int, form: MultipartFormData)
+    case groupSchedule(groupId: Int)
+    case importSchedule(groupId: Int, form: MultipartFormData)
     case announcements(page: Int)
     case createAnnouncement(AnnouncementFormRequest)
     case updateAnnouncement(id: Int, AnnouncementFormRequest)
@@ -23,6 +25,8 @@ enum EmployeeEndpoint {
 extension EmployeeEndpoint: Endpoint {
 
     private static let pageSize = "200"
+    /// The server accepts up to 500 lessons per group, so one request returns the whole schedule.
+    private static let schedulePageSize = "500"
     static let listPageSize = 20
 
     private static func pageItems(_ page: Int?) -> [URLQueryItem] {
@@ -73,6 +77,12 @@ extension EmployeeEndpoint: Endpoint {
         case .importStudents(let groupId, _):
             return "/api/groups/\(groupId)/students/import"
 
+        case .groupSchedule(let groupId):
+            return "/api/groups/\(groupId)/schedule"
+
+        case .importSchedule(let groupId, _):
+            return "/api/groups/\(groupId)/schedule/import"
+
         case .announcements, .createAnnouncement:
             return "/api/announcements"
 
@@ -91,7 +101,7 @@ extension EmployeeEndpoint: Endpoint {
         case .deleteAnnouncement:
             return .delete
 
-        case .createGroup, .importStudents, .createAnnouncement:
+        case .createGroup, .importStudents, .importSchedule, .createAnnouncement:
             return .post
 
         default:
@@ -103,7 +113,7 @@ extension EmployeeEndpoint: Endpoint {
 
     var headers: [String: String]? {
         switch self {
-        case .importStudents:
+        case .importStudents, .importSchedule:
             return nil
 
         default:
@@ -141,6 +151,9 @@ extension EmployeeEndpoint: Endpoint {
         case .groupStudents, .courses:
             return [URLQueryItem(name: "perPage", value: Self.pageSize)]
 
+        case .groupSchedule:
+            return [URLQueryItem(name: "perPage", value: Self.schedulePageSize)]
+
         default:
             return nil
         }
@@ -165,11 +178,13 @@ extension EmployeeEndpoint: Endpoint {
     }
 
     var multipartForm: MultipartFormData? {
-        if case .importStudents(_, let form) = self {
+        switch self {
+        case .importStudents(_, let form), .importSchedule(_, let form):
             return form
-        }
 
-        return nil
+        default:
+            return nil
+        }
     }
 
     // MARK: - Authorization

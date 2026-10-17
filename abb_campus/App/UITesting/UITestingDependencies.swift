@@ -128,6 +128,8 @@ final class UITestingDirectory: EmployeeDashboardService, StudentDirectoryServic
                    studentsCount: 1, progress: 60)
     ]
 
+    private var groupSchedule: [ScheduleLesson] = []
+
     private var announcements = [
         Announcement(id: 1, title: "Bayram günü dərslər", message: "Dərs olmayacaq.",
                      target: .students, priority: .medium, createdAt: "2026-10-10T09:00:00+00:00")
@@ -247,10 +249,25 @@ final class UITestingDirectory: EmployeeDashboardService, StudentDirectoryServic
         )
     }
 
-    func importStudents(groupId: Int, fileName: String, fileData: Data) async throws -> StudentImportResult {
-        StudentImportResult(imported: 0, skipped: 1, errors: [
+    func importStudents(groupId: Int, fileName: String, fileData: Data) async throws -> ImportResult {
+        ImportResult(imported: 0, skipped: 1, errors: [
             .init(row: 4, email: "wrong-email", message: "E-poçt düzgün deyil.")
         ])
+    }
+
+    func fetchSchedule(groupId: Int) async throws -> [ScheduleLesson] {
+        groupSchedule
+    }
+
+    func importSchedule(groupId: Int, fileName: String, fileData: Data) async throws -> ImportResult {
+        let day = Calendar.current.date(byAdding: .day, value: 2, to: Date()) ?? Date()
+        groupSchedule = [
+            ScheduleLesson(id: 11, title: "Networking", date: DateFormatting.apiString(from: day),
+                           startsAt: "09:00", endsAt: "10:30", room: "A-101", description: nil),
+            ScheduleLesson(id: 12, title: "SwiftData", date: DateFormatting.apiString(from: day),
+                           startsAt: "11:00", endsAt: "12:30", room: "A-101", description: nil)
+        ]
+        return ImportResult(imported: groupSchedule.count, skipped: 0, errors: [])
     }
 
     func fetchAnnouncements(page: Int) async throws -> Page<Announcement> {

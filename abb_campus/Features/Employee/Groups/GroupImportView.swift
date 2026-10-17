@@ -1,11 +1,11 @@
 import SwiftUI
 import UniformTypeIdentifiers
 
-struct StudentImportView: View {
+struct GroupImportView: View {
 
-    @State private var viewModel: StudentImportViewModel
+    @State private var viewModel: GroupImportViewModel
 
-    init(viewModel: StudentImportViewModel) {
+    init(viewModel: GroupImportViewModel) {
         _viewModel = State(initialValue: viewModel)
     }
 
@@ -20,9 +20,15 @@ struct StudentImportView: View {
 
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                Text("Fayl \(viewModel.group.name) qrupuna idxal ediləcək. Sütunlar: first_name, last_name, email.")
+                Text("Fayl \(viewModel.group.name) qrupuna idxal ediləcək. Sütunlar: \(viewModel.kind.columns).")
                     .font(.manropeRegular(14))
                     .foregroundStyle(.textSecondary)
+
+                if let hint = viewModel.kind.hint {
+                    Text(hint)
+                        .font(.manropeRegular(14))
+                        .foregroundStyle(.textSecondary)
+                }
 
                 filePickerCard
 
@@ -31,12 +37,12 @@ struct StudentImportView: View {
                 }
 
                 PrimaryButton(
-                    title: "Tələbələri idxal et",
+                    title: viewModel.kind.submitTitle,
                     isLoading: viewModel.result.isLoading,
                     loadingTitle: "İdxal edilir…"
                 ) {
                     Task {
-                        await viewModel.importStudents()
+                        await viewModel.importFile()
                     }
                 }
                 .disabled(viewModel.selectedFile == nil)
@@ -44,7 +50,7 @@ struct StudentImportView: View {
                 .accessibilityIdentifier("import_submit")
 
                 if viewModel.result.isLoading {
-                    Text("Fayl yoxlanılır və tələbələr əlavə olunur. Bir neçə saniyə çəkə bilər.")
+                    Text(viewModel.kind.progressMessage)
                         .font(.manropeRegular(14))
                         .foregroundStyle(.textSecondary)
                         .frame(maxWidth: .infinity)
@@ -61,7 +67,7 @@ struct StudentImportView: View {
         }
         .background(.appBackground)
         .errorAlert(viewModel.errorMessage, onDismiss: viewModel.dismissError)
-        .navigationTitle("Tələbə importu")
+        .navigationTitle(viewModel.kind.navigationTitle)
         .navigationBarTitleDisplayMode(.inline)
         .fileImporter(
             isPresented: $viewModel.isFilePickerPresented,
@@ -144,7 +150,7 @@ struct StudentImportView: View {
     // MARK: - Result
 
     @ViewBuilder
-    private func resultSection(_ result: StudentImportResult) -> some View {
+    private func resultSection(_ result: ImportResult) -> some View {
         if result.isRejected {
             rejectedCard(result)
         } else {
@@ -158,7 +164,7 @@ struct StudentImportView: View {
                         .font(.manropeBold(17))
                         .foregroundStyle(.textPrimary)
 
-                    Text("\(result.imported) tələbə qrupa əlavə olundu")
+                    Text(viewModel.kind.successMessage(imported: result.imported))
                         .font(.manropeRegular(15))
                         .foregroundStyle(.textSecondary)
                 }
@@ -172,7 +178,7 @@ struct StudentImportView: View {
         }
     }
 
-    private func rejectedCard(_ result: StudentImportResult) -> some View {
+    private func rejectedCard(_ result: ImportResult) -> some View {
         VStack(alignment: .leading, spacing: 14) {
             HStack(alignment: .top, spacing: 14) {
                 Image(systemName: "xmark.octagon.fill")
@@ -184,7 +190,7 @@ struct StudentImportView: View {
                         .font(.manropeBold(17))
                         .foregroundStyle(.textPrimary)
 
-                    Text("\(result.errors.count) sətirdə səhv var. Heç bir tələbə əlavə olunmadı. Excel-i düzəldib yenidən yükləyin.")
+                    Text(viewModel.kind.rejectedMessage(errorCount: result.errors.count))
                         .font(.manropeRegular(15))
                         .foregroundStyle(.textSecondary)
                 }
@@ -210,7 +216,7 @@ private struct ImportErrorsView: View {
 
     @Environment(\.dismiss) private var dismiss
 
-    let errors: [StudentImportResult.RowError]
+    let errors: [ImportResult.RowError]
 
     var body: some View {
         NavigationStack {

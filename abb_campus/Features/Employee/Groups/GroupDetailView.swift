@@ -33,6 +33,8 @@ struct GroupDetailView: View {
                             .multilineTextAlignment(.center)
                     }
 
+                    scheduleButton
+
                     studentsSection(detail.students)
                 }
                 .padding(.horizontal, AppLayout.horizontalPadding)
@@ -63,9 +65,14 @@ struct GroupDetailView: View {
                 }
             }
         }
+        .navigationDestination(isPresented: $viewModel.isSchedulePresented) {
+            if let scheduleViewModel = viewModel.scheduleViewModel {
+                GroupScheduleView(viewModel: scheduleViewModel)
+            }
+        }
         .navigationDestination(isPresented: $viewModel.isImportPresented) {
-            StudentImportView(
-                viewModel: StudentImportViewModel(
+            GroupImportView(
+                viewModel: GroupImportViewModel(
                     group: viewModel.group,
                     groupService: dependencies.groupService
                 )
@@ -79,6 +86,27 @@ struct GroupDetailView: View {
         .task {
             await viewModel.load()
         }
+    }
+
+    // MARK: - Schedule
+
+    private var scheduleButton: some View {
+        Button {
+            viewModel.showSchedule()
+        } label: {
+            InfoCard {
+                HStack(spacing: 0) {
+                    InfoRow(icon: "calendar", title: "Dərs cədvəli", value: "Bax və ya Excel-dən yüklə")
+
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(.secondary)
+                        .padding(.trailing, 16)
+                }
+            }
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier("group_schedule_button")
     }
 
     // MARK: - Info

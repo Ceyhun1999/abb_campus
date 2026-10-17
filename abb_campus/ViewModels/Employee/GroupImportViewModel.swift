@@ -31,26 +31,90 @@ struct SelectedFile: Equatable {
     }
 }
 
+// MARK: - Import Kind
+
+/// What a spreadsheet adds to a group: its students or its lesson schedule.
+enum ImportKind {
+    case students
+    case schedule
+
+    var navigationTitle: String {
+        switch self {
+        case .students: return "Tələbə importu"
+        case .schedule: return "Cədvəl importu"
+        }
+    }
+
+    var columns: String {
+        switch self {
+        case .students: return "first_name, last_name, email"
+        case .schedule: return "date, starts_at, ends_at, title, room, description"
+        }
+    }
+
+    var hint: String? {
+        switch self {
+        case .students: return nil
+        case .schedule: return "Fayl qrupun bütün cədvəlini əvəz edəcək. Tarix: 2026-10-20, vaxt: 09:00."
+        }
+    }
+
+    var submitTitle: String {
+        switch self {
+        case .students: return "Tələbələri idxal et"
+        case .schedule: return "Cədvəli idxal et"
+        }
+    }
+
+    var progressMessage: String {
+        switch self {
+        case .students: return "Fayl yoxlanılır və tələbələr əlavə olunur. Bir neçə saniyə çəkə bilər."
+        case .schedule: return "Fayl yoxlanılır və dərslər əlavə olunur. Bir neçə saniyə çəkə bilər."
+        }
+    }
+
+    func successMessage(imported: Int) -> String {
+        switch self {
+        case .students: return "\(imported) tələbə qrupa əlavə olundu"
+        case .schedule: return "\(imported) dərs cədvələ əlavə olundu"
+        }
+    }
+
+    func rejectedMessage(errorCount: Int) -> String {
+        switch self {
+        case .students:
+            return "\(errorCount) sətirdə səhv var. Heç bir tələbə əlavə olunmadı. Excel-i düzəldib yenidən yükləyin."
+        case .schedule:
+            return "\(errorCount) sətirdə səhv var. Cədvəl dəyişmədi. Excel-i düzəldib yenidən yükləyin."
+        }
+    }
+}
+
+// MARK: - View Model
+
 @MainActor
 @Observable
-final class StudentImportViewModel {
+final class GroupImportViewModel {
 
     var isFilePickerPresented = false
     var isErrorListPresented = false
     private(set) var selectedFile: SelectedFile?
-    private(set) var result: ViewState<StudentImportResult> = .idle
+    private(set) var result: ViewState<ImportResult> = .idle
     private(set) var errorMessage: String?
 
     let group: StudyGroup
+    let kind: ImportKind
     private let groupService: any GroupService
     private let fileLoader: any FileDataLoader
 
     init(
         group: StudyGroup,
+        kind: ImportKind = .students,
         groupService: any GroupService,
         fileLoader: (any FileDataLoader)? = nil
     ) {
         self.group = group
+        self.kind = kind
         self.groupService = groupService
         self.fileLoader = fileLoader ?? SecurityScopedFileLoader()
     }
@@ -96,7 +160,7 @@ final class StudentImportViewModel {
         errorMessage = nil
     }
 
-    func importStudents() async {
+    func importFile() async {
         guard !result.isLoading else {
             return
         }
@@ -110,14 +174,19 @@ final class StudentImportViewModel {
         result = .loading
 
         do {
-            result = .loaded(try await groupService.importStudents(
-                groupId: group.id,
-                fileName: selectedFile.name,
-                fileData: selectedFile.data
-            ))
+            result = .loaded(try await upload(selectedFile))
         } catch {
             result = .idle
             errorMessage = error.localizedDescription
+        }
+    }
+
+    private func upload(_ file: SelectedFile) async throws -> ImportResult {
+        switch kind {
+        case .students:
+            return try await groupService.importStudents(groupId: group.id, fileName: file.name, fileData: file.data)
+        case .schedule:
+            return try await groupService.importSchedule(groupId: group.id, fileName: file.name, fileData: file.data)
         }
     }
 }

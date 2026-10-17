@@ -76,7 +76,7 @@ struct GroupFormRequest: Encodable, Equatable {
     }
 }
 
-struct StudentImportResult: Decodable, Equatable {
+struct ImportResult: Decodable, Equatable {
 
     struct RowError: Decodable, Equatable, Identifiable {
         let row: Int

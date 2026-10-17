@@ -90,8 +90,8 @@ final class MockGroupService: GroupService {
     var coursesResult: Result<[Course], Error> = .success([Course(id: 7, name: "Mobile Development iOS")])
     var createResult: Result<StudyGroup, Error> = .success(.stub())
     var createDelay: Duration?
-    var importResult: Result<StudentImportResult, Error> = .success(
-        StudentImportResult(imported: 5, skipped: 0, errors: [])
+    var importResult: Result<ImportResult, Error> = .success(
+        ImportResult(imported: 5, skipped: 0, errors: [])
     )
 
     private(set) var createdRequests: [GroupFormRequest] = []
@@ -136,8 +136,20 @@ final class MockGroupService: GroupService {
         return try createResult.get()
     }
 
-    func importStudents(groupId: Int, fileName: String, fileData: Data) async throws -> StudentImportResult {
+    func importStudents(groupId: Int, fileName: String, fileData: Data) async throws -> ImportResult {
         importedFiles.append((groupId, fileName, fileData))
+        return try importResult.get()
+    }
+
+    var scheduleResult: Result<[ScheduleLesson], Error> = .success([])
+    private(set) var importedScheduleFiles: [(groupId: Int, fileName: String, data: Data)] = []
+
+    func fetchSchedule(groupId: Int) async throws -> [ScheduleLesson] {
+        try scheduleResult.get()
+    }
+
+    func importSchedule(groupId: Int, fileName: String, fileData: Data) async throws -> ImportResult {
+        importedScheduleFiles.append((groupId, fileName, fileData))
         return try importResult.get()
     }
 }
@@ -252,16 +264,21 @@ extension Teacher {
 
 extension StudyGroup {
 
-    static func stub(id: Int = 1, name: String = "IOS-01") -> StudyGroup {
+    static func stub(
+        id: Int = 1,
+        name: String = "IOS-01",
+        teacher: TeacherReference? = nil,
+        isActive: Bool = true
+    ) -> StudyGroup {
         StudyGroup(
             id: id,
             name: name,
             course: Course(id: 7, name: "iOS Development"),
-            teacher: nil,
+            teacher: teacher,
             mentors: nil,
             startDate: "2026-07-01",
             endDate: "2027-01-01",
-            isActive: true,
+            isActive: isActive,
             studentsCount: 10,
             progress: 50
         )

@@ -44,6 +44,29 @@ final class EmployeeUITests: XCTestCase {
         XCTAssertFalse(app.buttons["import_submit"].isEnabled)
     }
 
+    func testEmployeeOpensGroupScheduleAndScheduleImport() {
+        signInAsEmployee()
+
+        let groupRow = app.buttons["group_row_1"]
+        XCTAssertTrue(app.tap(app.tabBars.buttons["Qruplar"], until: groupRow))
+
+        let scheduleButton = app.buttons["group_schedule_button"]
+        XCTAssertTrue(app.tap(groupRow, until: scheduleButton))
+        if !scheduleButton.isHittable {
+            app.swipeUp()
+        }
+
+        let importButton = app.buttons["import_schedule_button"]
+        XCTAssertTrue(app.tap(scheduleButton, until: importButton))
+        XCTAssertTrue(app.staticTexts["Qrupun cədvəli hələ yoxdur. Excel faylından idxal edin."].waitForExistence(timeout: uiTimeout))
+        XCTAssertTrue(importButton.isEnabled)
+
+        let pickFile = app.buttons["pick_file_button"]
+        XCTAssertTrue(app.tap(importButton, until: pickFile))
+        XCTAssertTrue(app.navigationBars["Cədvəl importu"].exists)
+        XCTAssertFalse(app.buttons["import_submit"].isEnabled)
+    }
+
     func testTeachersTabAndAllAnnouncementsFromHome() {
         signInAsEmployee()
 

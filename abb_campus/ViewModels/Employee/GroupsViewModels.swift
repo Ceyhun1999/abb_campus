@@ -145,8 +145,10 @@ final class GroupDetailViewModel {
 
     var isImportPresented = false
     var isEditPresented = false
+    var isSchedulePresented = false
     private(set) var state: ViewState<GroupDetail> = .idle
     private(set) var editViewModel: GroupFormViewModel?
+    private(set) var scheduleViewModel: GroupScheduleViewModel?
 
     let group: StudyGroup
     private var latestRequest = LatestRequest()
@@ -192,6 +194,16 @@ final class GroupDetailViewModel {
 
     func showImport() {
         isImportPresented = true
+    }
+
+    // MARK: - Schedule
+
+    func showSchedule() {
+        scheduleViewModel = GroupScheduleViewModel(
+            group: state.value?.group ?? group,
+            groupService: groupService
+        )
+        isSchedulePresented = true
     }
 
     /// Reloads the students after returning from the import screen.

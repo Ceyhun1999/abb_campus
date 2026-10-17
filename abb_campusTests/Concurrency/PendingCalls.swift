@@ -91,7 +91,11 @@ final class ControlledGroupService: GroupService {
     func fetchCourses() async throws -> [Course] { [] }
     func createGroup(_ request: GroupFormRequest) async throws -> StudyGroup { .stub() }
     func updateGroup(id: Int, _ request: GroupFormRequest) async throws -> StudyGroup { .stub() }
-    func importStudents(groupId: Int, fileName: String, fileData: Data) async throws -> StudentImportResult {
-        StudentImportResult(imported: 0, skipped: 0, errors: [])
+    func importStudents(groupId: Int, fileName: String, fileData: Data) async throws -> ImportResult {
+        ImportResult(imported: 0, skipped: 0, errors: [])
+    }
+    func fetchSchedule(groupId: Int) async throws -> [ScheduleLesson] { [] }
+    func importSchedule(groupId: Int, fileName: String, fileData: Data) async throws -> ImportResult {
+        ImportResult(imported: 0, skipped: 0, errors: [])
     }
 }

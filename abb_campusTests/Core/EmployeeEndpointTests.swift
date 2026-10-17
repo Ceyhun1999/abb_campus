@@ -53,6 +53,29 @@ struct EmployeeEndpointTests {
         #expect(body.hasSuffix("--\r\n"))
     }
 
+    @Test("Group schedule loads every lesson in one request")
+    func groupScheduleRequest() throws {
+        let request = try EmployeeEndpoint.groupSchedule(groupId: 3).makeRequest()
+
+        #expect(request.httpMethod == "GET")
+        #expect(request.url?.path == "/api/groups/3/schedule")
+        #expect(request.url?.query == "perPage=500")
+    }
+
+    @Test("Schedule import is a multipart POST to the group's schedule")
+    func importScheduleRequest() throws {
+        var form = MultipartFormData()
+        form.addFile(name: "file", fileName: "cedvel.xlsx", mimeType: "application/octet-stream", data: Data("x".utf8))
+
+        let request = try EmployeeEndpoint.importSchedule(groupId: 3, form: form).makeRequest()
+        let body = String(decoding: try #require(request.httpBody), as: UTF8.self)
+
+        #expect(request.httpMethod == "POST")
+        #expect(request.url?.path == "/api/groups/3/schedule/import")
+        #expect(request.value(forHTTPHeaderField: "Content-Type")?.hasPrefix("multipart/form-data; boundary=") == true)
+        #expect(body.contains("filename=\"cedvel.xlsx\""))
+    }
+
     // MARK: - Auth
 
     @Test("Change password is an authorized POST with snake_case keys")

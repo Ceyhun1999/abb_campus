@@ -8,7 +8,9 @@ protocol GroupService: Sendable {
     func fetchCourses() async throws -> [Course]
     func createGroup(_ request: GroupFormRequest) async throws -> StudyGroup
     func updateGroup(id: Int, _ request: GroupFormRequest) async throws -> StudyGroup
-    func importStudents(groupId: Int, fileName: String, fileData: Data) async throws -> StudentImportResult
+    func importStudents(groupId: Int, fileName: String, fileData: Data) async throws -> ImportResult
+    func fetchSchedule(groupId: Int) async throws -> [ScheduleLesson]
+    func importSchedule(groupId: Int, fileName: String, fileData: Data) async throws -> ImportResult
 }
 
 final class DefaultGroupService: GroupService {
@@ -81,22 +83,38 @@ final class DefaultGroupService: GroupService {
         return response.data
     }
 
-    // MARK: - Import
+    // MARK: - Schedule
 
-    func importStudents(groupId: Int, fileName: String, fileData: Data) async throws -> StudentImportResult {
-        var form = MultipartFormData()
-        form.addFile(
-            name: "file",
-            fileName: fileName,
-            mimeType: Self.mimeType(for: fileName),
-            data: fileData
-        )
-
-        let response: APIResponse<StudentImportResult> = try await networkService.request(
-            EmployeeEndpoint.importStudents(groupId: groupId, form: form)
+    func fetchSchedule(groupId: Int) async throws -> [ScheduleLesson] {
+        let response: PaginatedResponse<ScheduleLesson> = try await networkService.request(
+            EmployeeEndpoint.groupSchedule(groupId: groupId)
         )
 
         return response.data
+    }
+
+    // MARK: - Import
+
+    func importStudents(groupId: Int, fileName: String, fileData: Data) async throws -> ImportResult {
+        let response: APIResponse<ImportResult> = try await networkService.request(
+            EmployeeEndpoint.importStudents(groupId: groupId, form: Self.fileForm(fileName: fileName, data: fileData))
+        )
+
+        return response.data
+    }
+
+    func importSchedule(groupId: Int, fileName: String, fileData: Data) async throws -> ImportResult {
+        let response: APIResponse<ImportResult> = try await networkService.request(
+            EmployeeEndpoint.importSchedule(groupId: groupId, form: Self.fileForm(fileName: fileName, data: fileData))
+        )
+
+        return response.data
+    }
+
+    private static func fileForm(fileName: String, data: Data) -> MultipartFormData {
+        var form = MultipartFormData()
+        form.addFile(name: "file", fileName: fileName, mimeType: mimeType(for: fileName), data: data)
+        return form
     }
 
     private static func mimeType(for fileName: String) -> String {
