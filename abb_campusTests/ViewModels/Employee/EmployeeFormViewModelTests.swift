@@ -423,17 +423,15 @@ struct EmployeeFormViewModelTests {
     @Test(
         "Announcement validation",
         arguments: [
-            ("", "Mətn", AnnouncementTarget.students, ValidationMessage.emptyAnnouncementTitle),
-            ("Başlıq", "  ", AnnouncementTarget.students, ValidationMessage.emptyAnnouncementMessage),
-            ("Başlıq", "Mətn", AnnouncementTarget.group, ValidationMessage.groupNotSelected)
+            ("", "Mətn", ValidationMessage.emptyAnnouncementTitle),
+            ("Başlıq", "  ", ValidationMessage.emptyAnnouncementMessage)
         ]
     )
-    func announcementValidation(title: String, message: String, target: AnnouncementTarget, expected: String) async {
+    func announcementValidation(title: String, message: String, expected: String) async {
         let service = MockAnnouncementService()
-        let sut = NewAnnouncementViewModel(announcementService: service, groupService: MockGroupService())
+        let sut = NewAnnouncementViewModel(announcementService: service)
         sut.title = title
         sut.message = message
-        sut.target = target
 
         let result = await sut.publish()
 
@@ -442,45 +440,50 @@ struct EmployeeFormViewModelTests {
         #expect(service.createdRequests.isEmpty)
     }
 
+    @Test("A new announcement goes to everyone with medium priority by default")
+    func announcementDefaults() {
+        let sut = NewAnnouncementViewModel(announcementService: MockAnnouncementService())
+
+        #expect(sut.target == .everyone)
+        #expect(sut.priority == .medium)
+    }
+
     @Test("Message is limited to 500 characters")
     func announcementMessageLimit() {
-        let sut = NewAnnouncementViewModel(announcementService: MockAnnouncementService(), groupService: MockGroupService())
+        let sut = NewAnnouncementViewModel(announcementService: MockAnnouncementService())
 
         sut.message = String(repeating: "a", count: 600)
+        sut.enforceMessageLimit()
 
         #expect(sut.message.count == 500)
         #expect(sut.messageCounter == "500/500")
     }
 
-    @Test("Group announcement sends the group id, others do not")
-    func announcementSuccess() async {
+    @Test("Title, message, audience and priority are sent", arguments: AnnouncementTarget.allCases)
+    func announcementSuccess(target: AnnouncementTarget) async {
         let service = MockAnnouncementService()
-        let sut = NewAnnouncementViewModel(announcementService: service, groupService: MockGroupService())
-        sut.title = " Dərs təxirə salındı "
-        sut.message = "Cümə dərsi bazar ertəsinə keçirildi."
-        sut.target = .group
-        sut.selectedGroupId = 3
+        let sut = NewAnnouncementViewModel(announcementService: service)
+        sut.title = " Müəllimlər iclası "
+        sut.message = "Cümə axşamı saat 18:00-da iclas keçiriləcək."
+        sut.target = target
+        sut.priority = .high
 
         let published = await sut.publish()
 
         #expect(published != nil)
         #expect(service.createdRequests.last == CreateAnnouncementRequest(
-            title: "Dərs təxirə salındı",
-            message: "Cümə dərsi bazar ertəsinə keçirildi.",
-            target: .group,
-            groupId: 3
+            title: "Müəllimlər iclası",
+            message: "Cümə axşamı saat 18:00-da iclas keçiriləcək.",
+            target: target,
+            priority: .high
         ))
-
-        sut.target = .everyone
-        _ = await sut.publish()
-        #expect(service.createdRequests.last?.groupId == nil)
     }
 
     @Test("Announcement server error is shown")
     func announcementFailure() async {
         let service = MockAnnouncementService()
         service.createResult = .failure(NetworkError.noConnection)
-        let sut = NewAnnouncementViewModel(announcementService: service, groupService: MockGroupService())
+        let sut = NewAnnouncementViewModel(announcementService: service)
         sut.title = "Başlıq"
         sut.message = "Mətn"
 

@@ -4,16 +4,30 @@ enum AnnouncementTarget: String, Codable, CaseIterable, Identifiable {
     case everyone
     case students
     case teachers
-    case group
 
     var id: String { rawValue }
 
     var title: String {
         switch self {
         case .everyone: return "Hamı"
-        case .students: return "Bütün tələbələr"
-        case .teachers: return "Bütün müəllimlər"
-        case .group: return "Müəyyən qrup"
+        case .students: return "Tələbələr"
+        case .teachers: return "Müəllim və mentorlar"
+        }
+    }
+}
+
+enum AnnouncementPriority: String, Codable, CaseIterable, Identifiable {
+    case low
+    case medium
+    case high
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .low: return "Aşağı"
+        case .medium: return "Orta"
+        case .high: return "Yüksək"
         }
     }
 }
@@ -23,16 +37,11 @@ struct Announcement: Decodable, Identifiable, Hashable {
     let title: String
     let message: String
     let target: AnnouncementTarget
-    let groupId: Int?
-    let groupName: String?
+    let priority: AnnouncementPriority
     let createdAt: String?
 
     var audienceTitle: String {
-        if target == .group, let groupName {
-            return groupName
-        }
-
-        return target.title
+        target.title
     }
 }
 
@@ -40,5 +49,5 @@ struct CreateAnnouncementRequest: Encodable, Equatable {
     let title: String
     let message: String
     let target: AnnouncementTarget
-    let groupId: Int?
+    let priority: AnnouncementPriority
 }

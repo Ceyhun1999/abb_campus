@@ -45,8 +45,7 @@ private struct EmployeeDestinations: ViewModifier {
                 case .announcements:
                     AnnouncementsListView(
                         viewModel: AnnouncementsListViewModel(
-                            announcementService: dependencies.announcementService,
-                            groupService: dependencies.groupService
+                            announcementService: dependencies.announcementService
                         )
                     )
                 }

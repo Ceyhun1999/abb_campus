@@ -130,7 +130,7 @@ final class UITestingDirectory: EmployeeDashboardService, StudentDirectoryServic
 
     private var announcements = [
         Announcement(id: 1, title: "Bayram günü dərslər", message: "Dərs olmayacaq.",
-                     target: .students, groupId: nil, groupName: nil, createdAt: "2026-10-10T09:00:00+00:00")
+                     target: .students, priority: .medium, createdAt: "2026-10-10T09:00:00+00:00")
     ]
 
     func fetchDashboard() async throws -> DashboardSummary {
@@ -260,7 +260,7 @@ final class UITestingDirectory: EmployeeDashboardService, StudentDirectoryServic
     func createAnnouncement(_ request: CreateAnnouncementRequest) async throws -> Announcement {
         let announcement = Announcement(
             id: announcements.count + 1, title: request.title, message: request.message,
-            target: request.target, groupId: request.groupId, groupName: nil, createdAt: nil
+            target: request.target, priority: request.priority, createdAt: nil
         )
         announcements.insert(announcement, at: 0)
         return announcement
@@ -316,7 +316,7 @@ final class UITestingStudentService: StudentService {
     func fetchAnnouncements() async throws -> [Announcement] {
         [
             Announcement(id: 1, title: "Bayram günü dərslər", message: "Dərs olmayacaq.",
-                         target: .students, groupId: nil, groupName: nil, createdAt: "2026-10-10T09:00:00+00:00")
+                         target: .students, priority: .medium, createdAt: "2026-10-10T09:00:00+00:00")
         ]
     }
 }

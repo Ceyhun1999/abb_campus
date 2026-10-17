@@ -23,27 +23,48 @@ struct NewAnnouncementView: View {
                         .accessibilityIdentifier("announcement_title")
                 }
 
-                Section("Hədəf auditoriya") {
-                    Picker("Auditoriya", selection: $viewModel.target) {
-                        ForEach(AnnouncementTarget.allCases) { target in
-                            Text(target.title).tag(target)
-                        }
-                    }
-
-                    if viewModel.target == .group {
-                        groupPicker
-                    }
-                }
-
                 Section {
                     TextEditor(text: $viewModel.message)
                         .frame(minHeight: 140)
                         .accessibilityIdentifier("announcement_message")
+                        .onChange(of: viewModel.message) {
+                            viewModel.enforceMessageLimit()
+                        }
                 } header: {
                     Text("Məzmun")
                 } footer: {
                     Text(viewModel.messageCounter)
                         .frame(maxWidth: .infinity, alignment: .trailing)
+                }
+
+                Section("Kimə") {
+                    Picker("Auditoriya", selection: $viewModel.target) {
+                        ForEach(AnnouncementTarget.allCases) { target in
+                            Label(target.title, systemImage: target.icon)
+                                .tag(target)
+                        }
+                    }
+                    .pickerStyle(.inline)
+                    .labelsHidden()
+                    .accessibilityIdentifier("announcement_target")
+                }
+
+                Section("Vaciblik dərəcəsi") {
+                    Picker("Vaciblik", selection: $viewModel.priority) {
+                        ForEach(AnnouncementPriority.allCases) { priority in
+                            Label {
+                                Text(priority.title)
+                            } icon: {
+                                Circle()
+                                    .fill(priority.color)
+                                    .frame(width: 12, height: 12)
+                            }
+                            .tag(priority)
+                        }
+                    }
+                    .pickerStyle(.inline)
+                    .labelsHidden()
+                    .accessibilityIdentifier("announcement_priority")
                 }
             }
             .errorAlert(viewModel.errorMessage, onDismiss: viewModel.dismissError)
@@ -71,36 +92,6 @@ struct NewAnnouncementView: View {
                     }
                 }
             }
-            .task(id: viewModel.target) {
-                if viewModel.target == .group {
-                    await viewModel.loadGroups()
-                }
-            }
-        }
-    }
-
-    // MARK: - Group Picker
-
-    @ViewBuilder
-    private var groupPicker: some View {
-        @Bindable var viewModel = viewModel
-
-        switch viewModel.groups {
-        case .loaded(let groups):
-            Picker("Qrup", selection: $viewModel.selectedGroupId) {
-                Text("Seçin").tag(Int?.none)
-
-                ForEach(groups) { group in
-                    Text(group.name).tag(Optional(group.id))
-                }
-            }
-
-        case .failed(let message):
-            Text(message)
-                .foregroundStyle(.red)
-
-        case .idle, .loading:
-            ProgressView()
         }
     }
 }

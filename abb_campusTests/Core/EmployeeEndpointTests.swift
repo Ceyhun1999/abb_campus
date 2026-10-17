@@ -71,6 +71,25 @@ struct EmployeeEndpointTests {
 
     // MARK: - Teachers
 
+    @Test("A new announcement sends priority and audience, no group")
+    func createAnnouncementBody() throws {
+        let body = CreateAnnouncementRequest(title: "İclas", message: "18:00", target: .teachers, priority: .high)
+        let request = try EmployeeEndpoint.createAnnouncement(body).makeRequest()
+        let data = try #require(request.httpBody)
+        let json = try #require(try JSONSerialization.jsonObject(with: data) as? [String: String])
+
+        #expect(json == ["title": "İclas", "message": "18:00", "target": "teachers", "priority": "high"])
+    }
+
+    @Test("Announcements decode their priority")
+    func decodeAnnouncement() throws {
+        let json = #"{"id": 1, "title": "İclas", "message": "18:00", "target": "teachers", "priority": "high", "createdAt": null}"#
+        let announcement = try JSONDecoder().decode(Announcement.self, from: Data(json.utf8))
+
+        #expect(announcement.priority == .high)
+        #expect(announcement.audienceTitle == "Müəllim və mentorlar")
+    }
+
     @Test("Lists ask for 20 rows of the given page, pickers for everything")
     func pagingQuery() throws {
         let list = try EmployeeEndpoint.teachers(search: "", position: .all, specialty: nil, page: 3).makeRequest()

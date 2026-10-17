@@ -11,6 +11,8 @@ struct AnnouncementDetailView: View {
                     .padding(16)
                     .cardStyle()
 
+                PriorityBadge(priority: announcement.priority)
+
                 Text(announcement.message)
                     .font(.manropeRegular(16))
                     .foregroundStyle(.textPrimary)

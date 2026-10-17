@@ -242,14 +242,13 @@ extension StudyGroup {
 
 extension Announcement {
 
-    static func stub(id: Int = 1) -> Announcement {
+    static func stub(id: Int = 1, priority: AnnouncementPriority = .medium) -> Announcement {
         Announcement(
             id: id,
             title: "Bayram günü dərslər",
             message: "Dərs olmayacaq.",
             target: .students,
-            groupId: nil,
-            groupName: nil,
+            priority: priority,
             createdAt: "2026-10-12T09:00:00+00:00"
         )
     }

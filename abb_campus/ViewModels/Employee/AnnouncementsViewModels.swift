@@ -10,11 +10,9 @@ final class AnnouncementsListViewModel {
     private(set) var newAnnouncementViewModel: NewAnnouncementViewModel?
 
     private let announcementService: any AnnouncementService
-    private let groupService: any GroupService
 
-    init(announcementService: any AnnouncementService, groupService: any GroupService) {
+    init(announcementService: any AnnouncementService) {
         self.announcementService = announcementService
-        self.groupService = groupService
     }
 
     // MARK: - Paging
@@ -40,10 +38,7 @@ final class AnnouncementsListViewModel {
     }
 
     func showCreate() {
-        newAnnouncementViewModel = NewAnnouncementViewModel(
-            announcementService: announcementService,
-            groupService: groupService
-        )
+        newAnnouncementViewModel = NewAnnouncementViewModel(announcementService: announcementService)
         isCreatePresented = true
     }
 
@@ -61,51 +56,31 @@ final class NewAnnouncementViewModel {
     static let maxMessageLength = 500
 
     var title = ""
-    var message = "" {
-        didSet {
-            if message.count > Self.maxMessageLength {
-                message = String(message.prefix(Self.maxMessageLength))
-            }
-        }
-    }
-    var target: AnnouncementTarget = .students
-    var selectedGroupId: Int?
+    var message = ""
+    var target: AnnouncementTarget = .everyone
+    var priority: AnnouncementPriority = .medium
 
-    private(set) var groups: ViewState<[StudyGroup]> = .idle
     private(set) var isSending = false
     private(set) var errorMessage: String?
 
     private let announcementService: any AnnouncementService
-    private let groupService: any GroupService
 
-    init(
-        announcementService: any AnnouncementService,
-        groupService: any GroupService
-    ) {
+    init(announcementService: any AnnouncementService) {
         self.announcementService = announcementService
-        self.groupService = groupService
     }
 
     func dismissError() {
         errorMessage = nil
     }
 
-    var messageCounter: String {
-        "\(message.count)/\(Self.maxMessageLength)"
+    func enforceMessageLimit() {
+        if message.count > Self.maxMessageLength {
+            message = String(message.prefix(Self.maxMessageLength))
+        }
     }
 
-    func loadGroups() async {
-        guard groups.value == nil else {
-            return
-        }
-
-        groups = .loading
-
-        do {
-            groups = .loaded(try await groupService.fetchGroups(search: "", courseId: nil))
-        } catch {
-            groups = .failed(error.localizedDescription)
-        }
+    var messageCounter: String {
+        "\(message.count)/\(Self.maxMessageLength)"
     }
 
     // MARK: - Publish
@@ -128,11 +103,6 @@ final class NewAnnouncementViewModel {
             return nil
         }
 
-        guard target != .group || selectedGroupId != nil else {
-            errorMessage = ValidationMessage.groupNotSelected
-            return nil
-        }
-
         errorMessage = nil
         isSending = true
 
@@ -146,7 +116,7 @@ final class NewAnnouncementViewModel {
                     title: trimmedTitle,
                     message: trimmedMessage,
                     target: target,
-                    groupId: target == .group ? selectedGroupId : nil
+                    priority: priority
                 )
             )
         } catch {
