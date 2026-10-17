@@ -23,11 +23,11 @@ final class MockStudentDirectoryService: StudentDirectoryService {
     private(set) var lastCourseId: Int?
     private(set) var statusChanges: [(userId: Int, isActive: Bool)] = []
 
-    func fetchStudents(search: String, status: StudentStatusFilter, courseId: Int?) async throws -> [DirectoryStudent] {
+    func fetchStudents(search: String, status: StudentStatusFilter, courseId: Int?, page: Int) async throws -> Page<DirectoryStudent> {
         lastCourseId = courseId
         lastSearch = search
         lastStatus = status
-        return try studentsResult.get()
+        return Page(items: try studentsResult.get(), currentPage: page, lastPage: 1)
     }
 
     func fetchStudent(id: Int) async throws -> DirectoryStudent {
@@ -58,6 +58,10 @@ final class MockTeacherService: TeacherService {
         }
 
         return try teachersResult.get()
+    }
+
+    func fetchTeachersPage(search: String, position: TeacherPositionFilter, specialty: String?, page: Int) async throws -> Page<Teacher> {
+        Page(items: try await fetchTeachers(search: search, position: position, specialty: specialty), currentPage: page, lastPage: 1)
     }
 
     func fetchTeacher(id: Int) async throws -> Teacher {
@@ -99,6 +103,10 @@ final class MockGroupService: GroupService {
         return try groupsResult.get()
     }
 
+    func fetchGroupsPage(search: String, courseId: Int?, page: Int) async throws -> Page<StudyGroup> {
+        Page(items: try await fetchGroups(search: search, courseId: courseId), currentPage: page, lastPage: 1)
+    }
+
     func fetchGroup(id: Int) async throws -> StudyGroup {
         try groupResult.get()
     }
@@ -138,8 +146,8 @@ final class MockAnnouncementService: AnnouncementService {
     var createResult: Result<Announcement, Error> = .success(.stub())
     private(set) var createdRequests: [CreateAnnouncementRequest] = []
 
-    func fetchAnnouncements() async throws -> [Announcement] {
-        try listResult.get()
+    func fetchAnnouncements(page: Int) async throws -> Page<Announcement> {
+        Page(items: try listResult.get(), currentPage: page, lastPage: 1)
     }
 
     func createAnnouncement(_ request: CreateAnnouncementRequest) async throws -> Announcement {

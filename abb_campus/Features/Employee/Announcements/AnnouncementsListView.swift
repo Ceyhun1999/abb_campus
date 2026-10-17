@@ -19,11 +19,20 @@ struct AnnouncementsListView: View {
             emptyIcon: "megaphone",
             retry: viewModel.load
         ) { announcements in
-            List(announcements) { announcement in
-                NavigationLink(value: announcement) {
-                    AnnouncementRow(announcement: announcement)
-                        .padding(.vertical, 4)
+            List {
+                ForEach(announcements) { announcement in
+                    NavigationLink(value: announcement) {
+                        AnnouncementRow(announcement: announcement)
+                            .padding(.vertical, 4)
+                    }
+                    .onAppear {
+                        Task {
+                            await viewModel.loadMoreIfNeeded(announcement)
+                        }
+                    }
                 }
+
+                LoadMoreIndicator(isLoading: viewModel.isLoadingMore)
             }
             .listStyle(.plain)
             .refreshable {

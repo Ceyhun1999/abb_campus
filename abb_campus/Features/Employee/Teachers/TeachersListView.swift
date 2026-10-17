@@ -79,45 +79,54 @@ struct TeachersListView: View {
             emptyIcon: "person.crop.circle.badge.questionmark",
             retry: viewModel.load
         ) { teachers in
-            List(teachers) { teacher in
-                NavigationLink(value: teacher) {
-                    HStack(spacing: 14) {
-                        AvatarView(firstName: teacher.firstName, lastName: teacher.lastName)
+            List {
+                ForEach(teachers) { teacher in
+                    NavigationLink(value: teacher) {
+                        HStack(spacing: 14) {
+                            AvatarView(firstName: teacher.firstName, lastName: teacher.lastName)
 
-                        VStack(alignment: .leading, spacing: 3) {
-                            HStack(spacing: 8) {
-                                Text(teacher.fullName)
-                                    .font(.manropeSemiBold(16))
-                                    .foregroundStyle(.textPrimary)
+                            VStack(alignment: .leading, spacing: 3) {
+                                HStack(spacing: 8) {
+                                    Text(teacher.fullName)
+                                        .font(.manropeSemiBold(16))
+                                        .foregroundStyle(.textPrimary)
 
-                                PositionBadge(position: teacher.position ?? .teacher)
+                                    PositionBadge(position: teacher.position ?? .teacher)
 
-                                if !teacher.isActive {
-                                    Text("Deaktiv")
-                                        .font(.manropeSemiBold(11))
-                                        .foregroundStyle(.red)
-                                        .padding(.horizontal, 8)
-                                        .padding(.vertical, 3)
-                                        .background(Color.red.opacity(0.12))
-                                        .clipShape(Capsule())
+                                    if !teacher.isActive {
+                                        Text("Deaktiv")
+                                            .font(.manropeSemiBold(11))
+                                            .foregroundStyle(.red)
+                                            .padding(.horizontal, 8)
+                                            .padding(.vertical, 3)
+                                            .background(Color.red.opacity(0.12))
+                                            .clipShape(Capsule())
+                                    }
                                 }
+
+                                Text(teacher.specialty ?? "İxtisas qeyd edilməyib")
+                                    .font(.manropeRegular(13))
+                                    .foregroundStyle(.textSecondary)
                             }
 
-                            Text(teacher.specialty ?? "İxtisas qeyd edilməyib")
-                                .font(.manropeRegular(13))
-                                .foregroundStyle(.textSecondary)
+                            Spacer()
+
+                            if let groupsCount = teacher.groupsCount {
+                                Text("\(groupsCount) qrup")
+                                    .font(.manropeRegular(13))
+                                    .foregroundStyle(.textSecondary)
+                            }
                         }
-
-                        Spacer()
-
-                        if let groupsCount = teacher.groupsCount {
-                            Text("\(groupsCount) qrup")
-                                .font(.manropeRegular(13))
-                                .foregroundStyle(.textSecondary)
+                        .padding(.vertical, 4)
+                    }
+                    .onAppear {
+                        Task {
+                            await viewModel.loadMoreIfNeeded(teacher)
                         }
                     }
-                    .padding(.vertical, 4)
                 }
+
+                LoadMoreIndicator(isLoading: viewModel.isLoadingMore)
             }
             .listStyle(.plain)
             .refreshable {

@@ -18,3 +18,22 @@ struct PaginationMeta: Decodable {
     let perPage: Int
     let total: Int
 }
+
+// MARK: - Page
+
+struct Page<Item> {
+    let items: [Item]
+    let currentPage: Int
+    let lastPage: Int
+
+    var hasMore: Bool {
+        currentPage < lastPage
+    }
+}
+
+extension PaginatedResponse {
+
+    var page: Page<Item> {
+        Page(items: data, currentPage: meta.currentPage, lastPage: meta.lastPage)
+    }
+}

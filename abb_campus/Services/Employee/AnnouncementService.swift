@@ -1,7 +1,7 @@
 import Foundation
 
 protocol AnnouncementService {
-    func fetchAnnouncements() async throws -> [Announcement]
+    func fetchAnnouncements(page: Int) async throws -> Page<Announcement>
     func createAnnouncement(_ request: CreateAnnouncementRequest) async throws -> Announcement
 }
 
@@ -13,12 +13,12 @@ final class DefaultAnnouncementService: AnnouncementService {
         self.networkService = networkService
     }
 
-    func fetchAnnouncements() async throws -> [Announcement] {
+    func fetchAnnouncements(page: Int) async throws -> Page<Announcement> {
         let response: PaginatedResponse<Announcement> = try await networkService.request(
-            EmployeeEndpoint.announcements
+            EmployeeEndpoint.announcements(page: page)
         )
 
-        return response.data
+        return response.page
     }
 
     func createAnnouncement(_ request: CreateAnnouncementRequest) async throws -> Announcement {

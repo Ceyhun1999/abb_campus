@@ -9,19 +9,19 @@ final class StudentsListViewModel {
     var statusFilter: StudentStatusFilter = .all {
         didSet {
             if statusFilter != oldValue {
-                state = .loading
+                list.showLoading()
             }
         }
     }
     var courseFilterId: Int? {
         didSet {
             if courseFilterId != oldValue {
-                state = .loading
+                list.showLoading()
             }
         }
     }
     private(set) var courses: [Course] = []
-    private(set) var state: ViewState<[DirectoryStudent]> = .idle
+    private let list = PagedList<DirectoryStudent>()
     private(set) var isRefreshing = false
     private var loadedQuery: String?
 
@@ -31,6 +31,20 @@ final class StudentsListViewModel {
     init(studentService: any StudentDirectoryService, groupService: any GroupService) {
         self.studentService = studentService
         self.groupService = groupService
+    }
+
+    // MARK: - Paging
+
+    var state: ViewState<[DirectoryStudent]> {
+        list.state
+    }
+
+    var isLoadingMore: Bool {
+        list.isLoadingMore
+    }
+
+    func loadMoreIfNeeded(_ item: DirectoryStudent) async {
+        await list.loadMore(after: item)
     }
 
     // MARK: - Query
@@ -78,23 +92,18 @@ final class StudentsListViewModel {
     }
 
     func load() async {
-        if state.value == nil {
-            state = .loading
+        let requestedQuery = query
+        let search = trimmedSearch
+        let status = statusFilter
+        let courseId = courseFilterId
+        let service = studentService
+
+        let loaded = await list.load { page in
+            try await service.fetchStudents(search: search, status: status, courseId: courseId, page: page)
         }
 
-        let requestedQuery = query
-
-        do {
-            let students = try await studentService.fetchStudents(
-                search: trimmedSearch,
-                status: statusFilter,
-                courseId: courseFilterId
-            )
-            state = .loaded(students)
+        if loaded {
             loadedQuery = requestedQuery
-        } catch is CancellationError {
-        } catch {
-            state = .failed(error.localizedDescription)
         }
     }
 

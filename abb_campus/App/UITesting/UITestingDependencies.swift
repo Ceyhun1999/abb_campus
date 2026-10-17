@@ -146,8 +146,8 @@ final class UITestingDirectory: EmployeeDashboardService, StudentDirectoryServic
         )
     }
 
-    func fetchStudents(search: String, status: StudentStatusFilter, courseId: Int?) async throws -> [DirectoryStudent] {
-        students.filter { student in
+    func fetchStudents(search: String, status: StudentStatusFilter, courseId: Int?, page: Int) async throws -> Page<DirectoryStudent> {
+        let items = students.filter { student in
             let studentCourseId = groups.first { $0.id == student.group?.id }?.course?.id
             let matchesCourse = courseId == nil || studentCourseId == courseId
             let matchesStatus = switch status {
@@ -161,6 +161,8 @@ final class UITestingDirectory: EmployeeDashboardService, StudentDirectoryServic
 
             return matchesStatus && matchesSearch && matchesCourse
         }
+
+        return Page(items: items, currentPage: page, lastPage: 1)
     }
 
     func fetchStudent(id: Int) async throws -> DirectoryStudent {
@@ -192,6 +194,10 @@ final class UITestingDirectory: EmployeeDashboardService, StudentDirectoryServic
         }
     }
 
+    func fetchTeachersPage(search: String, position: TeacherPositionFilter, specialty: String?, page: Int) async throws -> Page<Teacher> {
+        Page(items: try await fetchTeachers(search: search, position: position, specialty: specialty), currentPage: page, lastPage: 1)
+    }
+
     func fetchTeacher(id: Int) async throws -> Teacher {
         teachers[0]
     }
@@ -201,6 +207,10 @@ final class UITestingDirectory: EmployeeDashboardService, StudentDirectoryServic
             (search.isEmpty || group.name.localizedCaseInsensitiveContains(search))
                 && (courseId == nil || group.course?.id == courseId)
         }
+    }
+
+    func fetchGroupsPage(search: String, courseId: Int?, page: Int) async throws -> Page<StudyGroup> {
+        Page(items: try await fetchGroups(search: search, courseId: courseId), currentPage: page, lastPage: 1)
     }
 
     func fetchGroup(id: Int) async throws -> StudyGroup {
@@ -243,8 +253,8 @@ final class UITestingDirectory: EmployeeDashboardService, StudentDirectoryServic
         ])
     }
 
-    func fetchAnnouncements() async throws -> [Announcement] {
-        announcements
+    func fetchAnnouncements(page: Int) async throws -> Page<Announcement> {
+        Page(items: announcements, currentPage: page, lastPage: 1)
     }
 
     func createAnnouncement(_ request: CreateAnnouncementRequest) async throws -> Announcement {

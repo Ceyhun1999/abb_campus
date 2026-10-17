@@ -36,11 +36,20 @@ struct StudentsListView: View {
                 emptyIcon: "person.crop.circle.badge.questionmark",
                 retry: viewModel.load
             ) { students in
-                List(students) { student in
-                    NavigationLink(value: student) {
-                        StudentRow(student: student)
+                List {
+                    ForEach(students) { student in
+                        NavigationLink(value: student) {
+                            StudentRow(student: student)
+                        }
+                        .accessibilityIdentifier("student_row_\(student.id)")
+                        .onAppear {
+                            Task {
+                                await viewModel.loadMoreIfNeeded(student)
+                            }
+                        }
                     }
-                    .accessibilityIdentifier("student_row_\(student.id)")
+
+                    LoadMoreIndicator(isLoading: viewModel.isLoadingMore)
                 }
                 .listStyle(.plain)
                 .refreshable {

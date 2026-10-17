@@ -108,7 +108,14 @@ struct GroupsListView: View {
                         }
                         .buttonStyle(.plain)
                         .accessibilityIdentifier("group_row_\(group.id)")
+                        .onAppear {
+                            Task {
+                                await viewModel.loadMoreIfNeeded(group)
+                            }
+                        }
                     }
+
+                    LoadMoreIndicator(isLoading: viewModel.isLoadingMore)
                 }
                 .padding(.horizontal, AppLayout.horizontalPadding)
                 .padding(.vertical, 12)

@@ -9,7 +9,7 @@ struct EmployeeEndpointTests {
 
     @Test("Students request has search and status query items")
     func studentsRequest() throws {
-        let request = try EmployeeEndpoint.students(search: "Nihad", status: .active, courseId: 4).makeRequest()
+        let request = try EmployeeEndpoint.students(search: "Nihad", status: .active, courseId: 4, page: 1).makeRequest()
         let components = try #require(request.url.flatMap { URLComponents(url: $0, resolvingAgainstBaseURL: false) })
 
         #expect(components.path == "/api/students")
@@ -20,7 +20,7 @@ struct EmployeeEndpointTests {
 
     @Test("Empty search and 'all' filter are not sent")
     func studentsRequestWithoutFilters() throws {
-        let request = try EmployeeEndpoint.students(search: "", status: .all, courseId: nil).makeRequest()
+        let request = try EmployeeEndpoint.students(search: "", status: .all, courseId: nil, page: 1).makeRequest()
         let query = request.url?.query ?? ""
 
         #expect(!query.contains("search"))
@@ -71,9 +71,22 @@ struct EmployeeEndpointTests {
 
     // MARK: - Teachers
 
+    @Test("Lists ask for 20 rows of the given page, pickers for everything")
+    func pagingQuery() throws {
+        let list = try EmployeeEndpoint.teachers(search: "", position: .all, specialty: nil, page: 3).makeRequest()
+        let picker = try EmployeeEndpoint.teachers(search: "", position: .all, specialty: nil, page: nil).makeRequest()
+        let listItems = URLComponents(url: try #require(list.url), resolvingAgainstBaseURL: false)?.queryItems ?? []
+        let pickerItems = URLComponents(url: try #require(picker.url), resolvingAgainstBaseURL: false)?.queryItems ?? []
+
+        #expect(listItems.contains(URLQueryItem(name: "page", value: "3")))
+        #expect(listItems.contains(URLQueryItem(name: "perPage", value: "20")))
+        #expect(pickerItems.contains(URLQueryItem(name: "perPage", value: "200")))
+        #expect(!pickerItems.contains { $0.name == "page" })
+    }
+
     @Test("Teacher filters are sent as query parameters")
     func teacherFilterQuery() throws {
-        let request = try EmployeeEndpoint.teachers(search: "", position: .mentor, specialty: "UI/UX Design").makeRequest()
+        let request = try EmployeeEndpoint.teachers(search: "", position: .mentor, specialty: "UI/UX Design", page: nil).makeRequest()
         let items = URLComponents(url: try #require(request.url), resolvingAgainstBaseURL: false)?.queryItems ?? []
 
         #expect(items.contains(URLQueryItem(name: "position", value: "mentor")))
@@ -85,7 +98,7 @@ struct EmployeeEndpointTests {
 
     @Test("Group course filter is sent as courseId")
     func groupCourseQuery() throws {
-        let request = try EmployeeEndpoint.groups(search: "", courseId: 4).makeRequest()
+        let request = try EmployeeEndpoint.groups(search: "", courseId: 4, page: nil).makeRequest()
         let items = URLComponents(url: try #require(request.url), resolvingAgainstBaseURL: false)?.queryItems ?? []
 
         #expect(items.contains(URLQueryItem(name: "courseId", value: "4")))

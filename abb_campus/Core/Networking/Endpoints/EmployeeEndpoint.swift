@@ -2,25 +2,37 @@ import Foundation
 
 enum EmployeeEndpoint {
     case dashboard
-    case students(search: String, status: StudentStatusFilter, courseId: Int?)
+    case students(search: String, status: StudentStatusFilter, courseId: Int?, page: Int)
     case student(id: Int)
     case setUserStatus(userId: Int, isActive: Bool)
-    case teachers(search: String, position: TeacherPositionFilter, specialty: String?)
+    case teachers(search: String, position: TeacherPositionFilter, specialty: String?, page: Int?)
     case teacher(id: Int)
-    case groups(search: String, courseId: Int?)
+    case groups(search: String, courseId: Int?, page: Int?)
     case group(id: Int)
     case groupStudents(groupId: Int)
     case createGroup(GroupFormRequest)
     case updateGroup(id: Int, GroupFormRequest)
     case courses
     case importStudents(groupId: Int, form: MultipartFormData)
-    case announcements
+    case announcements(page: Int)
     case createAnnouncement(CreateAnnouncementRequest)
 }
 
 extension EmployeeEndpoint: Endpoint {
 
     private static let pageSize = "200"
+    static let listPageSize = 20
+
+    private static func pageItems(_ page: Int?) -> [URLQueryItem] {
+        guard let page else {
+            return [URLQueryItem(name: "perPage", value: pageSize)]
+        }
+
+        return [
+            URLQueryItem(name: "perPage", value: String(listPageSize)),
+            URLQueryItem(name: "page", value: String(page))
+        ]
+    }
 
     // MARK: - Path
 
@@ -95,30 +107,30 @@ extension EmployeeEndpoint: Endpoint {
 
     var queryItems: [URLQueryItem]? {
         switch self {
-        case .students(let search, let status, let courseId):
-            return [
-                URLQueryItem(name: "perPage", value: Self.pageSize),
+        case .students(let search, let status, let courseId, let page):
+            return Self.pageItems(page) + [
                 search.isEmpty ? nil : URLQueryItem(name: "search", value: search),
                 status.queryValue.map { URLQueryItem(name: "status", value: $0) },
                 courseId.map { URLQueryItem(name: "courseId", value: String($0)) }
             ].compactMap { $0 }
 
-        case .teachers(let search, let position, let specialty):
-            return [
-                URLQueryItem(name: "perPage", value: Self.pageSize),
+        case .teachers(let search, let position, let specialty, let page):
+            return Self.pageItems(page) + [
                 search.isEmpty ? nil : URLQueryItem(name: "search", value: search),
                 position.queryValue.map { URLQueryItem(name: "position", value: $0) },
                 specialty.map { URLQueryItem(name: "specialty", value: $0) }
             ].compactMap { $0 }
 
-        case .groups(let search, let courseId):
-            return [
-                URLQueryItem(name: "perPage", value: Self.pageSize),
+        case .groups(let search, let courseId, let page):
+            return Self.pageItems(page) + [
                 search.isEmpty ? nil : URLQueryItem(name: "search", value: search),
                 courseId.map { URLQueryItem(name: "courseId", value: String($0)) }
             ].compactMap { $0 }
 
-        case .groupStudents, .courses, .announcements:
+        case .announcements(let page):
+            return Self.pageItems(page)
+
+        case .groupStudents, .courses:
             return [URLQueryItem(name: "perPage", value: Self.pageSize)]
 
         default:

@@ -1,7 +1,7 @@
 import Foundation
 
 protocol StudentDirectoryService {
-    func fetchStudents(search: String, status: StudentStatusFilter, courseId: Int?) async throws -> [DirectoryStudent]
+    func fetchStudents(search: String, status: StudentStatusFilter, courseId: Int?, page: Int) async throws -> Page<DirectoryStudent>
     func fetchStudent(id: Int) async throws -> DirectoryStudent
     func setStatus(userId: Int, isActive: Bool) async throws
 }
@@ -14,12 +14,12 @@ final class DefaultStudentDirectoryService: StudentDirectoryService {
         self.networkService = networkService
     }
 
-    func fetchStudents(search: String, status: StudentStatusFilter, courseId: Int?) async throws -> [DirectoryStudent] {
+    func fetchStudents(search: String, status: StudentStatusFilter, courseId: Int?, page: Int) async throws -> Page<DirectoryStudent> {
         let response: PaginatedResponse<DirectoryStudent> = try await networkService.request(
-            EmployeeEndpoint.students(search: search, status: status, courseId: courseId)
+            EmployeeEndpoint.students(search: search, status: status, courseId: courseId, page: page)
         )
 
-        return response.data
+        return response.page
     }
 
     func fetchStudent(id: Int) async throws -> DirectoryStudent {

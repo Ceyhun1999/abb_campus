@@ -9,14 +9,14 @@ final class GroupsListViewModel {
     var courseFilterId: Int? {
         didSet {
             if courseFilterId != oldValue {
-                state = .loading
+                list.showLoading()
             }
         }
     }
     var isCreateGroupPresented = false
     private(set) var courses: [Course] = []
     private(set) var hasGroups = false
-    private(set) var state: ViewState<[StudyGroup]> = .idle
+    private let list = PagedList<StudyGroup>()
     private(set) var isRefreshing = false
     private var loadedQuery: String?
     private(set) var createGroupViewModel: GroupFormViewModel?
@@ -30,6 +30,20 @@ final class GroupsListViewModel {
     init(groupService: any GroupService, teacherService: any TeacherService) {
         self.groupService = groupService
         self.teacherService = teacherService
+    }
+
+    // MARK: - Paging
+
+    var state: ViewState<[StudyGroup]> {
+        list.state
+    }
+
+    var isLoadingMore: Bool {
+        list.isLoadingMore
+    }
+
+    func loadMoreIfNeeded(_ item: StudyGroup) async {
+        await list.loadMore(after: item)
     }
 
     // MARK: - Search
@@ -87,23 +101,18 @@ final class GroupsListViewModel {
     }
 
     func load() async {
-        if state.value == nil {
-            state = .loading
+        let requestedQuery = query
+        let search = trimmedSearch
+        let courseId = courseFilterId
+        let service = groupService
+
+        let loaded = await list.load { page in
+            try await service.fetchGroupsPage(search: search, courseId: courseId, page: page)
         }
 
-        let requestedQuery = query
-
-        do {
-            let groups = try await groupService.fetchGroups(
-                search: trimmedSearch,
-                courseId: courseFilterId
-            )
-            state = .loaded(groups)
-            hasGroups = !groups.isEmpty
+        if loaded {
+            hasGroups = state.value?.isEmpty == false
             loadedQuery = requestedQuery
-        } catch is CancellationError {
-        } catch {
-            state = .failed(error.localizedDescription)
         }
     }
 

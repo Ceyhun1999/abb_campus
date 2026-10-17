@@ -6,7 +6,7 @@ import Observation
 final class AnnouncementsListViewModel {
 
     var isCreatePresented = false
-    private(set) var state: ViewState<[Announcement]> = .idle
+    private let list = PagedList<Announcement>()
     private(set) var newAnnouncementViewModel: NewAnnouncementViewModel?
 
     private let announcementService: any AnnouncementService
@@ -17,15 +17,25 @@ final class AnnouncementsListViewModel {
         self.groupService = groupService
     }
 
-    func load() async {
-        if state.value == nil {
-            state = .loading
-        }
+    // MARK: - Paging
 
-        do {
-            state = .loaded(try await announcementService.fetchAnnouncements())
-        } catch {
-            state = .failed(error.localizedDescription)
+    var state: ViewState<[Announcement]> {
+        list.state
+    }
+
+    var isLoadingMore: Bool {
+        list.isLoadingMore
+    }
+
+    func loadMoreIfNeeded(_ item: Announcement) async {
+        await list.loadMore(after: item)
+    }
+
+    func load() async {
+        let service = announcementService
+
+        await list.load { page in
+            try await service.fetchAnnouncements(page: page)
         }
     }
 
