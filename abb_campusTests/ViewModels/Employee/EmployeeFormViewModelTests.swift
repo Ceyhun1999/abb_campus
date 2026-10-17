@@ -429,11 +429,11 @@ struct EmployeeFormViewModelTests {
     )
     func announcementValidation(title: String, message: String, expected: String) async {
         let service = MockAnnouncementService()
-        let sut = NewAnnouncementViewModel(announcementService: service)
+        let sut = AnnouncementFormViewModel(announcementService: service)
         sut.title = title
         sut.message = message
 
-        let result = await sut.publish()
+        let result = await sut.save()
 
         #expect(result == nil)
         #expect(sut.errorMessage == expected)
@@ -442,7 +442,7 @@ struct EmployeeFormViewModelTests {
 
     @Test("A new announcement goes to everyone with medium priority by default")
     func announcementDefaults() {
-        let sut = NewAnnouncementViewModel(announcementService: MockAnnouncementService())
+        let sut = AnnouncementFormViewModel(announcementService: MockAnnouncementService())
 
         #expect(sut.target == .everyone)
         #expect(sut.priority == .medium)
@@ -450,7 +450,7 @@ struct EmployeeFormViewModelTests {
 
     @Test("Message is limited to 500 characters")
     func announcementMessageLimit() {
-        let sut = NewAnnouncementViewModel(announcementService: MockAnnouncementService())
+        let sut = AnnouncementFormViewModel(announcementService: MockAnnouncementService())
 
         sut.message = String(repeating: "a", count: 600)
         sut.enforceMessageLimit()
@@ -462,16 +462,16 @@ struct EmployeeFormViewModelTests {
     @Test("Title, message, audience and priority are sent", arguments: AnnouncementTarget.allCases)
     func announcementSuccess(target: AnnouncementTarget) async {
         let service = MockAnnouncementService()
-        let sut = NewAnnouncementViewModel(announcementService: service)
+        let sut = AnnouncementFormViewModel(announcementService: service)
         sut.title = " Müəllimlər iclası "
         sut.message = "Cümə axşamı saat 18:00-da iclas keçiriləcək."
         sut.target = target
         sut.priority = .high
 
-        let published = await sut.publish()
+        let published = await sut.save()
 
         #expect(published != nil)
-        #expect(service.createdRequests.last == CreateAnnouncementRequest(
+        #expect(service.createdRequests.last == AnnouncementFormRequest(
             title: "Müəllimlər iclası",
             message: "Cümə axşamı saat 18:00-da iclas keçiriləcək.",
             target: target,
@@ -488,7 +488,7 @@ struct EmployeeFormViewModelTests {
             LinkDraft(text: "https://abbtech.az")
         ]
 
-        #expect(NewAnnouncementViewModel.normalizedLinks(drafts) == [
+        #expect(AnnouncementFormViewModel.normalizedLinks(drafts) == [
             "https://abbtech.az",
             "https://developer.apple.com/swiftui"
         ])
@@ -497,12 +497,12 @@ struct EmployeeFormViewModelTests {
     @Test("Invalid links are rejected", arguments: ["abbtech", "javascript:alert(1)", "https://abb tech.az", "http://.az"])
     func invalidLink(text: String) async {
         let service = MockAnnouncementService()
-        let sut = NewAnnouncementViewModel(announcementService: service)
+        let sut = AnnouncementFormViewModel(announcementService: service)
         sut.title = "Başlıq"
         sut.message = "Mətn"
         sut.links = [LinkDraft(text: text)]
 
-        let published = await sut.publish()
+        let published = await sut.save()
 
         #expect(published == nil)
         #expect(sut.errorMessage == ValidationMessage.invalidLink)
@@ -511,7 +511,7 @@ struct EmployeeFormViewModelTests {
 
     @Test("At most three link fields can be added and each can be removed")
     func linkFields() throws {
-        let sut = NewAnnouncementViewModel(announcementService: MockAnnouncementService())
+        let sut = AnnouncementFormViewModel(announcementService: MockAnnouncementService())
 
         for _ in 0..<5 {
             sut.addLink()
@@ -529,25 +529,106 @@ struct EmployeeFormViewModelTests {
     @Test("Links are sent with the announcement")
     func linksAreSent() async {
         let service = MockAnnouncementService()
-        let sut = NewAnnouncementViewModel(announcementService: service)
+        let sut = AnnouncementFormViewModel(announcementService: service)
         sut.title = "Mənbələr"
         sut.message = "Faydalı linklər"
         sut.links = [LinkDraft(text: "swift.org"), LinkDraft(text: "https://abbtech.az")]
 
-        _ = await sut.publish()
+        _ = await sut.save()
 
         #expect(service.createdRequests.last?.links == ["https://swift.org", "https://abbtech.az"])
+    }
+
+    @Test("Editing fills the form from the announcement and sends an update")
+    func editAnnouncement() async throws {
+        let service = MockAnnouncementService()
+        let original = Announcement(
+            id: 9, title: "İclas", message: "18:00", links: ["https://abbtech.az"],
+            target: .teachers, priority: .high, createdAt: nil
+        )
+        let sut = AnnouncementFormViewModel(announcement: original, announcementService: service)
+
+        #expect(sut.isEditing)
+        #expect(sut.saveTitle == "Yadda saxla")
+        #expect(sut.title == "İclas")
+        #expect(sut.target == .teachers)
+        #expect(sut.priority == .high)
+        #expect(sut.links.map(\.text) == ["https://abbtech.az"])
+
+        sut.message = "19:00"
+        sut.removeLink(try #require(sut.links.first))
+        let saved = await sut.save()
+
+        let update = try #require(service.updatedRequests.first)
+        #expect(update.id == 9)
+        #expect(update.request.message == "19:00")
+        #expect(update.request.links.isEmpty)
+        #expect(saved?.message == "19:00")
+        #expect(service.createdRequests.isEmpty)
+    }
+
+    // MARK: - Announcement Detail
+
+    @Test("Students and teachers can only read an announcement")
+    func readOnlyDetail() {
+        let sut = AnnouncementDetailViewModel(announcement: .stub())
+
+        sut.showEdit()
+
+        #expect(sut.canManage == false)
+        #expect(sut.isEditPresented == false)
+    }
+
+    @Test("A saved edit replaces the announcement on the detail screen")
+    func detailEdit() throws {
+        let sut = AnnouncementDetailViewModel(announcement: .stub(), announcementService: MockAnnouncementService())
+
+        sut.showEdit()
+        #expect(sut.isEditPresented)
+        #expect(sut.editViewModel?.isEditing == true)
+
+        sut.saved(.stub(priority: .high))
+
+        #expect(sut.announcement.priority == .high)
+        #expect(sut.isEditPresented == false)
+        #expect(sut.editViewModel == nil)
+    }
+
+    @Test("Deleting asks first, then removes the announcement")
+    func detailDelete() async {
+        let service = MockAnnouncementService()
+        let sut = AnnouncementDetailViewModel(announcement: .stub(id: 5), announcementService: service)
+
+        sut.requestDelete()
+        #expect(sut.isDeleteConfirmationPresented)
+
+        await sut.delete()
+
+        #expect(service.deletedIDs == [5])
+        #expect(sut.isDeleted)
+    }
+
+    @Test("A failed delete keeps the announcement and shows the error")
+    func detailDeleteFailure() async {
+        let service = MockAnnouncementService()
+        service.deleteError = NetworkError.noConnection
+        let sut = AnnouncementDetailViewModel(announcement: .stub(), announcementService: service)
+
+        await sut.delete()
+
+        #expect(sut.isDeleted == false)
+        #expect(sut.errorMessage == "İnternet bağlantısı yoxdur.")
     }
 
     @Test("Announcement server error is shown")
     func announcementFailure() async {
         let service = MockAnnouncementService()
         service.createResult = .failure(NetworkError.noConnection)
-        let sut = NewAnnouncementViewModel(announcementService: service)
+        let sut = AnnouncementFormViewModel(announcementService: service)
         sut.title = "Başlıq"
         sut.message = "Mətn"
 
-        let published = await sut.publish()
+        let published = await sut.save()
 
         #expect(published == nil)
         #expect(sut.errorMessage == "İnternet bağlantısı yoxdur.")

@@ -7,7 +7,7 @@ final class AnnouncementsListViewModel {
 
     var isCreatePresented = false
     private let list = PagedList<Announcement>()
-    private(set) var newAnnouncementViewModel: NewAnnouncementViewModel?
+    private(set) var announcementFormViewModel: AnnouncementFormViewModel?
 
     private let announcementService: any AnnouncementService
 
@@ -38,20 +38,20 @@ final class AnnouncementsListViewModel {
     }
 
     func showCreate() {
-        newAnnouncementViewModel = NewAnnouncementViewModel(announcementService: announcementService)
+        announcementFormViewModel = AnnouncementFormViewModel(announcementService: announcementService)
         isCreatePresented = true
     }
 
     func announcementCreated() async {
         isCreatePresented = false
-        newAnnouncementViewModel = nil
+        announcementFormViewModel = nil
         await load()
     }
 }
 
 @MainActor
 @Observable
-final class NewAnnouncementViewModel {
+final class AnnouncementFormViewModel {
 
     static let maxMessageLength = 500
 
@@ -64,10 +64,32 @@ final class NewAnnouncementViewModel {
     private(set) var isSending = false
     private(set) var errorMessage: String?
 
+    let editingAnnouncement: Announcement?
     private let announcementService: any AnnouncementService
 
-    init(announcementService: any AnnouncementService) {
+    init(announcement: Announcement? = nil, announcementService: any AnnouncementService) {
+        self.editingAnnouncement = announcement
         self.announcementService = announcementService
+
+        if let announcement {
+            title = announcement.title
+            message = announcement.message
+            target = announcement.target
+            priority = announcement.priority
+            links = announcement.links.map { LinkDraft(text: $0) }
+        }
+    }
+
+    var isEditing: Bool {
+        editingAnnouncement != nil
+    }
+
+    var screenTitle: String {
+        isEditing ? "Elanı redaktə et" : "Yeni elan"
+    }
+
+    var saveTitle: String {
+        isEditing ? "Yadda saxla" : "Dərc et"
     }
 
     func dismissError() {
@@ -134,9 +156,9 @@ final class NewAnnouncementViewModel {
         return result
     }
 
-    // MARK: - Publish
+    // MARK: - Save
 
-    func publish() async -> Announcement? {
+    func save() async -> Announcement? {
         guard !isSending else {
             return nil
         }
@@ -166,16 +188,20 @@ final class NewAnnouncementViewModel {
             isSending = false
         }
 
+        let request = AnnouncementFormRequest(
+            title: trimmedTitle,
+            message: trimmedMessage,
+            target: target,
+            priority: priority,
+            links: normalizedLinks
+        )
+
         do {
-            return try await announcementService.createAnnouncement(
-                CreateAnnouncementRequest(
-                    title: trimmedTitle,
-                    message: trimmedMessage,
-                    target: target,
-                    priority: priority,
-                    links: normalizedLinks
-                )
-            )
+            if let editingAnnouncement {
+                return try await announcementService.updateAnnouncement(id: editingAnnouncement.id, request)
+            }
+
+            return try await announcementService.createAnnouncement(request)
         } catch {
             errorMessage = error.localizedDescription
             return nil
@@ -186,4 +212,76 @@ final class NewAnnouncementViewModel {
 struct LinkDraft: Identifiable, Equatable {
     let id = UUID()
     var text = ""
+}
+
+// MARK: - Detail
+
+@MainActor
+@Observable
+final class AnnouncementDetailViewModel {
+
+    var isEditPresented = false
+    var isDeleteConfirmationPresented = false
+    private(set) var announcement: Announcement
+    private(set) var editViewModel: AnnouncementFormViewModel?
+    private(set) var isDeleting = false
+    private(set) var isDeleted = false
+    private(set) var errorMessage: String?
+
+    private let announcementService: (any AnnouncementService)?
+
+    init(announcement: Announcement, announcementService: (any AnnouncementService)? = nil) {
+        self.announcement = announcement
+        self.announcementService = announcementService
+    }
+
+    var canManage: Bool {
+        announcementService != nil
+    }
+
+    func dismissError() {
+        errorMessage = nil
+    }
+
+    // MARK: - Edit
+
+    func showEdit() {
+        guard let announcementService else {
+            return
+        }
+
+        editViewModel = AnnouncementFormViewModel(announcement: announcement, announcementService: announcementService)
+        isEditPresented = true
+    }
+
+    func saved(_ updated: Announcement) {
+        announcement = updated
+        isEditPresented = false
+        editViewModel = nil
+    }
+
+    // MARK: - Delete
+
+    func requestDelete() {
+        isDeleteConfirmationPresented = true
+    }
+
+    func delete() async {
+        guard let announcementService, !isDeleting else {
+            return
+        }
+
+        isDeleting = true
+
+        defer {
+            isDeleting = false
+        }
+
+        do {
+            try await announcementService.deleteAnnouncement(id: announcement.id)
+            isDeleted = true
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
 }

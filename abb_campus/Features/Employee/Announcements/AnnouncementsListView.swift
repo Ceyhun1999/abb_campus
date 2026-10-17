@@ -52,8 +52,8 @@ struct AnnouncementsListView: View {
             }
         }
         .sheet(isPresented: $viewModel.isCreatePresented) {
-            if let newAnnouncementViewModel = viewModel.newAnnouncementViewModel {
-                NewAnnouncementView(viewModel: newAnnouncementViewModel) {
+            if let announcementFormViewModel = viewModel.announcementFormViewModel {
+                AnnouncementFormView(viewModel: announcementFormViewModel) { _ in
                     Task {
                         await viewModel.announcementCreated()
                     }

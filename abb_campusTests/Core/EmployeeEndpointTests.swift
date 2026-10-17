@@ -73,7 +73,7 @@ struct EmployeeEndpointTests {
 
     @Test("A new announcement sends priority and audience, no group")
     func createAnnouncementBody() throws {
-        let body = CreateAnnouncementRequest(
+        let body = AnnouncementFormRequest(
             title: "İclas", message: "18:00", target: .teachers, priority: .high, links: ["https://abbtech.az"]
         )
         let request = try EmployeeEndpoint.createAnnouncement(body).makeRequest()
@@ -84,6 +84,19 @@ struct EmployeeEndpointTests {
         #expect(json["priority"] as? String == "high")
         #expect(json["links"] as? [String] == ["https://abbtech.az"])
         #expect(json["groupId"] == nil)
+    }
+
+    @Test("Editing is a PATCH and deleting a DELETE on the announcement")
+    func editAndDeleteAnnouncementRequests() throws {
+        let body = AnnouncementFormRequest(title: "A", message: "B", target: .everyone, priority: .low)
+        let update = try EmployeeEndpoint.updateAnnouncement(id: 7, body).makeRequest()
+        let delete = try EmployeeEndpoint.deleteAnnouncement(id: 7).makeRequest()
+
+        #expect(update.httpMethod == "PATCH")
+        #expect(update.url?.path == "/api/announcements/7")
+        #expect(delete.httpMethod == "DELETE")
+        #expect(delete.url?.path == "/api/announcements/7")
+        #expect(delete.httpBody == nil)
     }
 
     @Test("Announcements decode their priority")

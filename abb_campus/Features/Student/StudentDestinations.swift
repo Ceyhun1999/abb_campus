@@ -19,7 +19,7 @@ private struct StudentDestinations: ViewModifier {
                 )
             }
             .navigationDestination(for: Announcement.self) { announcement in
-                AnnouncementDetailView(announcement: announcement)
+                AnnouncementDetailView(viewModel: AnnouncementDetailViewModel(announcement: announcement))
             }
             .navigationDestination(for: StudentRoute.self) { route in
                 switch route {

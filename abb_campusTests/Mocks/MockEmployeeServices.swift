@@ -144,15 +144,41 @@ final class MockAnnouncementService: AnnouncementService {
 
     var listResult: Result<[Announcement], Error> = .success([.stub()])
     var createResult: Result<Announcement, Error> = .success(.stub())
-    private(set) var createdRequests: [CreateAnnouncementRequest] = []
+    private(set) var createdRequests: [AnnouncementFormRequest] = []
 
     func fetchAnnouncements(page: Int) async throws -> Page<Announcement> {
         Page(items: try listResult.get(), currentPage: page, lastPage: 1)
     }
 
-    func createAnnouncement(_ request: CreateAnnouncementRequest) async throws -> Announcement {
+    func createAnnouncement(_ request: AnnouncementFormRequest) async throws -> Announcement {
         createdRequests.append(request)
         return try createResult.get()
+    }
+
+    var updateResult: Result<Announcement, Error>?
+    var deleteError: Error?
+    private(set) var updatedRequests: [(id: Int, request: AnnouncementFormRequest)] = []
+    private(set) var deletedIDs: [Int] = []
+
+    func updateAnnouncement(id: Int, _ request: AnnouncementFormRequest) async throws -> Announcement {
+        updatedRequests.append((id, request))
+
+        if let updateResult {
+            return try updateResult.get()
+        }
+
+        return Announcement(
+            id: id, title: request.title, message: request.message, links: request.links,
+            target: request.target, priority: request.priority, createdAt: nil
+        )
+    }
+
+    func deleteAnnouncement(id: Int) async throws {
+        deletedIDs.append(id)
+
+        if let deleteError {
+            throw deleteError
+        }
     }
 }
 

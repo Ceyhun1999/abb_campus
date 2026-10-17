@@ -15,7 +15,9 @@ enum EmployeeEndpoint {
     case courses
     case importStudents(groupId: Int, form: MultipartFormData)
     case announcements(page: Int)
-    case createAnnouncement(CreateAnnouncementRequest)
+    case createAnnouncement(AnnouncementFormRequest)
+    case updateAnnouncement(id: Int, AnnouncementFormRequest)
+    case deleteAnnouncement(id: Int)
 }
 
 extension EmployeeEndpoint: Endpoint {
@@ -73,6 +75,9 @@ extension EmployeeEndpoint: Endpoint {
 
         case .announcements, .createAnnouncement:
             return "/api/announcements"
+
+        case .updateAnnouncement(let id, _), .deleteAnnouncement(let id):
+            return "/api/announcements/\(id)"
         }
     }
 
@@ -80,8 +85,11 @@ extension EmployeeEndpoint: Endpoint {
 
     var method: HTTPMethod {
         switch self {
-        case .setUserStatus, .updateGroup:
+        case .setUserStatus, .updateGroup, .updateAnnouncement:
             return .patch
+
+        case .deleteAnnouncement:
+            return .delete
 
         case .createGroup, .importStudents, .createAnnouncement:
             return .post
@@ -148,7 +156,7 @@ extension EmployeeEndpoint: Endpoint {
         case .createGroup(let request), .updateGroup(_, let request):
             return request
 
-        case .createAnnouncement(let request):
+        case .createAnnouncement(let request), .updateAnnouncement(_, let request):
             return request
 
         default:

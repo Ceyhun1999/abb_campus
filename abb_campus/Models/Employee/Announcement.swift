@@ -70,7 +70,7 @@ extension Announcement {
     }
 }
 
-struct CreateAnnouncementRequest: Encodable, Equatable {
+struct AnnouncementFormRequest: Encodable, Equatable {
     let title: String
     let message: String
     let target: AnnouncementTarget

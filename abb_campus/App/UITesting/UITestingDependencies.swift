@@ -257,13 +257,26 @@ final class UITestingDirectory: EmployeeDashboardService, StudentDirectoryServic
         Page(items: announcements, currentPage: page, lastPage: 1)
     }
 
-    func createAnnouncement(_ request: CreateAnnouncementRequest) async throws -> Announcement {
+    func createAnnouncement(_ request: AnnouncementFormRequest) async throws -> Announcement {
         let announcement = Announcement(
-            id: announcements.count + 1, title: request.title, message: request.message,
-            target: request.target, priority: request.priority, createdAt: nil
+            id: (announcements.map(\.id).max() ?? 0) + 1, title: request.title, message: request.message,
+            links: request.links, target: request.target, priority: request.priority, createdAt: nil
         )
         announcements.insert(announcement, at: 0)
         return announcement
+    }
+
+    func updateAnnouncement(id: Int, _ request: AnnouncementFormRequest) async throws -> Announcement {
+        let announcement = Announcement(
+            id: id, title: request.title, message: request.message,
+            links: request.links, target: request.target, priority: request.priority, createdAt: nil
+        )
+        announcements = announcements.map { $0.id == id ? announcement : $0 }
+        return announcement
+    }
+
+    func deleteAnnouncement(id: Int) async throws {
+        announcements.removeAll { $0.id == id }
     }
 }
 

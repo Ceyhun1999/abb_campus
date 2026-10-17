@@ -1,16 +1,16 @@
 import SwiftUI
 
-struct NewAnnouncementView: View {
+struct AnnouncementFormView: View {
 
     @Environment(\.dismiss) private var dismiss
 
-    @State private var viewModel: NewAnnouncementViewModel
+    @State private var viewModel: AnnouncementFormViewModel
 
-    let onPublished: () -> Void
+    let onSaved: (Announcement) -> Void
 
-    init(viewModel: NewAnnouncementViewModel, onPublished: @escaping () -> Void) {
+    init(viewModel: AnnouncementFormViewModel, onSaved: @escaping (Announcement) -> Void) {
         _viewModel = State(initialValue: viewModel)
-        self.onPublished = onPublished
+        self.onSaved = onSaved
     }
 
     var body: some View {
@@ -70,7 +70,7 @@ struct NewAnnouncementView: View {
                 }
             }
             .errorAlert(viewModel.errorMessage, onDismiss: viewModel.dismissError)
-            .navigationTitle("Yeni elan")
+            .navigationTitle(viewModel.screenTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -83,10 +83,10 @@ struct NewAnnouncementView: View {
                     if viewModel.isSending {
                         ProgressView()
                     } else {
-                        Button("Dərc et") {
+                        Button(viewModel.saveTitle) {
                             Task {
-                                if await viewModel.publish() != nil {
-                                    onPublished()
+                                if let announcement = await viewModel.save() {
+                                    onSaved(announcement)
                                 }
                             }
                         }
@@ -137,7 +137,7 @@ struct NewAnnouncementView: View {
         } header: {
             Text("Linklər")
         } footer: {
-            Text("İstəyə bağlıdır. Ən çox \(NewAnnouncementViewModel.maxLinks) link, məsələn abbtech.az")
+            Text("İstəyə bağlıdır. Ən çox \(AnnouncementFormViewModel.maxLinks) link, məsələn abbtech.az")
         }
     }
 }

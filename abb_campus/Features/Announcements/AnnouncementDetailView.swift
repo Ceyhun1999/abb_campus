@@ -2,9 +2,21 @@ import SwiftUI
 
 struct AnnouncementDetailView: View {
 
-    let announcement: Announcement
+    @Environment(\.dismiss) private var dismiss
+
+    @State private var viewModel: AnnouncementDetailViewModel
+
+    init(viewModel: AnnouncementDetailViewModel) {
+        _viewModel = State(initialValue: viewModel)
+    }
+
+    private var announcement: Announcement {
+        viewModel.announcement
+    }
 
     var body: some View {
+        @Bindable var viewModel = viewModel
+
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 AnnouncementRow(announcement: announcement)
@@ -30,6 +42,62 @@ struct AnnouncementDetailView: View {
         .background(.appBackground)
         .navigationTitle("Elan")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            if viewModel.canManage {
+                ToolbarItem(placement: .primaryAction) {
+                    if viewModel.isDeleting {
+                        ProgressView()
+                    } else {
+                        Menu {
+                            Button {
+                                viewModel.showEdit()
+                            } label: {
+                                Label("Redaktə et", systemImage: "pencil")
+                            }
+                            .accessibilityIdentifier("edit_announcement_button")
+
+                            Button(role: .destructive) {
+                                viewModel.requestDelete()
+                            } label: {
+                                Label("Sil", systemImage: "trash")
+                            }
+                            .accessibilityIdentifier("delete_announcement_button")
+                        } label: {
+                            Image(systemName: "ellipsis.circle")
+                        }
+                        .accessibilityLabel("Elan əməliyyatları")
+                        .accessibilityIdentifier("announcement_actions")
+                    }
+                }
+            }
+        }
+        .sheet(isPresented: $viewModel.isEditPresented) {
+            if let editViewModel = viewModel.editViewModel {
+                AnnouncementFormView(viewModel: editViewModel) { updated in
+                    viewModel.saved(updated)
+                }
+            }
+        }
+        .confirmationDialog(
+            "Elan silinsin? Bu əməliyyatı geri qaytarmaq olmaz.",
+            isPresented: $viewModel.isDeleteConfirmationPresented,
+            titleVisibility: .visible
+        ) {
+            Button("Sil", role: .destructive) {
+                Task {
+                    await viewModel.delete()
+                }
+            }
+            .accessibilityIdentifier("confirm_delete_announcement")
+
+            Button("Ləğv et", role: .cancel) {}
+        }
+        .errorAlert(viewModel.errorMessage, onDismiss: viewModel.dismissError)
+        .onChange(of: viewModel.isDeleted) { _, isDeleted in
+            if isDeleted {
+                dismiss()
+            }
+        }
     }
 
     // MARK: - Links

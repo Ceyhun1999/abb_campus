@@ -38,7 +38,12 @@ private struct EmployeeDestinations: ViewModifier {
                 )
             }
             .navigationDestination(for: Announcement.self) { announcement in
-                AnnouncementDetailView(announcement: announcement)
+                AnnouncementDetailView(
+                    viewModel: AnnouncementDetailViewModel(
+                        announcement: announcement,
+                        announcementService: dependencies.announcementService
+                    )
+                )
             }
             .navigationDestination(for: EmployeeRoute.self) { route in
                 switch route {
