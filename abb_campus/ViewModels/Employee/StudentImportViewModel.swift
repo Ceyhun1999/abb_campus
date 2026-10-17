@@ -67,15 +67,22 @@ final class StudentImportViewModel {
         isFilePickerPresented = true
     }
 
+    static let maxFileSize = 5 * 1024 * 1024
+
     func fileSelected(_ selection: Result<URL, Error>) {
         result = .idle
 
         do {
             let url = try selection.get()
-            selectedFile = SelectedFile(
-                name: url.lastPathComponent,
-                data: try fileLoader.loadData(from: url)
-            )
+            let data = try fileLoader.loadData(from: url)
+
+            guard data.count <= Self.maxFileSize else {
+                selectedFile = nil
+                errorMessage = ValidationMessage.fileTooLarge
+                return
+            }
+
+            selectedFile = SelectedFile(name: url.lastPathComponent, data: data)
             errorMessage = nil
         } catch {
             selectedFile = nil

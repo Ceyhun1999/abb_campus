@@ -382,6 +382,18 @@ struct EmployeeFormViewModelTests {
         #expect(sut.errorMessage == ValidationMessage.fileNotReadable)
     }
 
+    @Test("A file over 5 MB is not accepted")
+    func importTooLargeFile() {
+        let loader = MockFileLoader(result: .success(Data(count: StudentImportViewModel.maxFileSize + 1)))
+        let sut = StudentImportViewModel(group: .stub(), groupService: MockGroupService(), fileLoader: loader)
+
+        sut.fileSelected(.success(URL(fileURLWithPath: "/tmp/boyuk.xlsx")))
+
+        #expect(sut.selectedFile == nil)
+        #expect(sut.errorMessage == ValidationMessage.fileTooLarge)
+        #expect(sut.canImport == false)
+    }
+
     @Test("Import without a file is rejected")
     func importWithoutFile() async {
         let service = MockGroupService()

@@ -21,4 +21,5 @@ enum ValidationMessage {
     static let groupNotSelected = "Qrupu seçin."
     static let fileNotSelected = "Excel faylını seçin."
     static let fileNotReadable = "Faylı oxumaq mümkün olmadı."
+    static let fileTooLarge = "Fayl 5 MB-dan böyük ola bilməz."
 }

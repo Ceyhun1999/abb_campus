@@ -21,7 +21,17 @@ struct GroupDetailView: View {
                     PrimaryButton(title: "Excel-dən tələbə idxal et") {
                         viewModel.showImport()
                     }
+                    .disabled(!detail.group.isActive)
+                    .opacity(detail.group.isActive ? 1 : 0.5)
                     .accessibilityIdentifier("import_students_button")
+
+                    if !detail.group.isActive {
+                        Text("Qrup bitib. Bitmiş qrupa tələbə idxal etmək olmaz.")
+                            .font(.manropeRegular(14))
+                            .foregroundStyle(.textSecondary)
+                            .frame(maxWidth: .infinity)
+                            .multilineTextAlignment(.center)
+                    }
 
                     studentsSection(detail.students)
                 }
