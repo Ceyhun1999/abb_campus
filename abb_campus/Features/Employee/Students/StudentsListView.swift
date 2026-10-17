@@ -22,6 +22,12 @@ struct StudentsListView: View {
             .padding(.bottom, 8)
             .accessibilityIdentifier("student_status_filter")
 
+            if let courseName = viewModel.courseFilterName {
+                FilterChip(title: courseName) {
+                    viewModel.courseFilterId = nil
+                }
+            }
+
             AsyncContentView(
                 state: viewModel.state,
                 isEmpty: \.isEmpty,
@@ -49,9 +55,39 @@ struct StudentsListView: View {
             placement: .navigationBarDrawer(displayMode: .always),
             prompt: "Ad, soyad və ya qrup üzrə axtar"
         )
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                courseMenu
+            }
+        }
+        .task {
+            await viewModel.loadCourses()
+        }
         .task(id: viewModel.query) {
             await viewModel.queryChanged()
         }
+    }
+
+    // MARK: - Course Filter
+
+    private var courseMenu: some View {
+        @Bindable var viewModel = viewModel
+
+        return Menu {
+            Picker("Kurs", selection: $viewModel.courseFilterId) {
+                Text("Bütün kurslar").tag(Int?.none)
+
+                ForEach(viewModel.courses) { course in
+                    Text(course.name).tag(Optional(course.id))
+                }
+            }
+        } label: {
+            Image(systemName: viewModel.courseFilterId == nil
+                  ? "line.3.horizontal.decrease.circle"
+                  : "line.3.horizontal.decrease.circle.fill")
+        }
+        .accessibilityLabel("Kurs filtri")
+        .accessibilityIdentifier("student_course_filter")
     }
 }
 

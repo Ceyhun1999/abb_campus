@@ -9,7 +9,7 @@ struct EmployeeEndpointTests {
 
     @Test("Students request has search and status query items")
     func studentsRequest() throws {
-        let request = try EmployeeEndpoint.students(search: "Nihad", status: .active).makeRequest()
+        let request = try EmployeeEndpoint.students(search: "Nihad", status: .active, courseId: 4).makeRequest()
         let components = try #require(request.url.flatMap { URLComponents(url: $0, resolvingAgainstBaseURL: false) })
 
         #expect(components.path == "/api/students")
@@ -20,7 +20,7 @@ struct EmployeeEndpointTests {
 
     @Test("Empty search and 'all' filter are not sent")
     func studentsRequestWithoutFilters() throws {
-        let request = try EmployeeEndpoint.students(search: "", status: .all).makeRequest()
+        let request = try EmployeeEndpoint.students(search: "", status: .all, courseId: nil).makeRequest()
         let query = request.url?.query ?? ""
 
         #expect(!query.contains("search"))

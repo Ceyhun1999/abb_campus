@@ -48,7 +48,7 @@ struct EmployeeListViewModelTests {
     @Test("Search text is trimmed and the status filter is sent")
     func studentsQuery() async {
         let service = MockStudentDirectoryService()
-        let sut = StudentsListViewModel(studentService: service)
+        let sut = StudentsListViewModel(studentService: service, groupService: MockGroupService())
         sut.searchText = "  Nihad "
         sut.statusFilter = .inactive
 
@@ -63,7 +63,7 @@ struct EmployeeListViewModelTests {
     func studentsEmpty() async {
         let service = MockStudentDirectoryService()
         service.studentsResult = .success([])
-        let sut = StudentsListViewModel(studentService: service)
+        let sut = StudentsListViewModel(studentService: service, groupService: MockGroupService())
         sut.searchText = "xyz"
 
         await sut.load()
@@ -76,7 +76,7 @@ struct EmployeeListViewModelTests {
     func studentsFailure() async {
         let service = MockStudentDirectoryService()
         service.studentsResult = .failure(NetworkError.serverError(statusCode: 500, message: "Server xətası."))
-        let sut = StudentsListViewModel(studentService: service)
+        let sut = StudentsListViewModel(studentService: service, groupService: MockGroupService())
 
         await sut.load()
 
@@ -85,7 +85,7 @@ struct EmployeeListViewModelTests {
 
     @Test("Query changes when search or filter changes")
     func queryKey() {
-        let sut = StudentsListViewModel(studentService: MockStudentDirectoryService())
+        let sut = StudentsListViewModel(studentService: MockStudentDirectoryService(), groupService: MockGroupService())
         let initial = sut.query
 
         sut.statusFilter = .active
@@ -380,5 +380,21 @@ struct EmployeeListViewModelTests {
 
         #expect(sut.isCreatedGroupPresented == false)
         #expect(sut.createdGroupViewModel == nil)
+    }
+
+    @Test("Student course filter is sent and shown by name")
+    func studentCourseFilter() async {
+        let service = MockStudentDirectoryService()
+        let sut = StudentsListViewModel(studentService: service, groupService: MockGroupService())
+        await sut.loadCourses()
+
+        sut.courseFilterId = 7
+
+        #expect(sut.state.isLoading)
+        #expect(sut.courseFilterName == "Mobile Development iOS")
+
+        await sut.load()
+
+        #expect(service.lastCourseId == 7)
     }
 }

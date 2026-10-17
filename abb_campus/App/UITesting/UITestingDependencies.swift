@@ -146,8 +146,10 @@ final class UITestingDirectory: EmployeeDashboardService, StudentDirectoryServic
         )
     }
 
-    func fetchStudents(search: String, status: StudentStatusFilter) async throws -> [DirectoryStudent] {
+    func fetchStudents(search: String, status: StudentStatusFilter, courseId: Int?) async throws -> [DirectoryStudent] {
         students.filter { student in
+            let studentCourseId = groups.first { $0.id == student.group?.id }?.course?.id
+            let matchesCourse = courseId == nil || studentCourseId == courseId
             let matchesStatus = switch status {
             case .all: true
             case .active: student.isActive
@@ -157,7 +159,7 @@ final class UITestingDirectory: EmployeeDashboardService, StudentDirectoryServic
                 || student.fullName.localizedCaseInsensitiveContains(search)
                 || (student.group?.name.localizedCaseInsensitiveContains(search) ?? false)
 
-            return matchesStatus && matchesSearch
+            return matchesStatus && matchesSearch && matchesCourse
         }
     }
 

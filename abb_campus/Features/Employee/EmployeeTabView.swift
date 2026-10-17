@@ -23,7 +23,8 @@ struct EmployeeTabView: View {
             NavigationStack {
                 StudentsListView(
                     viewModel: StudentsListViewModel(
-                        studentService: dependencies.studentDirectoryService
+                        studentService: dependencies.studentDirectoryService,
+                        groupService: dependencies.groupService
                     )
                 )
                 .employeeDestinations()

@@ -13,20 +13,42 @@ final class StudentsListViewModel {
             }
         }
     }
+    var courseFilterId: Int? {
+        didSet {
+            if courseFilterId != oldValue {
+                state = .loading
+            }
+        }
+    }
+    private(set) var courses: [Course] = []
     private(set) var state: ViewState<[DirectoryStudent]> = .idle
     private(set) var isRefreshing = false
     private var loadedQuery: String?
 
     private let studentService: any StudentDirectoryService
+    private let groupService: any GroupService
 
-    init(studentService: any StudentDirectoryService) {
+    init(studentService: any StudentDirectoryService, groupService: any GroupService) {
         self.studentService = studentService
+        self.groupService = groupService
     }
 
     // MARK: - Query
 
     var query: String {
-        "\(statusFilter.rawValue)|\(trimmedSearch)"
+        "\(statusFilter.rawValue)|\(courseFilterId.map(String.init) ?? "")|\(trimmedSearch)"
+    }
+
+    var courseFilterName: String? {
+        courses.first { $0.id == courseFilterId }?.name
+    }
+
+    func loadCourses() async {
+        guard courses.isEmpty else {
+            return
+        }
+
+        courses = (try? await groupService.fetchCourses()) ?? []
     }
 
     var emptyMessage: String {
@@ -65,7 +87,8 @@ final class StudentsListViewModel {
         do {
             let students = try await studentService.fetchStudents(
                 search: trimmedSearch,
-                status: statusFilter
+                status: statusFilter,
+                courseId: courseFilterId
             )
             state = .loaded(students)
             loadedQuery = requestedQuery

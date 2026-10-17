@@ -20,9 +20,11 @@ final class MockStudentDirectoryService: StudentDirectoryService {
 
     private(set) var lastSearch: String?
     private(set) var lastStatus: StudentStatusFilter?
+    private(set) var lastCourseId: Int?
     private(set) var statusChanges: [(userId: Int, isActive: Bool)] = []
 
-    func fetchStudents(search: String, status: StudentStatusFilter) async throws -> [DirectoryStudent] {
+    func fetchStudents(search: String, status: StudentStatusFilter, courseId: Int?) async throws -> [DirectoryStudent] {
+        lastCourseId = courseId
         lastSearch = search
         lastStatus = status
         return try studentsResult.get()

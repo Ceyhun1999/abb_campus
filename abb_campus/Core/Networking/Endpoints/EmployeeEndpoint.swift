@@ -2,7 +2,7 @@ import Foundation
 
 enum EmployeeEndpoint {
     case dashboard
-    case students(search: String, status: StudentStatusFilter)
+    case students(search: String, status: StudentStatusFilter, courseId: Int?)
     case student(id: Int)
     case setUserStatus(userId: Int, isActive: Bool)
     case teachers(search: String, position: TeacherPositionFilter, specialty: String?)
@@ -95,11 +95,12 @@ extension EmployeeEndpoint: Endpoint {
 
     var queryItems: [URLQueryItem]? {
         switch self {
-        case .students(let search, let status):
+        case .students(let search, let status, let courseId):
             return [
                 URLQueryItem(name: "perPage", value: Self.pageSize),
                 search.isEmpty ? nil : URLQueryItem(name: "search", value: search),
-                status.queryValue.map { URLQueryItem(name: "status", value: $0) }
+                status.queryValue.map { URLQueryItem(name: "status", value: $0) },
+                courseId.map { URLQueryItem(name: "courseId", value: String($0)) }
             ].compactMap { $0 }
 
         case .teachers(let search, let position, let specialty):
