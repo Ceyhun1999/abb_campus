@@ -26,6 +26,13 @@ struct AnnouncementRow: View {
 
             Spacer(minLength: 0)
 
+            if !announcement.links.isEmpty {
+                Image(systemName: "link")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(.textSecondary)
+                    .accessibilityLabel("\(announcement.links.count) link")
+            }
+
             if let date = DateFormatting.displayDate(from: announcement.createdAt) {
                 Text(date)
                     .font(.manropeRegular(12))

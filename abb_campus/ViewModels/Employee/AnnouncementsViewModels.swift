@@ -59,6 +59,7 @@ final class NewAnnouncementViewModel {
     var message = ""
     var target: AnnouncementTarget = .everyone
     var priority: AnnouncementPriority = .medium
+    var links: [LinkDraft] = []
 
     private(set) var isSending = false
     private(set) var errorMessage: String?
@@ -83,6 +84,56 @@ final class NewAnnouncementViewModel {
         "\(message.count)/\(Self.maxMessageLength)"
     }
 
+    // MARK: - Links
+
+    static let maxLinks = 3
+
+    var canAddLink: Bool {
+        links.count < Self.maxLinks
+    }
+
+    func addLink() {
+        guard canAddLink else {
+            return
+        }
+
+        links.append(LinkDraft())
+    }
+
+    func removeLink(_ link: LinkDraft) {
+        links.removeAll { $0.id == link.id }
+    }
+
+    static func normalizedLinks(_ drafts: [LinkDraft]) -> [String]? {
+        var result: [String] = []
+
+        for draft in drafts {
+            var text = draft.text.trimmingCharacters(in: .whitespacesAndNewlines)
+
+            guard !text.isEmpty else {
+                continue
+            }
+
+            if !text.lowercased().hasPrefix("http://") && !text.lowercased().hasPrefix("https://") {
+                text = "https://" + text
+            }
+
+            guard let url = URL(string: text),
+                  let host = url.host(),
+                  host.contains("."),
+                  !host.hasPrefix("."),
+                  !host.hasSuffix(".") else {
+                return nil
+            }
+
+            if !result.contains(text) {
+                result.append(text)
+            }
+        }
+
+        return result
+    }
+
     // MARK: - Publish
 
     func publish() async -> Announcement? {
@@ -103,6 +154,11 @@ final class NewAnnouncementViewModel {
             return nil
         }
 
+        guard let normalizedLinks = Self.normalizedLinks(links) else {
+            errorMessage = ValidationMessage.invalidLink
+            return nil
+        }
+
         errorMessage = nil
         isSending = true
 
@@ -116,7 +172,8 @@ final class NewAnnouncementViewModel {
                     title: trimmedTitle,
                     message: trimmedMessage,
                     target: target,
-                    priority: priority
+                    priority: priority,
+                    links: normalizedLinks
                 )
             )
         } catch {
@@ -124,4 +181,9 @@ final class NewAnnouncementViewModel {
             return nil
         }
     }
+}
+
+struct LinkDraft: Identifiable, Equatable {
+    let id = UUID()
+    var text = ""
 }

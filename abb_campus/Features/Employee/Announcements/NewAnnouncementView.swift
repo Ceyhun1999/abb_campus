@@ -37,6 +37,8 @@ struct NewAnnouncementView: View {
                         .frame(maxWidth: .infinity, alignment: .trailing)
                 }
 
+                linksSection
+
                 Section("Kimə") {
                     Picker("Auditoriya", selection: $viewModel.target) {
                         ForEach(AnnouncementTarget.allCases) { target in
@@ -92,6 +94,50 @@ struct NewAnnouncementView: View {
                     }
                 }
             }
+        }
+    }
+
+    // MARK: - Links
+
+    private var linksSection: some View {
+        @Bindable var viewModel = viewModel
+
+        return Section {
+            ForEach($viewModel.links) { $link in
+                HStack(spacing: 10) {
+                    Image(systemName: "link")
+                        .foregroundStyle(.secondary)
+
+                    TextField("https://", text: $link.text)
+                        .keyboardType(.URL)
+                        .textContentType(.URL)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .accessibilityIdentifier("announcement_link_field")
+
+                    Button {
+                        viewModel.removeLink(link)
+                    } label: {
+                        Image(systemName: "minus.circle.fill")
+                            .foregroundStyle(.red)
+                    }
+                    .buttonStyle(.borderless)
+                    .accessibilityLabel("Linki sil")
+                }
+            }
+
+            if viewModel.canAddLink {
+                Button {
+                    viewModel.addLink()
+                } label: {
+                    Label("Link əlavə et", systemImage: "plus.circle.fill")
+                }
+                .accessibilityIdentifier("add_link_button")
+            }
+        } header: {
+            Text("Linklər")
+        } footer: {
+            Text("İstəyə bağlıdır. Ən çox \(NewAnnouncementViewModel.maxLinks) link, məsələn abbtech.az")
         }
     }
 }

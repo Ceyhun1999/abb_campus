@@ -73,12 +73,17 @@ struct EmployeeEndpointTests {
 
     @Test("A new announcement sends priority and audience, no group")
     func createAnnouncementBody() throws {
-        let body = CreateAnnouncementRequest(title: "İclas", message: "18:00", target: .teachers, priority: .high)
+        let body = CreateAnnouncementRequest(
+            title: "İclas", message: "18:00", target: .teachers, priority: .high, links: ["https://abbtech.az"]
+        )
         let request = try EmployeeEndpoint.createAnnouncement(body).makeRequest()
         let data = try #require(request.httpBody)
-        let json = try #require(try JSONSerialization.jsonObject(with: data) as? [String: String])
+        let json = try #require(try JSONSerialization.jsonObject(with: data) as? [String: Any])
 
-        #expect(json == ["title": "İclas", "message": "18:00", "target": "teachers", "priority": "high"])
+        #expect(json["target"] as? String == "teachers")
+        #expect(json["priority"] as? String == "high")
+        #expect(json["links"] as? [String] == ["https://abbtech.az"])
+        #expect(json["groupId"] == nil)
     }
 
     @Test("Announcements decode their priority")
@@ -88,6 +93,12 @@ struct EmployeeEndpointTests {
 
         #expect(announcement.priority == .high)
         #expect(announcement.audienceTitle == "Müəllim və mentorlar")
+        #expect(announcement.links.isEmpty)
+
+        let withLinks = #"{"id": 2, "title": "Mənbələr", "message": "x", "links": ["https://abbtech.az"], "target": "students", "priority": "low", "createdAt": null}"#
+        let decoded = try JSONDecoder().decode(Announcement.self, from: Data(withLinks.utf8))
+
+        #expect(decoded.linkURLs == [URL(string: "https://abbtech.az")])
     }
 
     @Test("Lists ask for 20 rows of the given page, pickers for everything")

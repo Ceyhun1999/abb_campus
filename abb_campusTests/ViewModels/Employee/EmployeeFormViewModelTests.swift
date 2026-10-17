@@ -479,6 +479,66 @@ struct EmployeeFormViewModelTests {
         ))
     }
 
+    @Test("Links are trimmed, get https:// when missing, and empty ones or repeats are dropped")
+    func linkNormalization() {
+        let drafts = [
+            LinkDraft(text: "  abbtech.az "),
+            LinkDraft(text: ""),
+            LinkDraft(text: "https://developer.apple.com/swiftui"),
+            LinkDraft(text: "https://abbtech.az")
+        ]
+
+        #expect(NewAnnouncementViewModel.normalizedLinks(drafts) == [
+            "https://abbtech.az",
+            "https://developer.apple.com/swiftui"
+        ])
+    }
+
+    @Test("Invalid links are rejected", arguments: ["abbtech", "javascript:alert(1)", "https://abb tech.az", "http://.az"])
+    func invalidLink(text: String) async {
+        let service = MockAnnouncementService()
+        let sut = NewAnnouncementViewModel(announcementService: service)
+        sut.title = "Başlıq"
+        sut.message = "Mətn"
+        sut.links = [LinkDraft(text: text)]
+
+        let published = await sut.publish()
+
+        #expect(published == nil)
+        #expect(sut.errorMessage == ValidationMessage.invalidLink)
+        #expect(service.createdRequests.isEmpty)
+    }
+
+    @Test("At most three link fields can be added and each can be removed")
+    func linkFields() throws {
+        let sut = NewAnnouncementViewModel(announcementService: MockAnnouncementService())
+
+        for _ in 0..<5 {
+            sut.addLink()
+        }
+
+        #expect(sut.links.count == 3)
+        #expect(sut.canAddLink == false)
+
+        sut.removeLink(try #require(sut.links.first))
+
+        #expect(sut.links.count == 2)
+        #expect(sut.canAddLink)
+    }
+
+    @Test("Links are sent with the announcement")
+    func linksAreSent() async {
+        let service = MockAnnouncementService()
+        let sut = NewAnnouncementViewModel(announcementService: service)
+        sut.title = "Mənbələr"
+        sut.message = "Faydalı linklər"
+        sut.links = [LinkDraft(text: "swift.org"), LinkDraft(text: "https://abbtech.az")]
+
+        _ = await sut.publish()
+
+        #expect(service.createdRequests.last?.links == ["https://swift.org", "https://abbtech.az"])
+    }
+
     @Test("Announcement server error is shown")
     func announcementFailure() async {
         let service = MockAnnouncementService()

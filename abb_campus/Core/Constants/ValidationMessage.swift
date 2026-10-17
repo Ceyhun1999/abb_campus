@@ -17,6 +17,7 @@ enum ValidationMessage {
     static let endDateNotSelected = "Bitmə tarixini seçin."
     static let invalidEndDate = "Bitmə tarixi başlama tarixindən əvvəl ola bilməz."
     static let emptyAnnouncementTitle = "Elanın başlığını daxil edin."
+    static let invalidLink = "Link düzgün deyil. Nümunə: https://abbtech.az"
     static let emptyAnnouncementMessage = "Elanın mətnini daxil edin."
     static let fileNotSelected = "Excel faylını seçin."
     static let fileNotReadable = "Faylı oxumaq mümkün olmadı."
