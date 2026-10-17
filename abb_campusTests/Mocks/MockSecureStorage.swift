@@ -38,4 +38,12 @@ final class MockPreferencesStore: PreferencesStore {
     func setLastLoginEmail(_ email: String?, for role: UserRole) {
         emails[role] = email
     }
+
+    var appearanceMode: AppearanceMode = .system
+    private(set) var savedAppearanceModes: [AppearanceMode] = []
+
+    func setAppearanceMode(_ mode: AppearanceMode) {
+        appearanceMode = mode
+        savedAppearanceModes.append(mode)
+    }
 }

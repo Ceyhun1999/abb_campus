@@ -407,6 +407,12 @@ final class InMemoryPreferencesStore: PreferencesStore {
     func setLastLoginEmail(_ email: String?, for role: UserRole) {
         emails[role] = email
     }
+
+    private(set) var appearanceMode: AppearanceMode = .system
+
+    func setAppearanceMode(_ mode: AppearanceMode) {
+        appearanceMode = mode
+    }
 }
 
 // MARK: - Teacher Data

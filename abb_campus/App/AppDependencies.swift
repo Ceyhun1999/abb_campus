@@ -17,6 +17,11 @@ struct AppDependencies {
     let tokenStore: TokenStore
 
     @MainActor
+    func makeAppearanceSettings() -> AppearanceSettings {
+        AppearanceSettings(preferences: preferences)
+    }
+
+    @MainActor
     func makeAuthenticationState() -> AuthenticationState {
         AuthenticationState(
             secureStorage: secureStorage,

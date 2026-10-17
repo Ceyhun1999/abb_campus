@@ -18,6 +18,8 @@ struct ProfileView: View {
 
                     infoCard
 
+                    appearanceCard
+
                     changePasswordButton
 
                     logoutButton
@@ -90,6 +92,35 @@ struct ProfileView: View {
                 value: viewModel.roleTitle
             )
         }
+    }
+
+    // MARK: - Appearance
+
+    private var appearanceCard: some View {
+        @Bindable var viewModel = viewModel
+
+        return VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 14) {
+                Image(systemName: viewModel.appearanceMode.icon)
+                    .font(.system(size: 18))
+                    .foregroundStyle(.blue)
+                    .frame(width: 26)
+
+                Text("Görünüş")
+                    .font(.manropeSemiBold(17))
+                    .foregroundStyle(.textPrimary)
+            }
+
+            Picker("Görünüş", selection: $viewModel.appearanceMode) {
+                ForEach(AppearanceMode.allCases) { mode in
+                    Text(mode.title).tag(mode)
+                }
+            }
+            .pickerStyle(.segmented)
+            .accessibilityIdentifier("appearance_picker")
+        }
+        .padding(16)
+        .cardStyle(cornerRadius: 16)
     }
 
     // MARK: - Password

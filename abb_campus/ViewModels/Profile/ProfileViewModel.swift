@@ -11,9 +11,11 @@ final class ProfileViewModel {
     private(set) var changePasswordViewModel: ChangePasswordViewModel?
 
     private let authenticationState: AuthenticationState
+    private let appearance: AppearanceSettings
 
-    init(authenticationState: AuthenticationState) {
+    init(authenticationState: AuthenticationState, appearance: AppearanceSettings) {
         self.authenticationState = authenticationState
+        self.appearance = appearance
     }
 
     var fullName: String {
@@ -42,6 +44,13 @@ final class ProfileViewModel {
 
     var roleTitle: String {
         authenticationState.currentUser?.role.title ?? ""
+    }
+
+    // MARK: - Appearance
+
+    var appearanceMode: AppearanceMode {
+        get { appearance.mode }
+        set { appearance.select(newValue) }
     }
 
     // MARK: - Password

@@ -3,6 +3,7 @@ import SwiftUI
 struct EmployeeTabView: View {
 
     @Environment(AuthenticationState.self) private var authenticationState
+    @Environment(AppearanceSettings.self) private var appearance
     @Environment(\.dependencies) private var dependencies
 
     var body: some View {
@@ -60,9 +61,7 @@ struct EmployeeTabView: View {
             }
 
             ProfileView(
-                viewModel: ProfileViewModel(
-                    authenticationState: authenticationState
-                )
+                viewModel: ProfileViewModel(authenticationState: authenticationState, appearance: appearance)
             )
             .tabItem {
                 Label("Profil", systemImage: "person.fill")

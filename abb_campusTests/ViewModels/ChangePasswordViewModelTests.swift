@@ -87,7 +87,7 @@ struct ChangePasswordViewModelTests {
 
     @Test("Profile opens the change password form")
     func profileOpensForm() {
-        let profile = ProfileViewModel(authenticationState: state)
+        let profile = ProfileViewModel(authenticationState: state, appearance: AppearanceSettings(preferences: MockPreferencesStore()))
 
         profile.showChangePassword()
 

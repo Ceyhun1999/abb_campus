@@ -20,7 +20,7 @@ struct ProfileViewModelTests {
 
     @Test("Profile shows user information")
     func userInfo() {
-        let sut = ProfileViewModel(authenticationState: state)
+        let sut = ProfileViewModel(authenticationState: state, appearance: AppearanceSettings(preferences: MockPreferencesStore()))
 
         #expect(sut.fullName == "Ceyhun Rzayev")
         #expect(sut.initials == "CR")
@@ -28,9 +28,51 @@ struct ProfileViewModelTests {
         #expect(sut.roleTitle == "Tələbə")
     }
 
+    @Test("Choosing an appearance in the profile applies and saves it")
+    func profileAppearance() {
+        let preferences = MockPreferencesStore()
+        let appearance = AppearanceSettings(preferences: preferences)
+        let sut = ProfileViewModel(authenticationState: state, appearance: appearance)
+        #expect(sut.appearanceMode == .system)
+
+        sut.appearanceMode = .dark
+
+        #expect(appearance.mode == .dark)
+        #expect(preferences.appearanceMode == .dark)
+
+        sut.appearanceMode = .dark
+        sut.appearanceMode = .light
+
+        #expect(preferences.savedAppearanceModes == [.dark, .light])
+    }
+
+    @Test("The saved appearance is used on the next launch")
+    func savedAppearanceIsRestored() {
+        let preferences = MockPreferencesStore()
+        preferences.appearanceMode = .dark
+
+        #expect(AppearanceSettings(preferences: preferences).mode == .dark)
+    }
+
+    @Test("UserDefaults keeps the appearance and falls back to the system for unknown values")
+    func appearanceInUserDefaults() throws {
+        let suite = "appearance-test-\(UUID().uuidString)"
+        let defaults = try #require(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let store = UserDefaultsPreferencesStore(defaults: defaults)
+
+        #expect(store.appearanceMode == .system)
+
+        store.setAppearanceMode(.light)
+        #expect(UserDefaultsPreferencesStore(defaults: defaults).appearanceMode == .light)
+
+        defaults.set("sepia", forKey: "appearanceMode")
+        #expect(store.appearanceMode == .system)
+    }
+
     @Test("Logout clears the session and revokes the token")
     func logout() async {
-        let sut = ProfileViewModel(authenticationState: state)
+        let sut = ProfileViewModel(authenticationState: state, appearance: AppearanceSettings(preferences: MockPreferencesStore()))
 
         sut.requestLogout()
         #expect(sut.isLogoutConfirmationPresented)
