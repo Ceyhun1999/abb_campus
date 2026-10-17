@@ -47,6 +47,9 @@ struct TeacherDetailView: View {
                 .padding(.horizontal, AppLayout.horizontalPadding)
                 .padding(.vertical, 20)
             }
+            .refreshable {
+                await viewModel.load()
+            }
         }
         .background(.appBackground)
         .navigationBarTitleDisplayMode(.inline)
