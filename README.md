@@ -12,10 +12,10 @@ The app works with a Laravel REST API (`https://campus.jeywastudio.com/api`).
 
 ### Employee
 
-| Dashboard | Students | Group | Excel import |
-| --- | --- | --- | --- |
-| <img src="docs/screenshots/6-employee-home-light.png" width="180"> | <img src="docs/screenshots/7-employee-students-light.png" width="180"> | <img src="docs/screenshots/8-employee-group-light.png" width="180"> | <img src="docs/screenshots/9-employee-import-light.png" width="180"> |
-| <img src="docs/screenshots/6-employee-home-dark.png" width="180"> | <img src="docs/screenshots/7-employee-students-dark.png" width="180"> | <img src="docs/screenshots/8-employee-group-dark.png" width="180"> | <img src="docs/screenshots/9-employee-import-dark.png" width="180"> |
+| Home | Students | Group | Excel import | Teachers | Announcements |
+| --- | --- | --- | --- | --- | --- |
+| <img src="docs/screenshots/6-employee-home-light.png" width="140"> | <img src="docs/screenshots/7-employee-students-light.png" width="140"> | <img src="docs/screenshots/8-employee-group-light.png" width="140"> | <img src="docs/screenshots/9-employee-import-light.png" width="140"> | <img src="docs/screenshots/16-employee-teachers-light.png" width="140"> | <img src="docs/screenshots/17-employee-announcements-light.png" width="140"> |
+| <img src="docs/screenshots/6-employee-home-dark.png" width="140"> | <img src="docs/screenshots/7-employee-students-dark.png" width="140"> | <img src="docs/screenshots/8-employee-group-dark.png" width="140"> | <img src="docs/screenshots/9-employee-import-dark.png" width="140"> | <img src="docs/screenshots/16-employee-teachers-dark.png" width="140"> | <img src="docs/screenshots/17-employee-announcements-dark.png" width="140"> |
 
 ### Student
 
@@ -42,12 +42,13 @@ The app works with a Laravel REST API (`https://campus.jeywastudio.com/api`).
 - **Schedule (student).** Upcoming or past lessons grouped by day, with time and room.
 - **Notifications (student).** Announcements for all students and for the student's own group.
 - **Profile.** Shows the user's details and signs out (with confirmation) through `/auth/logout`.
-- **Employee dashboard.** Shows the number of students, teachers, groups and announcements, plus the latest announcements.
-- **Students (employee).** Search by name, email or group, filter by All / Active / Inactive, open details, and activate or deactivate an account.
-- **Groups (employee).** Search groups, see study progress, create a group in a sheet (course, teacher, dates), and open a group to see its students.
-- **Excel import.** Pick an `.xlsx`, `.xls` or `.csv` file with `first_name, last_name, email` columns. It is uploaded as multipart form data, and the screen shows how many rows were added, how many were skipped, and the error for each skipped row.
-- **Teachers.** See the list with specialty and group count, and open a teacher to see their groups.
-- **Announcements.** See the list, and publish a new one to everyone, all students, all teachers or a single group (500 character limit).
+- **Employee home.** An academy card, the number of active students, teachers, groups and announcements, and the latest announcements with a link to all of them.
+- **Students (employee).** Search by name, email or group, filter by status (All / Active / Inactive) and by course, see each student's group and course, open details, and activate or deactivate an account.
+- **Groups (employee).** Search and filter by course, see study progress, open a group to see its students, and create or edit a group in a sheet: course, teacher, up to 2 mentors, start date and an end date picked in a calendar. Names are limited to 20 characters, and closing a form with unsaved changes asks for confirmation.
+- **Excel import.** Pick an `.xlsx`, `.xls` or `.csv` file (up to 5 MB) with `first_name, last_name, email` columns. It is uploaded as multipart form data. The import is all or nothing: the screen shows how many rows were added, or the error for each invalid row. Finished groups cannot be imported into.
+- **Teachers (employee).** Filter by position (teacher / mentor) and specialty, see the group count, open a teacher to see the groups they teach or mentor, and deactivate or reactivate their account.
+- **Announcements (employee).** Publish, edit and delete announcements with a title, a message (up to 500 characters), a priority (low / medium / high, each with its own colour), an audience (everyone, students, or teachers and mentors) and up to 3 links.
+- **Paging.** The students, groups, teachers and announcements lists load 20 items at a time as you scroll. Search waits for typing to pause, and responses that arrive out of order are ignored.
 - **Dark mode.** Every color comes from the asset catalog and has a dark variant.
 - **Loading, error and empty states.** Every screen uses one shared `AsyncContentView` driven by a `ViewState` enum, with retry on error and pull-to-refresh.
 
@@ -82,9 +83,9 @@ View  ──▶  ViewModel  ──▶  Service (protocol)  ──▶  NetworkSer
 ```
 abb_campus/
 ├── App/            # App entry point, AppDependencies, UI-testing stubs
-├── Core/           # Networking, Keychain, UserDefaults, auth state, helpers, extensions
+├── Core/           # Networking, Keychain, UserDefaults, auth state, paging and search helpers, extensions
 ├── Models/         # Codable API models
-├── Services/       # AuthService, PasswordResetService
+├── Services/       # Service protocols and their API implementations (auth, student, employee)
 ├── ViewModels/     # One view model per screen
 ├── Features/       # Screens grouped by feature, with their own components
 ├── Shared/         # Reusable UI components (PrimaryButton, IconCircleView, ProgressBar…)
@@ -96,8 +97,9 @@ abb_campusUITests/  # UI tests
 
 ## Tests
 
-- **Unit tests** (`abb_campusTests`, 72 tests) cover the auth view models (`LoginViewModel`, `ForgotPasswordViewModel`, `RoleSelectionViewModel`), `ProfileViewModel`, all student view models (home with next-lesson selection, grades, module grades, schedule grouping, attendance, notifications), all employee view models (dashboard, students list and detail, group detail, create group, Excel import, new announcement), `AuthenticationState`, `ValidationHelper` and request building for `EmployeeEndpoint`. They check both success and error cases. Every service is replaced by a mock through its protocol, so the tests never call the real API.
-- **UI tests** (`abb_campusUITests`) cover the login flow (role selection, the validation error, the wrong password error, a successful login → home → logout, and opening the forgot password sheet) the student flow (home → attendance, grades → module details) and the employee flow (dashboard → students → Inactive filter → student details, and group → import screen). The app starts with `-ui-testing`, so the tests use stub services.
+- **Unit tests** (`abb_campusTests`, 155 tests) cover the auth view models (`LoginViewModel`, `ForgotPasswordViewModel`, `RoleSelectionViewModel`), `ProfileViewModel`, all student view models (home with next-lesson selection, grades, module grades, schedule grouping, attendance, notifications), all employee view models (dashboard, students, teachers and groups lists and details, create and edit group, Excel import, create, edit and delete announcements), `AuthenticationState`, `ValidationHelper`, paging and request building for `EmployeeEndpoint`. They check both success and error cases. Every service is replaced by a mock through its protocol, so the tests never call the real API.
+- **Concurrency and network tests** check that a slow, older response never overwrites a newer one, that a cancelled refresh keeps the data on screen, and that server errors, timeouts, offline mode and invalid JSON show a clear message. The network tests use a stubbed `URLProtocol` instead of the real server.
+- **UI tests** (`abb_campusUITests`) cover the login flow (role selection, the validation error, the wrong password error, a successful login → home → logout, and opening the forgot password sheet) the student flow (home → attendance, grades → module details) and the employee flow (dashboard → students → Inactive filter → student details, and group → import screen), plus two navigation stress tests (20 push/back cycles, rapid tab switching and returning from the background). The app starts with `-ui-testing`, so the tests use stub services.
 
 Run all tests from the terminal:
 
@@ -121,16 +123,16 @@ Steps:
 2. Open `abb_campus.xcodeproj`.
 3. Select the `abb_campus` scheme and a simulator, then press **⌘R**.
 
-Demo accounts (password `Password123!` for all of them):
+Demo accounts:
 
-| Role | Email |
-| --- | --- |
-| Student | `student@abb.local` |
-| Employee | `employee@abb.local` |
-| Teacher | `teacher@abb.local` |
+| Role | Email | Password |
+| --- | --- | --- |
+| Student | `student@abb.local` | `Password123!` |
+| Employee | `employee@abb.local` | `abc12345` |
+| Teacher | `teacher@abb.local` | `Password123!` |
 
 To try the Excel import, drag the files from [`docs/demo`](docs/demo) onto the simulator and save them in Files. Then open a group, choose **Excel-dən tələbə idxal et** and pick a file. The import is all or nothing: [`telebeler.xlsx`](docs/demo/telebeler.xlsx) is valid and adds 6 students (including `student@abb.local`), while [`telebeler_sehvli.xlsx`](docs/demo/telebeler_sehvli.xlsx) has 3 invalid rows, so nothing is imported and the errors are listed.
 
 ## Backend
 
-The app talks to a Laravel 12 REST API. For the employee screens these endpoints were added: `GET /employee/dashboard`, `GET /students`, `GET /students/{id}`, `GET /teachers`, `GET /teachers/{id}` and `PATCH /users/{id}/status`, plus search on `GET /groups`. While building the student screens, three existing backend bugs were fixed: attendance was always 0%, ungraded modules lowered the average, and the group students list returned a 500 error. Everything is covered by PHPUnit feature tests (28 tests).
+The app talks to a Laravel 12 REST API. For the employee screens these endpoints were added: `GET /employee/dashboard`, `GET /students`, `GET /students/{id}`, `GET /teachers`, `GET /teachers/{id}`, `PATCH /users/{id}/status`, creating and editing groups, Excel import, and creating, editing and deleting announcements. Lists support search, filters and paging. While building the student screens, three existing backend bugs were fixed: attendance was always 0%, ungraded modules lowered the average, and the group students list returned a 500 error. Everything is covered by PHPUnit feature tests (84 tests).
