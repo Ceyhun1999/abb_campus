@@ -64,6 +64,13 @@ struct NetworkFailureTests {
         #expect(await message { _ in .success((500, Data("<html>Oops</html>".utf8))) } == "Server xətası: 500")
     }
 
+    @Test("Too many requests (429) shows a clear message instead of the server's English text")
+    func tooManyRequests() async {
+        let text = await message { _ in .success((429, Data(#"{"message":"Too Many Attempts."}"#.utf8))) }
+
+        #expect(text == NetworkError.tooManyRequests.localizedDescription)
+    }
+
     @Test("A timeout shows a clear message")
     func timeout() async {
         #expect(await message { _ in .failure(URLError(.timedOut)) } == "Server cavab vermir. Bir az sonra yenidən cəhd edin.")

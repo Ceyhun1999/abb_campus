@@ -6,6 +6,7 @@ enum NetworkError: LocalizedError {
     case noConnection
     case serverUnreachable
     case unauthorized
+    case tooManyRequests
     case serverError(
         statusCode: Int,
         message: String?
@@ -30,6 +31,9 @@ enum NetworkError: LocalizedError {
 
         case .unauthorized:
             return "Sessiyanın müddəti bitib. Yenidən daxil olun."
+
+        case .tooManyRequests:
+            return "Çox sayda cəhd edildi. Bir dəqiqə gözləyib yenidən cəhd edin."
 
         case .serverError(let statusCode, let message):
             return message ?? "Server xətası: \(statusCode)"

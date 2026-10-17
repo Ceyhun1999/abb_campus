@@ -47,6 +47,11 @@ final class DefaultNetworkService: NetworkService {
                 throw NetworkError.unauthorized
             }
 
+            // The server limits logins, password resets and requests per minute.
+            if httpResponse.statusCode == 429 {
+                throw NetworkError.tooManyRequests
+            }
+
             guard (200...299).contains(httpResponse.statusCode) else {
 
                 let apiError = try? JSONDecoder().decode(
