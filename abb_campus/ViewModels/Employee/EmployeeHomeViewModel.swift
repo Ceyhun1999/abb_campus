@@ -5,9 +5,7 @@ import Observation
 @Observable
 final class EmployeeHomeViewModel {
 
-    private(set) var state: ViewState<DashboardSummary> = .idle
-
-    private var latestRequest = LatestRequest()
+    private let content = LoadableValue<DashboardSummary>(keepsValueOnFailure: false)
 
     private let authenticationState: AuthenticationState
     private let dashboardService: any EmployeeDashboardService
@@ -28,24 +26,13 @@ final class EmployeeHomeViewModel {
         return "Salam, \(firstName)!"
     }
 
+    var state: ViewState<DashboardSummary> {
+        content.state
+    }
+
     func load() async {
-        let request = latestRequest.start()
-
-        if state.value == nil {
-            state = .loading
-        }
-
-        do {
-            let summary = try await dashboardService.fetchDashboard()
-
-            if latestRequest.isCurrent(request) {
-                state = .loaded(summary)
-            }
-        } catch is CancellationError {
-        } catch {
-            if latestRequest.isCurrent(request) {
-                state = .failed(error.localizedDescription)
-            }
+        await content.load {
+            try await dashboardService.fetchDashboard()
         }
     }
 }

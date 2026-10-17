@@ -12,9 +12,8 @@ final class TeacherHomeViewModel {
 
     static let nextLessonsLimit = 5
 
-    private(set) var state: ViewState<TeacherOverview> = .idle
+    private let content = LoadableValue<TeacherOverview>(keepsValueOnFailure: true)
 
-    private var latestRequest = LatestRequest()
     private let authenticationState: AuthenticationState
     private let teachingService: any TeachingService
     private let today: () -> Date
@@ -52,26 +51,16 @@ final class TeacherHomeViewModel {
         upcoming(overview).filter(\.isExam).count
     }
 
+    var state: ViewState<TeacherOverview> {
+        content.state
+    }
+
     func load() async {
-        let request = latestRequest.start()
-
-        if state.value == nil {
-            state = .loading
-        }
-
-        do {
+        await content.load {
             async let groups = teachingService.fetchMyGroups()
             async let lessons = teachingService.fetchMySchedule()
-            let overview = TeacherOverview(groups: try await groups, lessons: try await lessons)
 
-            if latestRequest.isCurrent(request) {
-                state = .loaded(overview)
-            }
-        } catch is CancellationError {
-        } catch {
-            if state.value == nil && latestRequest.isCurrent(request) {
-                state = .failed(error.localizedDescription)
-            }
+            return TeacherOverview(groups: try await groups, lessons: try await lessons)
         }
     }
 

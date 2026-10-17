@@ -146,11 +146,10 @@ final class GroupDetailViewModel {
     var isImportPresented = false
     var isEditPresented = false
     var isSchedulePresented = false
-    private(set) var state: ViewState<GroupDetail> = .idle
+    private let content = LoadableValue<GroupDetail>(keepsValueOnFailure: false)
     private(set) var editViewModel: GroupFormViewModel?
 
     let group: StudyGroup
-    private var latestRequest = LatestRequest()
     private let groupService: any GroupService
     private let teacherService: any TeacherService
 
@@ -164,30 +163,16 @@ final class GroupDetailViewModel {
         state.value?.group.name ?? group.name
     }
 
+    var state: ViewState<GroupDetail> {
+        content.state
+    }
+
     func load() async {
-        let request = latestRequest.start()
-
-        if state.value == nil {
-            state = .loading
-        }
-
-        do {
+        await content.load {
             async let loadedGroup = groupService.fetchGroup(id: group.id)
             async let loadedStudents = groupService.fetchStudents(groupId: group.id)
 
-            let detail = GroupDetail(
-                group: try await loadedGroup,
-                students: try await loadedStudents
-            )
-
-            if latestRequest.isCurrent(request) {
-                state = .loaded(detail)
-            }
-        } catch is CancellationError {
-        } catch {
-            if latestRequest.isCurrent(request) {
-                state = .failed(error.localizedDescription)
-            }
+            return GroupDetail(group: try await loadedGroup, students: try await loadedStudents)
         }
     }
 

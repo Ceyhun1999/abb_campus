@@ -5,33 +5,21 @@ import Observation
 @Observable
 final class TeacherGroupsViewModel {
 
-    private(set) var state: ViewState<[StudyGroup]> = .idle
+    private let content = LoadableValue<[StudyGroup]>(keepsValueOnFailure: true)
 
-    private var latestRequest = LatestRequest()
     private let teachingService: any TeachingService
 
     init(teachingService: any TeachingService) {
         self.teachingService = teachingService
     }
 
+    var state: ViewState<[StudyGroup]> {
+        content.state
+    }
+
     func load() async {
-        let request = latestRequest.start()
-
-        if state.value == nil {
-            state = .loading
-        }
-
-        do {
-            let groups = try await teachingService.fetchMyGroups()
-
-            if latestRequest.isCurrent(request) {
-                state = .loaded(groups)
-            }
-        } catch is CancellationError {
-        } catch {
-            if state.value == nil && latestRequest.isCurrent(request) {
-                state = .failed(error.localizedDescription)
-            }
+        await content.load {
+            try await teachingService.fetchMyGroups()
         }
     }
 }
@@ -49,10 +37,9 @@ enum TeacherGroupRoute: Hashable {
 @Observable
 final class TeacherGroupDetailViewModel {
 
-    private(set) var state: ViewState<[GroupStudent]> = .idle
+    private let content = LoadableValue<[GroupStudent]>(keepsValueOnFailure: true)
 
     let group: StudyGroup
-    private var latestRequest = LatestRequest()
     private let teachingService: any TeachingService
 
     init(group: StudyGroup, teachingService: any TeachingService) {
@@ -69,24 +56,13 @@ final class TeacherGroupDetailViewModel {
         ]
     }
 
+    var state: ViewState<[GroupStudent]> {
+        content.state
+    }
+
     func load() async {
-        let request = latestRequest.start()
-
-        if state.value == nil {
-            state = .loading
-        }
-
-        do {
-            let students = try await teachingService.fetchStudents(groupId: group.id)
-
-            if latestRequest.isCurrent(request) {
-                state = .loaded(students)
-            }
-        } catch is CancellationError {
-        } catch {
-            if state.value == nil && latestRequest.isCurrent(request) {
-                state = .failed(error.localizedDescription)
-            }
+        await content.load {
+            try await teachingService.fetchStudents(groupId: group.id)
         }
     }
 }

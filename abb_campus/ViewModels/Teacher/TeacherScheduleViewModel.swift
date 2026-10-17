@@ -7,10 +7,9 @@ import Observation
 final class TeacherScheduleViewModel {
 
     var period: SchedulePeriod = .upcoming
-    private(set) var state: ViewState<[ScheduleLesson]> = .idle
+    private let content = LoadableValue<[ScheduleLesson]>(keepsValueOnFailure: true)
     let lessonActions: LessonActions
 
-    private var latestRequest = LatestRequest()
     private let teachingService: any TeachingService
     private let today: () -> Date
 
@@ -36,30 +35,19 @@ final class TeacherScheduleViewModel {
         period == .upcoming ? "Yaxın günlərdə dərs yoxdur." : "Keçmiş dərs yoxdur."
     }
 
+    var state: ViewState<[ScheduleLesson]> {
+        content.state
+    }
+
     func load() async {
-        let request = latestRequest.start()
-
-        if state.value == nil {
-            state = .loading
-        }
-
-        do {
-            let lessons = try await teachingService.fetchMySchedule()
-
-            if latestRequest.isCurrent(request) {
-                state = .loaded(lessons)
-            }
-        } catch is CancellationError {
-        } catch {
-            if state.value == nil && latestRequest.isCurrent(request) {
-                state = .failed(error.localizedDescription)
-            }
+        await content.load {
+            try await teachingService.fetchMySchedule()
         }
     }
 
     private func apply(_ lesson: ScheduleLesson) {
         if let lessons = state.value {
-            state = .loaded(lessons.replacing(lesson))
+            content.set(lessons.replacing(lesson))
         }
     }
 }

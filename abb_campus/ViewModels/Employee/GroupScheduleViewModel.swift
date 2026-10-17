@@ -7,12 +7,11 @@ final class GroupScheduleViewModel {
 
     var period: SchedulePeriod = .upcoming
     var isImportPresented = false
-    private(set) var state: ViewState<[ScheduleLesson]> = .idle
+    private let content = LoadableValue<[ScheduleLesson]>(keepsValueOnFailure: true)
     private(set) var importViewModel: GroupImportViewModel?
     let lessonActions: LessonActions
 
     let group: StudyGroup
-    private var latestRequest = LatestRequest()
     private let scheduleSource: any GroupScheduleSource
     private let scheduleImporter: (any GroupService)?
     private let today: () -> Date
@@ -52,30 +51,19 @@ final class GroupScheduleViewModel {
         return period == .upcoming ? "Yaxın günlərdə dərs yoxdur." : "Keçmiş dərs yoxdur."
     }
 
+    var state: ViewState<[ScheduleLesson]> {
+        content.state
+    }
+
     func load() async {
-        let request = latestRequest.start()
-
-        if state.value == nil {
-            state = .loading
-        }
-
-        do {
-            let lessons = try await scheduleSource.fetchSchedule(groupId: group.id)
-
-            if latestRequest.isCurrent(request) {
-                state = .loaded(lessons)
-            }
-        } catch is CancellationError {
-        } catch {
-            if state.value == nil && latestRequest.isCurrent(request) {
-                state = .failed(error.localizedDescription)
-            }
+        await content.load {
+            try await scheduleSource.fetchSchedule(groupId: group.id)
         }
     }
 
     private func apply(_ lesson: ScheduleLesson) {
         if let lessons = state.value {
-            state = .loaded(lessons.replacing(lesson))
+            content.set(lessons.replacing(lesson))
         }
     }
 

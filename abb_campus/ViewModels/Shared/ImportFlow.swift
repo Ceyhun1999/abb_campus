@@ -35,9 +35,8 @@ final class ImportFlow {
 final class MonthlyLoader<Value> {
 
     private(set) var month: MonthCursor
-    private(set) var state: ViewState<Value> = .idle
 
-    @ObservationIgnored private var latestRequest = LatestRequest()
+    @ObservationIgnored private let content = LoadableValue<Value>(keepsValueOnFailure: false)
     @ObservationIgnored private let fetch: (_ month: String) async throws -> Value
 
     init(today: Date = Date(), fetch: @escaping (_ month: String) async throws -> Value) {
@@ -45,30 +44,20 @@ final class MonthlyLoader<Value> {
         self.fetch = fetch
     }
 
+    var state: ViewState<Value> {
+        content.state
+    }
+
     func load() async {
-        let request = latestRequest.start()
-
-        if state.value == nil {
-            state = .loading
-        }
-
-        do {
-            let value = try await fetch(month.apiValue)
-
-            if latestRequest.isCurrent(request) {
-                state = .loaded(value)
-            }
-        } catch is CancellationError {
-        } catch {
-            if latestRequest.isCurrent(request) {
-                state = .failed(error.localizedDescription)
-            }
+        let month = month.apiValue
+        await content.load {
+            try await fetch(month)
         }
     }
 
     func goBack() async {
         month.goBack()
-        state = .loading
+        content.showLoading()
         await load()
     }
 
@@ -78,7 +67,7 @@ final class MonthlyLoader<Value> {
         }
 
         month.goForward()
-        state = .loading
+        content.showLoading()
         await load()
     }
 }
