@@ -3,7 +3,7 @@ import Observation
 
 @MainActor
 @Observable
-final class StudentsListViewModel {
+final class StudentsListViewModel: DebouncedSearch {
 
     var searchText = ""
     var statusFilter: StudentStatusFilter = .all {
@@ -22,8 +22,8 @@ final class StudentsListViewModel {
     }
     private(set) var courses: [Course] = []
     private let list = PagedList<DirectoryStudent>()
-    private(set) var isRefreshing = false
-    private var loadedQuery: String?
+    var isRefreshing = false
+    private(set) var loadedQuery: String?
 
     private let studentService: any StudentDirectoryService
     private let groupService: any GroupService
@@ -34,6 +34,10 @@ final class StudentsListViewModel {
     }
 
     // MARK: - Paging
+
+    var hasResults: Bool {
+        state.value != nil
+    }
 
     var state: ViewState<[DirectoryStudent]> {
         list.state
@@ -72,24 +76,6 @@ final class StudentsListViewModel {
     }
 
     // MARK: - Search
-
-    func queryChanged() async {
-        if state.value != nil && query != loadedQuery {
-            isRefreshing = true
-
-            do {
-                try await Task.sleep(for: SearchDebounce.delay)
-            } catch {
-                return
-            }
-        }
-
-        defer {
-            isRefreshing = false
-        }
-
-        await load()
-    }
 
     func load() async {
         let requestedQuery = query
