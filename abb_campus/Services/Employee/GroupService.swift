@@ -1,6 +1,6 @@
 import Foundation
 
-protocol GroupService {
+protocol GroupService: Sendable {
     func fetchGroups(search: String, courseId: Int?) async throws -> [StudyGroup]
     func fetchGroupsPage(search: String, courseId: Int?, page: Int) async throws -> Page<StudyGroup>
     func fetchGroup(id: Int) async throws -> StudyGroup

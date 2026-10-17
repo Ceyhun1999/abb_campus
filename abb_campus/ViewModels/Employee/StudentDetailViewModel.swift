@@ -10,6 +10,7 @@ final class StudentDetailViewModel {
     private(set) var isUpdatingStatus = false
     private(set) var actionErrorMessage: String?
 
+    private var latestRequest = LatestRequest()
     private let studentId: Int
     private let studentService: any StudentDirectoryService
 
@@ -41,10 +42,17 @@ final class StudentDetailViewModel {
     // MARK: - Load
 
     func load() async {
+        let request = latestRequest.start()
+
         do {
-            state = .loaded(try await studentService.fetchStudent(id: studentId))
+            let student = try await studentService.fetchStudent(id: studentId)
+
+            if latestRequest.isCurrent(request) {
+                state = .loaded(student)
+            }
+        } catch is CancellationError {
         } catch {
-            if state.value == nil {
+            if state.value == nil && latestRequest.isCurrent(request) {
                 state = .failed(error.localizedDescription)
             }
         }
@@ -73,7 +81,13 @@ final class StudentDetailViewModel {
                 userId: student.id,
                 isActive: !student.isActive
             )
-            state = .loaded(try await studentService.fetchStudent(id: student.id))
+
+            let request = latestRequest.start()
+            let updated = try await studentService.fetchStudent(id: student.id)
+
+            if latestRequest.isCurrent(request) {
+                state = .loaded(updated)
+            }
         } catch {
             actionErrorMessage = error.localizedDescription
         }

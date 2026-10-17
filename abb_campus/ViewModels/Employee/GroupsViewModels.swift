@@ -163,6 +163,7 @@ final class GroupDetailViewModel {
     private(set) var editViewModel: GroupFormViewModel?
 
     let group: StudyGroup
+    private var latestRequest = LatestRequest()
     private let groupService: any GroupService
     private let teacherService: any TeacherService
 
@@ -177,6 +178,8 @@ final class GroupDetailViewModel {
     }
 
     func load() async {
+        let request = latestRequest.start()
+
         if state.value == nil {
             state = .loading
         }
@@ -185,12 +188,19 @@ final class GroupDetailViewModel {
             async let loadedGroup = groupService.fetchGroup(id: group.id)
             async let loadedStudents = groupService.fetchStudents(groupId: group.id)
 
-            state = .loaded(GroupDetail(
+            let detail = GroupDetail(
                 group: try await loadedGroup,
                 students: try await loadedStudents
-            ))
+            )
+
+            if latestRequest.isCurrent(request) {
+                state = .loaded(detail)
+            }
+        } catch is CancellationError {
         } catch {
-            state = .failed(error.localizedDescription)
+            if latestRequest.isCurrent(request) {
+                state = .failed(error.localizedDescription)
+            }
         }
     }
 

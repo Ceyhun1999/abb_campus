@@ -4,6 +4,7 @@ enum NetworkError: LocalizedError {
     case invalidURL
     case invalidResponse
     case noConnection
+    case serverUnreachable
     case unauthorized
     case serverError(
         statusCode: Int,
@@ -23,6 +24,9 @@ enum NetworkError: LocalizedError {
 
         case .noConnection:
             return "İnternet bağlantısı yoxdur."
+
+        case .serverUnreachable:
+            return "Server cavab vermir. Bir az sonra yenidən cəhd edin."
 
         case .unauthorized:
             return "Sessiyanın müddəti bitib. Yenidən daxil olun."

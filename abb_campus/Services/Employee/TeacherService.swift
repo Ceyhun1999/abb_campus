@@ -1,6 +1,6 @@
 import Foundation
 
-protocol TeacherService {
+protocol TeacherService: Sendable {
     func fetchTeachers(search: String, position: TeacherPositionFilter, specialty: String?) async throws -> [Teacher]
     func fetchTeachersPage(search: String, position: TeacherPositionFilter, specialty: String?, page: Int) async throws -> Page<Teacher>
     func fetchTeacher(id: Int) async throws -> Teacher

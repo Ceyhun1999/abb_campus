@@ -80,6 +80,12 @@ final class DefaultNetworkService: NetworkService {
                           urlError.code == .networkConnectionLost {
             throw NetworkError.noConnection
 
+        } catch let urlError as URLError
+                    where urlError.code == .timedOut ||
+                          urlError.code == .cannotConnectToHost ||
+                          urlError.code == .cannotFindHost {
+            throw NetworkError.serverUnreachable
+
         } catch {
             throw NetworkError.unknown(error)
         }

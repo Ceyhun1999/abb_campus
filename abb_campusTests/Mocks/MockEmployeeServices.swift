@@ -43,6 +43,7 @@ final class MockStudentDirectoryService: StudentDirectoryService {
     }
 }
 
+@MainActor
 final class MockTeacherService: TeacherService {
 
     var teachersResult: Result<[Teacher], Error> = .success([.stub()])
@@ -80,6 +81,7 @@ final class MockTeacherService: TeacherService {
     }
 }
 
+@MainActor
 final class MockGroupService: GroupService {
 
     var groupsResult: Result<[StudyGroup], Error> = .success([.stub()])
