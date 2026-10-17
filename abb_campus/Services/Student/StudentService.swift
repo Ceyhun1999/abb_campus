@@ -1,6 +1,6 @@
 import Foundation
 
-protocol StudentService {
+protocol StudentService: Sendable {
     func fetchGradesOverview() async throws -> GradesOverview
     func fetchModuleGrades(moduleId: Int) async throws -> ModuleGrades
     func fetchAttendance() async throws -> AttendanceSummary

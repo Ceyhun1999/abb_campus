@@ -324,7 +324,7 @@ struct EmployeeFormViewModelTests {
         sut.selectedCourseId = 7
         sut.selectedTeacherId = 21
         sut.startDate = try #require(Calendar.current.date(from: DateComponents(year: 2026, month: 11, day: 1)))
-        sut.endDate = try #require(Calendar.current.date(from: DateComponents(year: 2027, month: 5, day: 1)))
+        sut.endDate = Calendar.current.date(from: DateComponents(year: 2027, month: 5, day: 1))
 
         let group = await sut.save()
 

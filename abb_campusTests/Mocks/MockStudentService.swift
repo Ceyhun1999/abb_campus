@@ -1,6 +1,7 @@
 import Foundation
 @testable import abb_campus
 
+@MainActor
 final class MockStudentService: StudentService {
 
     // MARK: - Results

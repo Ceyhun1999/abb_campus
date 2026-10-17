@@ -1,6 +1,7 @@
 import Foundation
 
-enum ValidationMessage {
+/// Plain text constants: readable from any context, not only the main actor.
+nonisolated enum ValidationMessage {
     static let emptyEmail = "E-poçtu daxil edin."
     static let invalidEmail = "E-poçt düzgün formatda deyil."
     static let emptyPassword = "Şifrəni daxil edin."
