@@ -39,7 +39,7 @@ Bu sənəd Demo Day üçündür: nəyi hansı ardıcıllıqla göstərmək, hans
    - Ana səhifə və siyahılar: axtarış, filtr, səhifələmə.
    - **Qruplar → IOS-01 → Dərs cədvəli → Excel-dən cədvəl idxal et** → `cedvel_sehvli.xlsx`: səhvlər sətir-sətir göstərilir, cədvəl dəyişmir. (Səhvsiz fayl bu qrupun cədvəlini yeniləyər. Göstərmək istəsəniz, `cedvel.xlsx` yalnız 05–30.10 aralığını əvəz edir.)
    - **Elanlar:** prioritet, auditoriya, linklər; redaktə və silmə.
-5. **Dark mode (15 san.).** Control Center → Dark Mode: bütün ekranlar uyğunlaşır.
+5. **Dark mode (15 san.).** Profil → **Görünüş**: «Qaranlıq» və «İşıqlı» bütün tətbiqi dərhal dəyişir, «Sistem» telefonun ayarına qayıdır. Seçim yadda qalır.
 6. **GitHub (30 san.).** Actions-da son yaşıl run, README-dəki şəkillər, mənalı commitlər.
 
 ## 3. «Niyə bu arxitekturanı seçdin?»
@@ -65,7 +65,7 @@ Bu sənəd Demo Day üçündür: nəyi hansı ardıcıllıqla göstərmək, hans
 | Unit testlər (Swift Testing) | 200+ | Bütün ViewModel-lər: uğur və xəta halları, validasiya, səhifələmə, axtarış, importlar, ləğv/bərpa, ay keçidləri, imtahan forması |
 | Konkurentlik testləri | daxildir | Gec gələn köhnə cavab yenisini əzmir; ləğv olunmuş yeniləmə ekranı boşaltmır (`PendingCalls` ilə determinik, `sleep` yoxdur) |
 | Şəbəkə xətaları | daxildir | 500 (JSON və HTML), 429, timeout, internet yoxdur, səhv JSON, ləğv, təkrar cəhd (`URLProtocol` stub) |
-| UI testlər (XCUITest) | 14 | Giriş axını, tələbə, işçi və müəllim ssenariləri, naviqasiya stress testi (20 dəfə aç/bağla, tab dəyişmə, fon rejimi) |
+| UI testlər (XCUITest) | 15 | Giriş axını, tələbə, işçi və müəllim ssenariləri, profildə dark/light keçidi (ekran pikselləri ilə yoxlanılır), naviqasiya stress testi (20 dəfə aç/bağla, tab dəyişmə, fon rejimi) |
 | Backend (PHPUnit) | 129 | API, icazələr, importlar, tarix qaydaları, sorğu limitləri |
 | CI | — | GitHub Actions hər push və pull request-də bütün testləri işlədir |
 
@@ -78,6 +78,6 @@ Bu sənəd Demo Day üçündür: nəyi hansı ardıcıllıqla göstərmək, hans
 - **«Excel faylında səhv olsa nə olur?»** Hamısı və ya heç biri: bir sətirdə belə səhv varsa, heç nə yazılmır və hər səhvin sətir nömrəsi ilə səbəbi göstərilir.
 - **«Cədvəli bir dəfəyə yükləmək lazımdır?»** Xeyr. Fayl yalnız öz tarix aralığını əvəz edir, cədvəli ay-ay yükləmək olar. Ləğv olunmuş dərslərin statusu itmir.
 - **«Qrupun tarixlərini dəyişsəm?»** Kənarda qalan dərslər varsa, tətbiq əvvəlcə soruşur. Balları yüklənmiş imtahan kənarda qalırsa, dəyişikliyə icazə verilmir.
-- **«Persistence harada?»** Token Keychain-də, son istifadə olunan e-poçt UserDefaults-da saxlanılır.
+- **«Persistence harada?»** Token Keychain-də, son istifadə olunan e-poçt və seçilmiş görünüş (Sistem / İşıqlı / Qaranlıq) UserDefaults-da saxlanılır.
 - **«Mentor nə edə bilir?»** Müəllimin bacardığı hər şeyi, amma yalnız mentoru olduğu qruplarda.
 - **«Təhlükəsizlik?»** Bearer token, rol əsaslı icazələr (policy). Login, şifrə bərpası və API üçün sorğu limitləri var.
