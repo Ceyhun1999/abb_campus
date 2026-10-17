@@ -9,6 +9,8 @@ Employees (academy staff) manage students, groups, teachers and announcements, a
 
 The app works with a Laravel REST API (`https://campus.jeywastudio.com/api`).
 
+The Demo Day plan, demo accounts and answers to "why this architecture, what did you test" are in [`docs/DEMO.md`](docs/DEMO.md). The project requirements are in [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md).
+
 ## Screenshots
 
 ### Employee
@@ -17,6 +19,13 @@ The app works with a Laravel REST API (`https://campus.jeywastudio.com/api`).
 | --- | --- | --- | --- | --- | --- |
 | <img src="docs/screenshots/6-employee-home-light.png" width="140"> | <img src="docs/screenshots/7-employee-students-light.png" width="140"> | <img src="docs/screenshots/8-employee-group-light.png" width="140"> | <img src="docs/screenshots/9-employee-import-light.png" width="140"> | <img src="docs/screenshots/16-employee-teachers-light.png" width="140"> | <img src="docs/screenshots/17-employee-announcements-light.png" width="140"> |
 | <img src="docs/screenshots/6-employee-home-dark.png" width="140"> | <img src="docs/screenshots/7-employee-students-dark.png" width="140"> | <img src="docs/screenshots/8-employee-group-dark.png" width="140"> | <img src="docs/screenshots/9-employee-import-dark.png" width="140"> | <img src="docs/screenshots/16-employee-teachers-dark.png" width="140"> | <img src="docs/screenshots/17-employee-announcements-dark.png" width="140"> |
+
+### Teacher and mentor
+
+| Home | Group | Schedule | Exams | Attendance | Cancel a lesson |
+| --- | --- | --- | --- | --- | --- |
+| <img src="docs/screenshots/18-teacher-home-light.png" width="140"> | <img src="docs/screenshots/19-teacher-group-light.png" width="140"> | <img src="docs/screenshots/20-teacher-schedule-light.png" width="140"> | <img src="docs/screenshots/21-teacher-exams-light.png" width="140"> | <img src="docs/screenshots/22-teacher-attendance-light.png" width="140"> | <img src="docs/screenshots/23-teacher-cancel-light.png" width="140"> |
+| <img src="docs/screenshots/18-teacher-home-dark.png" width="140"> | <img src="docs/screenshots/19-teacher-group-dark.png" width="140"> | <img src="docs/screenshots/20-teacher-schedule-dark.png" width="140"> | <img src="docs/screenshots/21-teacher-exams-dark.png" width="140"> | <img src="docs/screenshots/22-teacher-attendance-dark.png" width="140"> | <img src="docs/screenshots/23-teacher-cancel-dark.png" width="140"> |
 
 ### Student
 
@@ -142,9 +151,9 @@ Demo accounts:
 To try the Excel imports, drag the files from [`docs/demo`](docs/demo) onto the simulator and save them in Files. Both imports are all or nothing.
 
 - **Students:** open a group, choose **Excel-dən tələbə idxal et** and pick a file. [`telebeler.xlsx`](docs/demo/telebeler.xlsx) is valid and adds 6 students (including `student@abb.local`), while [`telebeler_sehvli.xlsx`](docs/demo/telebeler_sehvli.xlsx) has 3 invalid rows, so nothing is imported and the errors are listed.
-- **Teacher uploads:** sign in as `teacher@abb.local` (the account must be the teacher or a mentor of a group with the students from `telebeler.xlsx`). In the group, [`davamiyyet.xlsx`](docs/demo/davamiyyet.xlsx) is attendance for 5, 7, 9 and 12 October (lesson days of `cedvel.xlsx`), [`tapsiriq_ballari.xlsx`](docs/demo/tapsiriq_ballari.xlsx) has 3 tasks for October, and [`imtahan_ballari.xlsx`](docs/demo/imtahan_ballari.xlsx) has exam scores (open a past exam → **Balları yüklə**).
+- **Teacher uploads:** sign in as `teacher@abb.local`: on the live server it is the teacher of the demo group **IOS-01**, which has the students from `telebeler.xlsx`, a schedule, attendance, scores and exams. In a group, [`davamiyyet.xlsx`](docs/demo/davamiyyet.xlsx) is attendance for 5, 7, 9 and 12 October (lesson days of `cedvel.xlsx`), [`tapsiriq_ballari.xlsx`](docs/demo/tapsiriq_ballari.xlsx) has 3 tasks for October, and [`imtahan_ballari.xlsx`](docs/demo/imtahan_ballari.xlsx) has exam scores (open a past exam → **Balları yüklə**).
 - **Schedule:** open a group that has a teacher and covers October 2026, choose **Dərs cədvəli → Excel-dən cədvəl idxal et**. [`cedvel.xlsx`](docs/demo/cedvel.xlsx) adds 12 evening lessons (Mon/Wed/Fri, 05.10–30.10.2026), while [`cedvel_sehvli.xlsx`](docs/demo/cedvel_sehvli.xlsx) has a wrong date, an end time before the start time and an overlapping lesson, so the schedule stays as it was.
 
 ## Backend
 
-The app talks to a Laravel 12 REST API. For the employee screens these endpoints were added: `GET /employee/dashboard`, `GET /students`, `GET /students/{id}`, `GET /teachers`, `GET /teachers/{id}`, `PATCH /users/{id}/status`, creating and editing groups, student and schedule Excel import (`POST /groups/{id}/students/import`, `GET /groups/{id}/schedule`, `POST /groups/{id}/schedule/import`), and creating, editing and deleting announcements. Lists support search, filters and paging. For teachers and mentors: `POST /lessons/{id}/cancel` and `/restore` (also for employees), `POST /groups/{id}/attendance/import`, `GET /groups/{id}/attendance/summary`, `POST /groups/{id}/tasks/import`, `GET /groups/{id}/assessments`, `POST /groups/{id}/exams` and `POST /exams/{id}/scores/import`; students get `GET /student/assessments`, and notices for their own group in `GET /my/announcements`. While building the student screens, three existing backend bugs were fixed: attendance was always 0%, ungraded modules lowered the average, and the group students list returned a 500 error. Everything is covered by PHPUnit feature tests (126 tests).
+The app talks to a Laravel 12 REST API. For the employee screens these endpoints were added: `GET /employee/dashboard`, `GET /students`, `GET /students/{id}`, `GET /teachers`, `GET /teachers/{id}`, `PATCH /users/{id}/status`, creating and editing groups, student and schedule Excel import (`POST /groups/{id}/students/import`, `GET /groups/{id}/schedule`, `POST /groups/{id}/schedule/import`), and creating, editing and deleting announcements. Lists support search, filters and paging. For teachers and mentors: `POST /lessons/{id}/cancel` and `/restore` (also for employees), `POST /groups/{id}/attendance/import`, `GET /groups/{id}/attendance/summary`, `POST /groups/{id}/tasks/import`, `GET /groups/{id}/assessments`, `POST /groups/{id}/exams` and `POST /exams/{id}/scores/import`; students get `GET /student/assessments`, and notices for their own group in `GET /my/announcements`. While building the student screens, three existing backend bugs were fixed: attendance was always 0%, ungraded modules lowered the average, and the group students list returned a 500 error. Everything is covered by PHPUnit feature tests (129 tests). Logins (5 a minute), password resets (6 a minute) and API requests (120 a minute per user) are rate limited.
