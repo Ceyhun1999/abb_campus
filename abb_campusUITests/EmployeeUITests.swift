@@ -13,9 +13,7 @@ final class EmployeeUITests: XCTestCase {
     func testEmployeeSeesDashboardAndFiltersStudents() {
         signInAsEmployee()
 
-        let total = app.staticTexts["total_students_count"]
-        XCTAssertTrue(total.waitForExistence(timeout: uiTimeout))
-        XCTAssertEqual(total.label, "3")
+        XCTAssertTrue(app.otherElements["academy_card"].waitForExistence(timeout: uiTimeout))
 
         let activeStudent = app.buttons["student_row_11"]
         let inactiveStudent = app.buttons["student_row_13"]

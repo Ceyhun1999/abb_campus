@@ -16,10 +16,7 @@ struct EmployeeHomeView: View {
                 VStack(alignment: .leading, spacing: 24) {
                     headerView
 
-                    TotalStudentsCard(
-                        count: summary.studentsCount,
-                        newThisMonth: summary.newStudentsThisMonth
-                    )
+                    AcademyInfoCard()
 
                     statisticsGrid(summary)
 
@@ -147,31 +144,24 @@ struct EmployeeHomeView: View {
     }
 }
 
-private struct TotalStudentsCard: View {
-
-    let count: Int
-    let newThisMonth: Int
+private struct AcademyInfoCard: View {
 
     var body: some View {
-        HStack {
+        HStack(spacing: 16) {
             VStack(alignment: .leading, spacing: 6) {
-                Text("Ümumi tələbə sayı")
-                    .font(.manropeRegular(15))
-                    .foregroundStyle(.white.opacity(0.85))
-
-                Text("\(count)")
-                    .font(.manropeBold(36))
+                Text("ABB Tech Academy")
+                    .font(.manropeBold(22))
                     .foregroundStyle(.white)
-                    .accessibilityIdentifier("total_students_count")
 
-                Text("+\(newThisMonth) bu ay")
-                    .font(.manropeSemiBold(14))
+                Text("Proqramlaşdırma, dizayn və data üzrə peşəkar IT təhsili")
+                    .font(.manropeRegular(14))
                     .foregroundStyle(.white.opacity(0.9))
+                    .fixedSize(horizontal: false, vertical: true)
             }
 
-            Spacer()
+            Spacer(minLength: 0)
 
-            Image(systemName: "person.3.fill")
+            Image(systemName: "graduationcap.fill")
                 .font(.system(size: 26, weight: .semibold))
                 .foregroundStyle(.white)
                 .frame(width: 58, height: 58)
@@ -181,6 +171,8 @@ private struct TotalStudentsCard: View {
         .padding(20)
         .background(.brandBlue)
         .clipShape(RoundedRectangle(cornerRadius: 22))
+        .accessibilityElement(children: .combine)
+        .accessibilityIdentifier("academy_card")
     }
 }
 
