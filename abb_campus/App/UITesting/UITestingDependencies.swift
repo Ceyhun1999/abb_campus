@@ -102,13 +102,13 @@ final class UITestingDirectory: EmployeeDashboardService, StudentDirectoryServic
     private var students: [DirectoryStudent] = [
         DirectoryStudent(id: 11, firstName: "Nihad", lastName: "Məmmədov", email: "nihad@abb.local",
                          phone: "+994 50 123 45 67", isActive: true,
-                         group: .init(id: 1, name: "IOS-01"), createdAt: "2026-09-12T10:00:00+00:00"),
+                         group: .init(id: 1, name: "IOS-01", courseName: "Mobile Development iOS"), createdAt: "2026-09-12T10:00:00+00:00"),
         DirectoryStudent(id: 12, firstName: "Leyla", lastName: "Həsənli", email: "leyla@abb.local",
                          phone: nil, isActive: true,
-                         group: .init(id: 2, name: "UIUX-01"), createdAt: "2026-09-14T10:00:00+00:00"),
+                         group: .init(id: 2, name: "UIUX-01", courseName: "UI/UX Design"), createdAt: "2026-09-14T10:00:00+00:00"),
         DirectoryStudent(id: 13, firstName: "Rəşad", lastName: "İsmayılov", email: "rashad@abb.local",
                          phone: nil, isActive: false,
-                         group: .init(id: 1, name: "IOS-01"), createdAt: "2026-09-15T10:00:00+00:00")
+                         group: .init(id: 1, name: "IOS-01", courseName: "Mobile Development iOS"), createdAt: "2026-09-15T10:00:00+00:00")
     ]
 
     private var teachers = [

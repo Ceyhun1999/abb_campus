@@ -106,9 +106,10 @@ private struct StudentRow: View {
                     .font(.manropeSemiBold(16))
                     .foregroundStyle(.textPrimary)
 
-                Text(student.group?.name ?? "Qrupsuz")
+                Text(student.groupSubtitle)
                     .font(.manropeRegular(13))
                     .foregroundStyle(.textSecondary)
+                    .lineLimit(1)
             }
 
             Spacer()

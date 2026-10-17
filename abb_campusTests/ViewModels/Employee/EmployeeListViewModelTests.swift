@@ -397,4 +397,23 @@ struct EmployeeListViewModelTests {
 
         #expect(service.lastCourseId == 7)
     }
+
+    @Test("Student row shows the group and its course")
+    func studentGroupSubtitle() {
+        var student = DirectoryStudent.stub()
+        #expect(student.groupSubtitle == "IOS-01")
+
+        student = DirectoryStudent(
+            id: 1, firstName: "Elvin", lastName: "Məmmədli", email: "elvin@abb.local", phone: nil,
+            isActive: true, group: .init(id: 1, name: "IOS-01", courseName: "Mobile Development iOS"),
+            createdAt: nil
+        )
+        #expect(student.groupSubtitle == "IOS-01 · Mobile Development iOS")
+
+        student = DirectoryStudent(
+            id: 2, firstName: "Aysel", lastName: "Quliyeva", email: "aysel@abb.local", phone: nil,
+            isActive: true, group: nil, createdAt: nil
+        )
+        #expect(student.groupSubtitle == "Qrupsuz")
+    }
 }
