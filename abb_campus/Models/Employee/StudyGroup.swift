@@ -59,9 +59,11 @@ struct GroupFormRequest: Encodable, Equatable {
     let startDate: String
     let endDate: String
     let isActive: Bool
+    /// Sent after the user agrees to remove lessons that fall outside the new dates.
+    var confirmScheduleChanges = false
 
     enum CodingKeys: String, CodingKey {
-        case name, courseId, teacherId, mentorIds, startDate, endDate, isActive
+        case name, courseId, teacherId, mentorIds, startDate, endDate, isActive, confirmScheduleChanges
     }
 
     func encode(to encoder: Encoder) throws {
@@ -73,6 +75,10 @@ struct GroupFormRequest: Encodable, Equatable {
         try container.encode(startDate, forKey: .startDate)
         try container.encode(endDate, forKey: .endDate)
         try container.encode(isActive, forKey: .isActive)
+
+        if confirmScheduleChanges {
+            try container.encode(true, forKey: .confirmScheduleChanges)
+        }
     }
 }
 
@@ -89,6 +95,10 @@ struct ImportResult: Decodable, Equatable {
     let imported: Int
     let skipped: Int
     let errors: [RowError]
+    /// Schedule import: the dates the file covered and how many old lessons it removed there.
+    var from: String?
+    var to: String?
+    var removed: Int?
 
     var isRejected: Bool {
         !errors.isEmpty

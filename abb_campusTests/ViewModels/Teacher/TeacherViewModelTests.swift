@@ -228,13 +228,13 @@ struct TeacherViewModelTests {
         #expect(sut.importFlow.viewModel == nil)
     }
 
-    @Test("A finished group cannot upload attendance")
+    @Test("A finished group still gets its last month's attendance")
     func finishedGroupAttendance() {
         let sut = GroupAttendanceViewModel(group: .stub(isActive: false), teachingService: MockTeachingService())
 
         sut.showImport()
 
-        #expect(sut.importFlow.isPresented == false)
+        #expect(sut.importFlow.isPresented)
     }
 
     // MARK: - Scores

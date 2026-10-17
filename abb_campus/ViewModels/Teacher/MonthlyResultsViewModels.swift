@@ -32,8 +32,9 @@ final class GroupAttendanceViewModel {
         }
     }
 
+    /// The last month often arrives after the course ends, so finished groups still accept uploads.
     var canImport: Bool {
-        group.isActive
+        true
     }
 
     /// "12 dərs günü" for the shown month.
@@ -86,8 +87,9 @@ final class GroupScoresViewModel {
         }
     }
 
+    /// The last month often arrives after the course ends, so finished groups still accept uploads.
     var canImport: Bool {
-        group.isActive
+        true
     }
 
     func tasks(_ assessments: [GroupAssessment]) -> [GroupAssessment] {

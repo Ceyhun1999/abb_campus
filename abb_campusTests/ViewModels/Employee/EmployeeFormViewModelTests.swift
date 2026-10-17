@@ -167,6 +167,39 @@ struct EmployeeFormViewModelTests {
         #expect(groupService.createdRequests.isEmpty)
     }
 
+    @Test("New dates that leave lessons outside ask first, then save with confirmation")
+    func groupDatesNeedScheduleConfirmation() async throws {
+        let groupService = MockGroupService()
+        let question = "Yeni müddətdən kənarda 2 dərs və ya imtahan qalır (05.03.2027 – 08.03.2027). Davam etsəniz, onlar cədvəldən silinəcək."
+        groupService.updateResults = [.failure(NetworkError.serverError(statusCode: 409, message: question))]
+        let sut = GroupFormViewModel(group: .stub(id: 5), groupService: groupService, teacherService: MockTeacherService())
+        await sut.loadOptions()
+
+        let first = await sut.save()
+
+        #expect(first == nil)
+        #expect(sut.scheduleConfirmation == question)
+        #expect(sut.errorMessage == nil)
+        #expect(groupService.updatedRequests.first?.request.confirmScheduleChanges == false)
+
+        let saved = await sut.confirmScheduleChanges()
+
+        #expect(saved != nil)
+        #expect(sut.scheduleConfirmation == nil)
+        #expect(groupService.updatedRequests.last?.request.confirmScheduleChanges == true)
+    }
+
+    @Test("The confirmation flag is sent only when the user agreed")
+    func confirmationFlagEncoding() throws {
+        var request = GroupFormRequest(name: "IOS-05", courseId: 7, teacherId: nil, mentorIds: [], startDate: "2026-09-01", endDate: "2027-03-01", isActive: true)
+        var json = try JSONSerialization.jsonObject(with: JSONEncoder().encode(request)) as? [String: Any]
+        #expect(json?["confirmScheduleChanges"] == nil)
+
+        request.confirmScheduleChanges = true
+        json = try JSONSerialization.jsonObject(with: JSONEncoder().encode(request)) as? [String: Any]
+        #expect(json?["confirmScheduleChanges"] as? Bool == true)
+    }
+
     @Test("Inactive teachers and mentors are not offered")
     func inactiveStaffHidden() async {
         let teacherService = MockTeacherService()

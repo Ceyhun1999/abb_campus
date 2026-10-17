@@ -29,6 +29,8 @@ final class GroupFormViewModel {
     private(set) var options: ViewState<GroupFormOptions> = .idle
     private(set) var isSaving = false
     private(set) var errorMessage: String?
+    /// The server's question when new dates would leave lessons outside the group.
+    private(set) var scheduleConfirmation: String?
 
     let editingGroup: StudyGroup?
     private let groupService: any GroupService
@@ -189,7 +191,17 @@ final class GroupFormViewModel {
 
     // MARK: - Save
 
-    func save() async -> StudyGroup? {
+    /// Saves again, agreeing that lessons outside the new dates are removed.
+    func confirmScheduleChanges() async -> StudyGroup? {
+        scheduleConfirmation = nil
+        return await save(confirmScheduleChanges: true)
+    }
+
+    func dismissScheduleConfirmation() {
+        scheduleConfirmation = nil
+    }
+
+    func save(confirmScheduleChanges: Bool = false) async -> StudyGroup? {
         guard !isSaving else {
             return nil
         }
@@ -235,7 +247,8 @@ final class GroupFormViewModel {
             mentorIds: selectedMentorIds.sorted(),
             startDate: DateFormatting.apiString(from: startDate),
             endDate: DateFormatting.apiString(from: endDate),
-            isActive: isActive
+            isActive: isActive,
+            confirmScheduleChanges: confirmScheduleChanges
         )
 
         do {
@@ -244,6 +257,9 @@ final class GroupFormViewModel {
             }
 
             return try await groupService.createGroup(request)
+        } catch NetworkError.serverError(statusCode: 409, let message) {
+            scheduleConfirmation = message
+            return nil
         } catch {
             errorMessage = error.localizedDescription
             return nil

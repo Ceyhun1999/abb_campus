@@ -164,7 +164,7 @@ struct GroupImportView: View {
                         .font(.manropeBold(17))
                         .foregroundStyle(.textPrimary)
 
-                    Text(viewModel.kind.successMessage(imported: result.imported))
+                    Text(viewModel.kind.successMessage(result))
                         .font(.manropeRegular(15))
                         .foregroundStyle(.textSecondary)
                 }

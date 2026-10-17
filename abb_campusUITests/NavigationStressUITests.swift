@@ -23,7 +23,9 @@ final class NavigationStressUITests: XCTestCase {
             XCTAssertTrue(app.tap(row, until: app.buttons["edit_group_button"]), "push \(index)")
 
             if index.isMultiple(of: 2) {
-                app.navigationBars.buttons.firstMatch.tap()
+                let back = app.navigationBars.buttons.firstMatch
+                XCTAssertTrue(back.waitForExistence(timeout: uiTimeout), "back button \(index)")
+                back.tap()
             } else {
                 let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.01, dy: 0.5))
                 start.press(forDuration: 0.05, thenDragTo: app.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)))

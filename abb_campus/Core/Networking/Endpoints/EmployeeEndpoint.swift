@@ -25,8 +25,8 @@ enum EmployeeEndpoint {
 extension EmployeeEndpoint: Endpoint {
 
     private static let pageSize = "200"
-    /// The server accepts up to 500 lessons per group, so one request returns the whole schedule.
-    private static let schedulePageSize = "500"
+    /// The schedule is uploaded month by month; one request returns all of a group's lessons.
+    private static let schedulePageSize = "2000"
     static let listPageSize = 20
 
     private static func pageItems(_ page: Int?) -> [URLQueryItem] {

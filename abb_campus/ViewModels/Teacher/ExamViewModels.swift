@@ -109,9 +109,9 @@ final class GroupExamsViewModel {
 
     // MARK: - Scores
 
-    /// Scores are uploaded on or after the exam day, for an exam that took place.
+    /// Scores are uploaded on or after the exam day, for an exam that took place, even after the course ends.
     func canUploadScores(_ exam: ScheduleLesson) -> Bool {
-        group.isActive && !exam.isCancelled && exam.date <= todayString
+        !exam.isCancelled && exam.date <= todayString
     }
 
     func showScoresImport(for exam: ScheduleLesson) {

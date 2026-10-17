@@ -131,8 +131,16 @@ final class MockGroupService: GroupService {
         return try createResult.get()
     }
 
+    /// Answers for the next updates, in order; then `createResult`.
+    var updateResults: [Result<StudyGroup, Error>] = []
+
     func updateGroup(id: Int, _ request: GroupFormRequest) async throws -> StudyGroup {
         updatedRequests.append((id, request))
+
+        if !updateResults.isEmpty {
+            return try updateResults.removeFirst().get()
+        }
+
         return try createResult.get()
     }
 

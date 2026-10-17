@@ -21,6 +21,25 @@ struct GroupFormView: View {
                 form(options)
             }
             .errorAlert(viewModel.errorMessage, onDismiss: viewModel.dismissError)
+            .alert(
+                "Cədvəl dəyişəcək",
+                isPresented: Binding(
+                    get: { viewModel.scheduleConfirmation != nil },
+                    set: { if !$0 { viewModel.dismissScheduleConfirmation() } }
+                )
+            ) {
+                Button("Davam et", role: .destructive) {
+                    Task {
+                        if let group = await viewModel.confirmScheduleChanges() {
+                            onSaved(group)
+                        }
+                    }
+                }
+
+                Button("Tarixləri dəyiş", role: .cancel) {}
+            } message: {
+                Text(viewModel.scheduleConfirmation ?? "")
+            }
             .navigationTitle(viewModel.title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

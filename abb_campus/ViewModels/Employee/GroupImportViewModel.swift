@@ -66,7 +66,7 @@ enum ImportKind: Equatable {
         case .students:
             return nil
         case .schedule:
-            return "Fayl qrupun bütün dərslərini əvəz edəcək (imtahanlar qalır). Tarix: 2026-10-20, vaxt: 09:00."
+            return "Yalnız faylın ilk və son tarixi arasındakı dərslər yenilənir, digər günlərin dərsləri qalır. Cədvəli ay-ay yükləyə bilərsiniz. İmtahanlar dəyişmir. Tarix: 2026-10-20, vaxt: 09:00."
         case .attendance:
             return "Xanalara + (var), - (yox), g (gecikib) və ya ü (üzrlü) yazın. Boş xana nəzərə alınmır. Eyni tarix yenidən yüklənsə, köhnə qeyd əvəz olunur."
         case .taskScores(let month):
@@ -93,14 +93,31 @@ enum ImportKind: Equatable {
         }
     }
 
-    func successMessage(imported: Int) -> String {
+    func successMessage(_ result: ImportResult) -> String {
+        let imported = result.imported
+
         switch self {
         case .students: return "\(imported) tələbə qrupa əlavə olundu"
-        case .schedule: return "\(imported) dərs cədvələ əlavə olundu"
+        case .schedule: return Self.scheduleMessage(result)
         case .attendance: return "\(imported) davamiyyət qeydi yadda saxlandı"
         case .taskScores: return "\(imported) tapşırığın balları yükləndi"
         case .examScores: return "\(imported) tələbənin balı yükləndi"
         }
+    }
+
+    /// "12 dərs yükləndi: 05.10.2026 – 30.10.2026. Bu aralıqdan 2 köhnə dərs silindi."
+    private static func scheduleMessage(_ result: ImportResult) -> String {
+        var message = "\(result.imported) dərs yükləndi"
+
+        if let from = DateFormatting.displayDate(from: result.from), let to = DateFormatting.displayDate(from: result.to) {
+            message += from == to ? ": \(from)" : ": \(from) – \(to)"
+        }
+
+        if let removed = result.removed, removed > 0 {
+            message += ". Bu aralıqdan \(removed) köhnə dərs silindi"
+        }
+
+        return message + "."
     }
 
     func rejectedMessage(errorCount: Int) -> String {

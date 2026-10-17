@@ -152,7 +152,10 @@ struct GroupScheduleViewModelTests {
         #expect(service.importedScheduleFiles.first?.fileName == "cedvel.xlsx")
         #expect(service.importedFiles.isEmpty)
         #expect(sut.result.value?.imported == 12)
-        #expect(sut.kind.successMessage(imported: 12) == "12 dərs cədvələ əlavə olundu")
+        #expect(sut.kind.successMessage(ImportResult(imported: 12, skipped: 0, errors: [], from: "2026-10-05", to: "2026-10-30", removed: 2))
+            == "12 dərs yükləndi: 05.10.2026 – 30.10.2026. Bu aralıqdan 2 köhnə dərs silindi.")
+        #expect(sut.kind.successMessage(ImportResult(imported: 1, skipped: 0, errors: [], from: "2026-10-05", to: "2026-10-05", removed: 0))
+            == "1 dərs yükləndi: 05.10.2026.")
     }
 
     @Test("Group detail opens the schedule of the loaded group")

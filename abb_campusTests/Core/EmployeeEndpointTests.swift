@@ -59,7 +59,7 @@ struct EmployeeEndpointTests {
 
         #expect(request.httpMethod == "GET")
         #expect(request.url?.path == "/api/groups/3/schedule")
-        #expect(request.url?.query == "perPage=500")
+        #expect(request.url?.query == "perPage=2000")
     }
 
     @Test("Schedule import is a multipart POST to the group's schedule")

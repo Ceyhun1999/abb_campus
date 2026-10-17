@@ -43,7 +43,11 @@ extension StudentEndpoint: Endpoint {
 
     var queryItems: [URLQueryItem]? {
         switch self {
-        case .schedule, .announcements:
+        case .schedule:
+            // Sorted from the oldest lesson, so a smaller page would cut off the upcoming ones.
+            return [URLQueryItem(name: "perPage", value: "2000")]
+
+        case .announcements:
             return [URLQueryItem(name: "perPage", value: "200")]
 
         default:

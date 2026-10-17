@@ -16,7 +16,8 @@ enum TeachingEndpoint {
 
 extension TeachingEndpoint: Endpoint {
 
-    private static let allItems = "500"
+    /// Lessons pile up month by month, so lists are loaded whole (the server allows up to 2000).
+    private static let allItems = "2000"
 
     var path: String {
         switch self {
