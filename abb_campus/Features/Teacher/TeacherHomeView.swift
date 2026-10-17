@@ -89,6 +89,7 @@ struct TeacherHomeView: View {
 
                             LessonRow(lesson: lesson)
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 10)
 
