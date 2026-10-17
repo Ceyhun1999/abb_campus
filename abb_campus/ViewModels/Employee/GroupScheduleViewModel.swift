@@ -9,20 +9,31 @@ final class GroupScheduleViewModel {
     var isImportPresented = false
     private(set) var state: ViewState<[ScheduleLesson]> = .idle
     private(set) var importViewModel: GroupImportViewModel?
+    let lessonActions: LessonActions
 
     let group: StudyGroup
     private var latestRequest = LatestRequest()
-    private let groupService: any GroupService
+    private let scheduleSource: any GroupScheduleSource
+    private let scheduleImporter: (any GroupService)?
     private let today: () -> Date
 
+    /// - Parameter scheduleImporter: lets an employee upload the schedule from Excel; teachers have none.
     init(
         group: StudyGroup,
-        groupService: any GroupService,
+        scheduleSource: any GroupScheduleSource,
+        lessonService: any LessonService,
+        scheduleImporter: (any GroupService)? = nil,
         today: @escaping () -> Date = Date.init
     ) {
         self.group = group
-        self.groupService = groupService
+        self.scheduleSource = scheduleSource
+        self.scheduleImporter = scheduleImporter
         self.today = today
+        self.lessonActions = LessonActions(lessonService: lessonService, today: today)
+
+        lessonActions.onChange = { [weak self] lesson in
+            self?.apply(lesson)
+        }
     }
 
     // MARK: - Sections
@@ -33,7 +44,9 @@ final class GroupScheduleViewModel {
 
     var emptyMessage: String {
         if state.value?.isEmpty == true {
-            return "Qrupun cədvəli hələ yoxdur. Excel faylından idxal edin."
+            return canImport
+                ? "Qrupun cədvəli hələ yoxdur. Excel faylından idxal edin."
+                : "Qrupun cədvəli hələ yoxdur."
         }
 
         return period == .upcoming ? "Yaxın günlərdə dərs yoxdur." : "Keçmiş dərs yoxdur."
@@ -47,7 +60,7 @@ final class GroupScheduleViewModel {
         }
 
         do {
-            let lessons = try await groupService.fetchSchedule(groupId: group.id)
+            let lessons = try await scheduleSource.fetchSchedule(groupId: group.id)
 
             if latestRequest.isCurrent(request) {
                 state = .loaded(lessons)
@@ -60,7 +73,17 @@ final class GroupScheduleViewModel {
         }
     }
 
+    private func apply(_ lesson: ScheduleLesson) {
+        if let lessons = state.value {
+            state = .loaded(lessons.replacing(lesson))
+        }
+    }
+
     // MARK: - Import
+
+    var canImport: Bool {
+        scheduleImporter != nil
+    }
 
     /// Why the schedule cannot be imported, or `nil` when it can.
     var importBlockedReason: String? {
@@ -76,11 +99,11 @@ final class GroupScheduleViewModel {
     }
 
     func showImport() {
-        guard importBlockedReason == nil else {
+        guard let scheduleImporter, importBlockedReason == nil else {
             return
         }
 
-        importViewModel = GroupImportViewModel(group: group, kind: .schedule, groupService: groupService)
+        importViewModel = GroupImportViewModel(group: group, kind: .schedule, groupService: scheduleImporter)
         isImportPresented = true
     }
 

@@ -33,15 +33,21 @@ struct SelectedFile: Equatable {
 
 // MARK: - Import Kind
 
-/// What a spreadsheet adds to a group: its students or its lesson schedule.
-enum ImportKind {
+/// What a spreadsheet adds to a group.
+enum ImportKind: Equatable {
     case students
     case schedule
+    case attendance
+    case taskScores(month: String)
+    case examScores(exam: String)
 
     var navigationTitle: String {
         switch self {
         case .students: return "Tələbə importu"
         case .schedule: return "Cədvəl importu"
+        case .attendance: return "Davamiyyət importu"
+        case .taskScores: return "Tapşırıq balları"
+        case .examScores: return "İmtahan balları"
         }
     }
 
@@ -49,13 +55,24 @@ enum ImportKind {
         switch self {
         case .students: return "first_name, last_name, email"
         case .schedule: return "date, starts_at, ends_at, title, room, description"
+        case .attendance: return "email və hər dərs tarixi üçün sütun (məsələn, 2026-10-06)"
+        case .taskScores: return "email və hər tapşırıq üçün sütun"
+        case .examScores: return "email, score"
         }
     }
 
     var hint: String? {
         switch self {
-        case .students: return nil
-        case .schedule: return "Fayl qrupun bütün cədvəlini əvəz edəcək. Tarix: 2026-10-20, vaxt: 09:00."
+        case .students:
+            return nil
+        case .schedule:
+            return "Fayl qrupun bütün dərslərini əvəz edəcək (imtahanlar qalır). Tarix: 2026-10-20, vaxt: 09:00."
+        case .attendance:
+            return "Xanalara + (var), - (yox), g (gecikib) və ya ü (üzrlü) yazın. Boş xana nəzərə alınmır. Eyni tarix yenidən yüklənsə, köhnə qeyd əvəz olunur."
+        case .taskScores(let month):
+            return "Ballar 0–100. Fayl \(month) ayının tapşırıq ballarını əvəz edəcək. Boş xana bal yoxdur deməkdir."
+        case .examScores(let exam):
+            return "«\(exam)» üçün ballar 0–100. Yenidən yükləmək köhnə balları əvəz edir."
         }
     }
 
@@ -63,6 +80,8 @@ enum ImportKind {
         switch self {
         case .students: return "Tələbələri idxal et"
         case .schedule: return "Cədvəli idxal et"
+        case .attendance: return "Davamiyyəti idxal et"
+        case .taskScores, .examScores: return "Balları idxal et"
         }
     }
 
@@ -70,6 +89,7 @@ enum ImportKind {
         switch self {
         case .students: return "Fayl yoxlanılır və tələbələr əlavə olunur. Bir neçə saniyə çəkə bilər."
         case .schedule: return "Fayl yoxlanılır və dərslər əlavə olunur. Bir neçə saniyə çəkə bilər."
+        case .attendance, .taskScores, .examScores: return "Fayl yoxlanılır. Bir neçə saniyə çəkə bilər."
         }
     }
 
@@ -77,16 +97,23 @@ enum ImportKind {
         switch self {
         case .students: return "\(imported) tələbə qrupa əlavə olundu"
         case .schedule: return "\(imported) dərs cədvələ əlavə olundu"
+        case .attendance: return "\(imported) davamiyyət qeydi yadda saxlandı"
+        case .taskScores: return "\(imported) tapşırığın balları yükləndi"
+        case .examScores: return "\(imported) tələbənin balı yükləndi"
         }
     }
 
     func rejectedMessage(errorCount: Int) -> String {
+        let unchanged: String
+
         switch self {
-        case .students:
-            return "\(errorCount) sətirdə səhv var. Heç bir tələbə əlavə olunmadı. Excel-i düzəldib yenidən yükləyin."
-        case .schedule:
-            return "\(errorCount) sətirdə səhv var. Cədvəl dəyişmədi. Excel-i düzəldib yenidən yükləyin."
+        case .students: unchanged = "Heç bir tələbə əlavə olunmadı."
+        case .schedule: unchanged = "Cədvəl dəyişmədi."
+        case .attendance: unchanged = "Davamiyyət dəyişmədi."
+        case .taskScores, .examScores: unchanged = "Ballar dəyişmədi."
         }
+
+        return "\(errorCount) səhv var. \(unchanged) Excel-i düzəldib yenidən yükləyin."
     }
 }
 
@@ -104,19 +131,38 @@ final class GroupImportViewModel {
 
     let group: StudyGroup
     let kind: ImportKind
-    private let groupService: any GroupService
+    private let upload: (_ fileName: String, _ data: Data) async throws -> ImportResult
     private let fileLoader: any FileDataLoader
 
+    /// - Parameter upload: sends the file to the server and returns the result.
     init(
+        group: StudyGroup,
+        kind: ImportKind,
+        fileLoader: (any FileDataLoader)? = nil,
+        upload: @escaping (_ fileName: String, _ data: Data) async throws -> ImportResult
+    ) {
+        self.group = group
+        self.kind = kind
+        self.fileLoader = fileLoader ?? SecurityScopedFileLoader()
+        self.upload = upload
+    }
+
+    /// Student or schedule import of an employee.
+    convenience init(
         group: StudyGroup,
         kind: ImportKind = .students,
         groupService: any GroupService,
         fileLoader: (any FileDataLoader)? = nil
     ) {
-        self.group = group
-        self.kind = kind
-        self.groupService = groupService
-        self.fileLoader = fileLoader ?? SecurityScopedFileLoader()
+        let groupId = group.id
+
+        self.init(group: group, kind: kind, fileLoader: fileLoader) { fileName, data in
+            if kind == .schedule {
+                return try await groupService.importSchedule(groupId: groupId, fileName: fileName, fileData: data)
+            }
+
+            return try await groupService.importStudents(groupId: groupId, fileName: fileName, fileData: data)
+        }
     }
 
     func dismissError() {
@@ -174,19 +220,10 @@ final class GroupImportViewModel {
         result = .loading
 
         do {
-            result = .loaded(try await upload(selectedFile))
+            result = .loaded(try await upload(selectedFile.name, selectedFile.data))
         } catch {
             result = .idle
             errorMessage = error.localizedDescription
-        }
-    }
-
-    private func upload(_ file: SelectedFile) async throws -> ImportResult {
-        switch kind {
-        case .students:
-            return try await groupService.importStudents(groupId: group.id, fileName: file.name, fileData: file.data)
-        case .schedule:
-            return try await groupService.importSchedule(groupId: group.id, fileName: file.name, fileData: file.data)
         }
     }
 }

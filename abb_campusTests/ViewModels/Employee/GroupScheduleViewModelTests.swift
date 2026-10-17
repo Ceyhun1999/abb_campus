@@ -14,7 +14,13 @@ struct GroupScheduleViewModelTests {
     }
 
     private func makeSUT(_ service: MockGroupService, group: StudyGroup? = nil) -> GroupScheduleViewModel {
-        GroupScheduleViewModel(group: group ?? .stub(teacher: Self.teacher), groupService: service, today: { Self.today })
+        GroupScheduleViewModel(
+            group: group ?? .stub(teacher: Self.teacher),
+            scheduleSource: service,
+            lessonService: MockLessonService(),
+            scheduleImporter: service,
+            today: { Self.today }
+        )
     }
 
     // MARK: - Load
@@ -159,7 +165,7 @@ struct GroupScheduleViewModelTests {
         sut.showSchedule()
 
         #expect(sut.isSchedulePresented)
-        #expect(sut.scheduleViewModel?.group.name == "IOS-02")
-        #expect(sut.scheduleViewModel?.importBlockedReason == nil)
+        #expect(sut.scheduleGroup.name == "IOS-02")
+        #expect(sut.scheduleGroup.teacher?.id == Self.teacher.id)
     }
 }

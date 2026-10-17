@@ -66,9 +66,14 @@ struct GroupDetailView: View {
             }
         }
         .navigationDestination(isPresented: $viewModel.isSchedulePresented) {
-            if let scheduleViewModel = viewModel.scheduleViewModel {
-                GroupScheduleView(viewModel: scheduleViewModel)
-            }
+            GroupScheduleView(
+                viewModel: GroupScheduleViewModel(
+                    group: viewModel.scheduleGroup,
+                    scheduleSource: dependencies.groupService,
+                    lessonService: dependencies.lessonService,
+                    scheduleImporter: dependencies.groupService
+                )
+            )
         }
         .navigationDestination(isPresented: $viewModel.isImportPresented) {
             GroupImportView(

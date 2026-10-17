@@ -38,3 +38,33 @@ struct MultipartFormData {
         body.append(Data(string.utf8))
     }
 }
+
+// MARK: - Spreadsheet
+
+extension MultipartFormData {
+
+    /// A form with an Excel or CSV file in the "file" field, plus optional text fields.
+    static func spreadsheet(fileName: String, data: Data, fields: [String: String] = [:]) -> MultipartFormData {
+        var form = MultipartFormData()
+
+        for (name, value) in fields.sorted(by: { $0.key < $1.key }) {
+            form.addField(name: name, value: value)
+        }
+
+        form.addFile(name: "file", fileName: fileName, mimeType: spreadsheetMimeType(for: fileName), data: data)
+        return form
+    }
+
+    static func spreadsheetMimeType(for fileName: String) -> String {
+        switch (fileName as NSString).pathExtension.lowercased() {
+        case "xlsx":
+            return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        case "xls":
+            return "application/vnd.ms-excel"
+        case "csv":
+            return "text/csv"
+        default:
+            return "application/octet-stream"
+        }
+    }
+}

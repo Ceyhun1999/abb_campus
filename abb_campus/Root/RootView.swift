@@ -30,11 +30,7 @@ struct RootView: View {
         case .employee:
             EmployeeTabView()
         case .teacher:
-            ComingSoonView(
-                viewModel: ProfileViewModel(
-                    authenticationState: authenticationState
-                )
-            )
+            TeacherTabView()
         }
     }
 }

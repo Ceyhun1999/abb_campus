@@ -6,6 +6,7 @@ protocol StudentService {
     func fetchAttendance() async throws -> AttendanceSummary
     func fetchSchedule() async throws -> [ScheduleLesson]
     func fetchAnnouncements() async throws -> [Announcement]
+    func fetchAssessments() async throws -> [StudentAssessment]
 }
 
 final class DefaultStudentService: StudentService {
@@ -40,6 +41,11 @@ final class DefaultStudentService: StudentService {
 
     func fetchAnnouncements() async throws -> [Announcement] {
         let response: PaginatedResponse<Announcement> = try await networkService.request(StudentEndpoint.announcements)
+        return response.data
+    }
+
+    func fetchAssessments() async throws -> [StudentAssessment] {
+        let response: APIResponse<[StudentAssessment]> = try await networkService.request(StudentEndpoint.assessments)
         return response.data
     }
 }

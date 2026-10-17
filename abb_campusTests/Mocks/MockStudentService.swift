@@ -25,6 +25,7 @@ final class MockStudentService: StudentService {
     )
     var scheduleResult: Result<[ScheduleLesson], Error> = .success([])
     var announcementsResult: Result<[Announcement], Error> = .success([.stub()])
+    var assessmentsResult: Result<[StudentAssessment], Error> = .success([])
 
     private(set) var requestedModuleIds: [Int] = []
 
@@ -50,19 +51,28 @@ final class MockStudentService: StudentService {
     func fetchAnnouncements() async throws -> [Announcement] {
         try announcementsResult.get()
     }
+
+    func fetchAssessments() async throws -> [StudentAssessment] {
+        try assessmentsResult.get()
+    }
 }
 
 extension ScheduleLesson {
 
-    static func stub(id: Int, date: String, startsAt: String = "19:00") -> ScheduleLesson {
+    static func stub(
+        id: Int = 1,
+        date: String = "2026-10-21",
+        startsAt: String = "19:00",
+        kind: LessonKind = .lesson,
+        isCancelled: Bool = false,
+        cancelReason: CancelReason? = nil,
+        cancelNote: String? = nil,
+        groupName: String? = nil
+    ) -> ScheduleLesson {
         ScheduleLesson(
-            id: id,
-            title: "Lesson \(id)",
-            date: date,
-            startsAt: startsAt,
-            endsAt: "21:00",
-            room: "402",
-            description: nil
+            id: id, title: "Lesson \(id)", date: date, startsAt: startsAt, endsAt: "21:00",
+            room: "402", description: nil, kind: kind, isCancelled: isCancelled,
+            cancelReason: cancelReason, cancelNote: cancelNote, groupName: groupName
         )
     }
 }

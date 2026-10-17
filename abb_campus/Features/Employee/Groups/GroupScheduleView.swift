@@ -12,7 +12,9 @@ struct GroupScheduleView: View {
         @Bindable var viewModel = viewModel
 
         VStack(spacing: 12) {
-            importSection
+            if viewModel.canImport {
+                importSection
+            }
 
             Picker("Dövr", selection: $viewModel.period) {
                 ForEach(SchedulePeriod.allCases) { period in
@@ -34,6 +36,7 @@ struct GroupScheduleView: View {
                     Section(section.title) {
                         ForEach(section.lessons) { lesson in
                             LessonRow(lesson: lesson)
+                                .lessonActionMenu(for: lesson, actions: viewModel.lessonActions)
                         }
                     }
                 }
@@ -46,6 +49,7 @@ struct GroupScheduleView: View {
         }
         .padding(.top, 8)
         .background(Color(.systemGroupedBackground))
+        .lessonActions(viewModel.lessonActions)
         .navigationTitle("Dərs cədvəli")
         .navigationBarTitleDisplayMode(.inline)
         .navigationDestination(isPresented: $viewModel.isImportPresented) {

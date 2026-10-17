@@ -7,7 +7,17 @@ import Observation
 @Observable
 final class StudentGradesViewModel {
 
+    struct MonthSection: Identifiable, Equatable {
+        let month: String
+        let title: String
+        let items: [StudentAssessment]
+
+        var id: String { month }
+    }
+
     private(set) var state: ViewState<GradesOverview> = .idle
+    private(set) var assessments: [StudentAssessment] = []
+    private(set) var assessmentsError: String?
 
     private let studentService: any StudentService
 
@@ -20,10 +30,38 @@ final class StudentGradesViewModel {
             state = .loading
         }
 
+        async let monthly = loadAssessments()
+
         do {
             state = .loaded(try await studentService.fetchGradesOverview())
         } catch {
             state = .failed(error.localizedDescription)
+        }
+
+        await monthly
+    }
+
+    // MARK: - Monthly Scores
+
+    /// Task and exam scores grouped by month, newest month first.
+    var monthSections: [MonthSection] {
+        Dictionary(grouping: assessments, by: \.month)
+            .sorted { $0.key > $1.key }
+            .map { MonthSection(month: $0.key, title: MonthCursor.title(forAPI: $0.key), items: $0.value) }
+    }
+
+    var isEmpty: Bool {
+        state.value?.modules.isEmpty == true && assessments.isEmpty
+    }
+
+    /// The monthly scores are extra: if they fail, the modules still show.
+    private func loadAssessments() async {
+        do {
+            assessments = try await studentService.fetchAssessments()
+            assessmentsError = nil
+        } catch is CancellationError {
+        } catch {
+            assessmentsError = error.localizedDescription
         }
     }
 }

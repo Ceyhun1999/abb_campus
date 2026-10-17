@@ -11,7 +11,7 @@ struct StudentGradesView: View {
     var body: some View {
         AsyncContentView(
             state: viewModel.state,
-            isEmpty: \.modules.isEmpty,
+            isEmpty: { _ in viewModel.isEmpty },
             emptyTitle: "Qiymət yoxdur",
             emptyMessage: "Kursunuzda hələ modul yoxdur.",
             emptyIcon: "chart.bar",
@@ -28,6 +28,8 @@ struct StudentGradesView: View {
                         .buttonStyle(.plain)
                         .accessibilityIdentifier("module_row_\(module.moduleId)")
                     }
+
+                    monthlyScores
                 }
                 .padding(.horizontal, AppLayout.horizontalPadding)
                 .padding(.vertical, 16)
@@ -40,6 +42,55 @@ struct StudentGradesView: View {
         .navigationTitle("Qiymətlər")
         .task {
             await viewModel.load()
+        }
+    }
+
+    // MARK: - Monthly Scores
+
+    @ViewBuilder
+    private var monthlyScores: some View {
+        if let error = viewModel.assessmentsError {
+            Text("Aylıq ballar yüklənmədi: \(error)")
+                .font(.manropeRegular(13))
+                .foregroundStyle(.red)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+
+        ForEach(viewModel.monthSections) { section in
+            VStack(alignment: .leading, spacing: 10) {
+                Text("Aylıq ballar · \(section.title)")
+                    .font(.manropeBold(18))
+                    .foregroundStyle(.textPrimary)
+
+                VStack(spacing: 0) {
+                    ForEach(section.items) { item in
+                        HStack(spacing: 12) {
+                            Image(systemName: item.kind == .exam ? "graduationcap.fill" : "checklist")
+                                .foregroundStyle(item.kind == .exam ? .orange : .blue)
+                                .frame(width: 24)
+
+                            Text(item.title)
+                                .font(.manropeSemiBold(15))
+                                .foregroundStyle(.textPrimary)
+
+                            Spacer()
+
+                            Text("\(ScoreFormatting.text(item.score)) / \(item.maxScore)")
+                                .font(.manropeBold(15))
+                                .foregroundStyle(.textPrimary)
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 12)
+
+                        if item.id != section.items.last?.id {
+                            InfoDivider()
+                        }
+                    }
+                }
+                .cardStyle()
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .accessibilityIdentifier("monthly_scores_\(section.month)")
         }
     }
 

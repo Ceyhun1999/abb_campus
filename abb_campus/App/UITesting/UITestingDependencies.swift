@@ -7,6 +7,7 @@ extension AppDependencies {
 
     static var uiTesting: AppDependencies {
         let directory = UITestingDirectory()
+        let teaching = UITestingTeaching()
 
         return AppDependencies(
             authService: UITestingAuthService(),
@@ -17,6 +18,8 @@ extension AppDependencies {
             groupService: directory,
             announcementService: directory,
             studentService: UITestingStudentService(),
+            teachingService: teaching,
+            lessonService: teaching,
             secureStorage: InMemorySecureStorage(),
             preferences: InMemoryPreferencesStore(),
             tokenStore: TokenStore()
@@ -30,6 +33,8 @@ enum UITestingCredentials {
     static let password = "Password123!"
     static let token = "ui-testing-token"
     static let employeeToken = "ui-testing-employee-token"
+    static let teacherEmail = "teacher@abb.local"
+    static let teacherToken = "ui-testing-teacher-token"
 }
 
 final class UITestingAuthService: AuthService {
@@ -50,6 +55,14 @@ final class UITestingAuthService: AuthService {
         role: .employee
     )
 
+    private let teacher = User(
+        id: 21,
+        firstName: "Kamal",
+        lastName: "Əliyev",
+        email: UITestingCredentials.teacherEmail,
+        role: .teacher
+    )
+
     func login(
         email: String,
         password: String,
@@ -60,6 +73,7 @@ final class UITestingAuthService: AuthService {
         let account: (User, String)? = switch (email, role) {
         case (UITestingCredentials.email, .student): (student, UITestingCredentials.token)
         case (UITestingCredentials.employeeEmail, .employee): (employee, UITestingCredentials.employeeToken)
+        case (UITestingCredentials.teacherEmail, .teacher): (teacher, UITestingCredentials.teacherToken)
         default: nil
         }
 
@@ -81,6 +95,7 @@ final class UITestingAuthService: AuthService {
         switch token {
         case UITestingCredentials.token: return student
         case UITestingCredentials.employeeToken: return employee
+        case UITestingCredentials.teacherToken: return teacher
         default: throw NetworkError.unauthorized
         }
     }
@@ -343,6 +358,13 @@ final class UITestingStudentService: StudentService {
         ]
     }
 
+    func fetchAssessments() async throws -> [StudentAssessment] {
+        [
+            StudentAssessment(id: 1, kind: .task, title: "SwiftUI layout", month: "2026-10",
+                              examDate: nil, score: 92, maxScore: 100)
+        ]
+    }
+
     func fetchAnnouncements() async throws -> [Announcement] {
         [
             Announcement(id: 1, title: "Bayram günü dərslər", message: "Dərs olmayacaq.",
@@ -386,4 +408,107 @@ final class InMemoryPreferencesStore: PreferencesStore {
         emails[role] = email
     }
 }
+
+// MARK: - Teacher Data
+
+final class UITestingTeaching: TeachingService, LessonService {
+
+    private static func day(_ offset: Int) -> String {
+        DateFormatting.apiString(from: Calendar.current.date(byAdding: .day, value: offset, to: Date()) ?? Date())
+    }
+
+    private let group = StudyGroup(
+        id: 1, name: "IOS-01", course: Course(id: 7, name: "Mobile Development iOS"),
+        teacher: .init(id: 21, firstName: "Kamal", lastName: "Əliyev"), mentors: nil,
+        startDate: "2026-07-01", endDate: "2027-07-01", isActive: true, studentsCount: 2, progress: 60
+    )
+
+    private var lessons: [ScheduleLesson] = [
+        ScheduleLesson(id: 101, title: "SwiftUI layout", date: day(1), startsAt: "19:00", endsAt: "21:00",
+                       room: "402", description: nil, groupName: "IOS-01"),
+        ScheduleLesson(id: 102, title: "Networking", date: day(3), startsAt: "19:00", endsAt: "21:00",
+                       room: "402", description: nil, groupName: "IOS-01"),
+        ScheduleLesson(id: 103, title: "Modul 1 imtahanı", date: day(-2), startsAt: "10:00", endsAt: "12:00",
+                       room: "B-2", description: nil, kind: .exam, groupName: "IOS-01")
+    ]
+
+    func fetchMyGroups() async throws -> [StudyGroup] {
+        [group]
+    }
+
+    func fetchMySchedule() async throws -> [ScheduleLesson] {
+        lessons
+    }
+
+    func fetchSchedule(groupId: Int) async throws -> [ScheduleLesson] {
+        lessons
+    }
+
+    func fetchStudents(groupId: Int) async throws -> [GroupStudent] {
+        [
+            GroupStudent(id: 11, firstName: "Nihad", lastName: "Məmmədov", email: "nihad@abb.local"),
+            GroupStudent(id: 12, firstName: "Leyla", lastName: "Həsənli", email: "leyla@abb.local")
+        ]
+    }
+
+    func fetchAttendanceSummary(groupId: Int, month: String) async throws -> GroupAttendanceSummary {
+        GroupAttendanceSummary(month: month, dates: [], students: [
+            .init(studentId: 11, fullName: "Nihad Məmmədov", email: "nihad@abb.local",
+                  present: 0, late: 0, absent: 0, excused: 0, total: 0, percentage: nil)
+        ])
+    }
+
+    func fetchAssessments(groupId: Int, month: String) async throws -> [GroupAssessment] {
+        []
+    }
+
+    func scheduleExam(groupId: Int, _ request: ExamFormRequest) async throws -> ScheduleLesson {
+        let exam = ScheduleLesson(
+            id: (lessons.map(\.id).max() ?? 100) + 1, title: request.title, date: request.date,
+            startsAt: request.startsAt, endsAt: request.endsAt, room: request.room,
+            description: nil, kind: .exam, groupName: "IOS-01"
+        )
+        lessons.append(exam)
+        return exam
+    }
+
+    func importAttendance(groupId: Int, fileName: String, fileData: Data) async throws -> ImportResult {
+        ImportResult(imported: 0, skipped: 0, errors: [])
+    }
+
+    func importTaskScores(groupId: Int, month: String, fileName: String, fileData: Data) async throws -> ImportResult {
+        ImportResult(imported: 0, skipped: 0, errors: [])
+    }
+
+    func importExamScores(examId: Int, fileName: String, fileData: Data) async throws -> ImportResult {
+        ImportResult(imported: 0, skipped: 0, errors: [])
+    }
+
+    func cancelLesson(id: Int, reason: CancelReason, note: String?) async throws -> ScheduleLesson {
+        try update(id) { lesson in
+            ScheduleLesson(id: lesson.id, title: lesson.title, date: lesson.date, startsAt: lesson.startsAt,
+                           endsAt: lesson.endsAt, room: lesson.room, description: lesson.description,
+                           kind: lesson.kind, isCancelled: true, cancelReason: reason, cancelNote: note,
+                           groupName: lesson.groupName)
+        }
+    }
+
+    func restoreLesson(id: Int) async throws -> ScheduleLesson {
+        try update(id) { lesson in
+            ScheduleLesson(id: lesson.id, title: lesson.title, date: lesson.date, startsAt: lesson.startsAt,
+                           endsAt: lesson.endsAt, room: lesson.room, description: lesson.description,
+                           kind: lesson.kind, groupName: lesson.groupName)
+        }
+    }
+
+    private func update(_ id: Int, _ change: (ScheduleLesson) -> ScheduleLesson) throws -> ScheduleLesson {
+        guard let index = lessons.firstIndex(where: { $0.id == id }) else {
+            throw NetworkError.serverError(statusCode: 404, message: "Dərs tapılmadı.")
+        }
+
+        lessons[index] = change(lessons[index])
+        return lessons[index]
+    }
+}
+
 #endif

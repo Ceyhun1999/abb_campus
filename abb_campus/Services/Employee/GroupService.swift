@@ -1,6 +1,6 @@
 import Foundation
 
-protocol GroupService: Sendable {
+protocol GroupService: GroupScheduleSource {
     func fetchGroups(search: String, courseId: Int?) async throws -> [StudyGroup]
     func fetchGroupsPage(search: String, courseId: Int?, page: Int) async throws -> Page<StudyGroup>
     func fetchGroup(id: Int) async throws -> StudyGroup
@@ -9,7 +9,6 @@ protocol GroupService: Sendable {
     func createGroup(_ request: GroupFormRequest) async throws -> StudyGroup
     func updateGroup(id: Int, _ request: GroupFormRequest) async throws -> StudyGroup
     func importStudents(groupId: Int, fileName: String, fileData: Data) async throws -> ImportResult
-    func fetchSchedule(groupId: Int) async throws -> [ScheduleLesson]
     func importSchedule(groupId: Int, fileName: String, fileData: Data) async throws -> ImportResult
 }
 
@@ -97,7 +96,7 @@ final class DefaultGroupService: GroupService {
 
     func importStudents(groupId: Int, fileName: String, fileData: Data) async throws -> ImportResult {
         let response: APIResponse<ImportResult> = try await networkService.request(
-            EmployeeEndpoint.importStudents(groupId: groupId, form: Self.fileForm(fileName: fileName, data: fileData))
+            EmployeeEndpoint.importStudents(groupId: groupId, form: .spreadsheet(fileName: fileName, data: fileData))
         )
 
         return response.data
@@ -105,28 +104,9 @@ final class DefaultGroupService: GroupService {
 
     func importSchedule(groupId: Int, fileName: String, fileData: Data) async throws -> ImportResult {
         let response: APIResponse<ImportResult> = try await networkService.request(
-            EmployeeEndpoint.importSchedule(groupId: groupId, form: Self.fileForm(fileName: fileName, data: fileData))
+            EmployeeEndpoint.importSchedule(groupId: groupId, form: .spreadsheet(fileName: fileName, data: fileData))
         )
 
         return response.data
-    }
-
-    private static func fileForm(fileName: String, data: Data) -> MultipartFormData {
-        var form = MultipartFormData()
-        form.addFile(name: "file", fileName: fileName, mimeType: mimeType(for: fileName), data: data)
-        return form
-    }
-
-    private static func mimeType(for fileName: String) -> String {
-        switch (fileName as NSString).pathExtension.lowercased() {
-        case "xlsx":
-            return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        case "xls":
-            return "application/vnd.ms-excel"
-        case "csv":
-            return "text/csv"
-        default:
-            return "application/octet-stream"
-        }
     }
 }

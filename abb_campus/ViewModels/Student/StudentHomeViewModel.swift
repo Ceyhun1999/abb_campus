@@ -69,7 +69,7 @@ final class StudentHomeViewModel {
         let todayString = DateFormatting.apiString(from: today())
 
         return lessons
-            .filter { $0.date >= todayString }
+            .filter { !$0.isCancelled && $0.date >= todayString }
             .min { ($0.date, $0.startsAt) < ($1.date, $1.startsAt) }
     }
 }

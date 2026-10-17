@@ -148,7 +148,6 @@ final class GroupDetailViewModel {
     var isSchedulePresented = false
     private(set) var state: ViewState<GroupDetail> = .idle
     private(set) var editViewModel: GroupFormViewModel?
-    private(set) var scheduleViewModel: GroupScheduleViewModel?
 
     let group: StudyGroup
     private var latestRequest = LatestRequest()
@@ -198,11 +197,12 @@ final class GroupDetailViewModel {
 
     // MARK: - Schedule
 
+    /// The group as last loaded, so the schedule knows its current teacher and status.
+    var scheduleGroup: StudyGroup {
+        state.value?.group ?? group
+    }
+
     func showSchedule() {
-        scheduleViewModel = GroupScheduleViewModel(
-            group: state.value?.group ?? group,
-            groupService: groupService
-        )
         isSchedulePresented = true
     }
 

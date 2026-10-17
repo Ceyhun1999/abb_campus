@@ -6,6 +6,7 @@ enum StudentEndpoint {
     case attendance
     case schedule
     case announcements
+    case assessments
 }
 
 extension StudentEndpoint: Endpoint {
@@ -26,6 +27,9 @@ extension StudentEndpoint: Endpoint {
 
         case .announcements:
             return "/api/my/announcements"
+
+        case .assessments:
+            return "/api/student/assessments"
         }
     }
 

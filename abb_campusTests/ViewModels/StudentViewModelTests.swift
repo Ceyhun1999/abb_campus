@@ -55,6 +55,19 @@ struct StudentViewModelTests {
         #expect(sut.state.value?.nextLesson?.id == 4)
     }
 
+    @Test("A cancelled lesson is skipped as the next lesson")
+    func homeSkipsCancelledLesson() async throws {
+        service.scheduleResult = .success([
+            .stub(id: 4, date: "2026-10-13", startsAt: "10:00", isCancelled: true, cancelReason: .holiday),
+            .stub(id: 5, date: "2026-10-13", startsAt: "19:00")
+        ])
+        let sut = StudentHomeViewModel(authenticationState: try makeState(), studentService: service, today: { today })
+
+        await sut.load()
+
+        #expect(sut.state.value?.nextLesson?.id == 5)
+    }
+
     @Test("No upcoming lessons gives an empty next lesson")
     func homeNoUpcomingLesson() async throws {
         service.scheduleResult = .success([.stub(id: 1, date: "2026-10-01")])
