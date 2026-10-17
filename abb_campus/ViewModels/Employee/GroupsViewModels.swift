@@ -194,6 +194,15 @@ final class GroupDetailViewModel {
         isImportPresented = true
     }
 
+    /// Reloads the students after returning from the import screen.
+    func importPresentationChanged(_ isPresented: Bool) async {
+        guard !isPresented else {
+            return
+        }
+
+        await load()
+    }
+
     // MARK: - Edit
 
     func showEdit() {

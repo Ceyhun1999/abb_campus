@@ -150,6 +150,22 @@ struct EmployeeListViewModelTests {
         #expect(sut.state.errorMessage != nil)
     }
 
+    @Test("Group detail reloads students only after the import screen closes")
+    func groupDetailReloadsAfterImport() async {
+        let service = MockGroupService()
+        let sut = GroupDetailViewModel(group: .stub(), groupService: service, teacherService: MockTeacherService())
+        await sut.load()
+        #expect(sut.state.value?.students.isEmpty == true)
+
+        service.studentsResult = .success([GroupStudent(id: 1, firstName: "Ali", lastName: "Rzayev", email: "ali@abb.local")])
+        sut.showImport()
+        await sut.importPresentationChanged(true)
+        #expect(sut.state.value?.students.isEmpty == true)
+
+        await sut.importPresentationChanged(false)
+        #expect(sut.state.value?.students.count == 1)
+    }
+
     private func makeSignedInState() throws -> AuthenticationState {
         let state = AuthenticationState(
             secureStorage: MockSecureStorage(),

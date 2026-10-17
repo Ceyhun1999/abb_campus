@@ -72,10 +72,8 @@ struct GroupDetailView: View {
             )
         }
         .onChange(of: viewModel.isImportPresented) { _, isPresented in
-            if !isPresented {
-                Task {
-                    await viewModel.load()
-                }
+            Task {
+                await viewModel.importPresentationChanged(isPresented)
             }
         }
         .task {
