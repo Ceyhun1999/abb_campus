@@ -91,37 +91,14 @@ struct StudentDetailView: View {
 
     // MARK: - Status
 
-    @ViewBuilder
     private func statusButton(_ student: DirectoryStudent) -> some View {
-        if student.isActive {
-            Button {
-                viewModel.requestStatusChange()
-            } label: {
-                Group {
-                    if viewModel.isUpdatingStatus {
-                        ProgressView()
-                    } else {
-                        Text(viewModel.statusActionTitle)
-                            .font(.manropeSemiBold(17))
-                    }
-                }
-                .foregroundStyle(.red)
-                .frame(maxWidth: .infinity)
-                .frame(height: 56)
-                .background(Color.red.opacity(0.1))
-                .clipShape(RoundedRectangle(cornerRadius: 16))
-            }
-            .buttonStyle(.plain)
-            .disabled(viewModel.isUpdatingStatus)
-            .accessibilityIdentifier("student_status_button")
-        } else {
-            PrimaryButton(
-                title: viewModel.statusActionTitle,
-                isLoading: viewModel.isUpdatingStatus
-            ) {
-                viewModel.requestStatusChange()
-            }
-            .accessibilityIdentifier("student_status_button")
+        StatusActionButton(
+            title: viewModel.statusActionTitle,
+            isActive: student.isActive,
+            isLoading: viewModel.isUpdatingStatus
+        ) {
+            viewModel.requestStatusChange()
         }
+        .accessibilityIdentifier("student_status_button")
     }
 }

@@ -71,38 +71,15 @@ struct TeacherDetailView: View {
 
     // MARK: - Status
 
-    @ViewBuilder
     private func statusButton(_ teacher: Teacher) -> some View {
-        if teacher.isActive {
-            Button {
-                viewModel.requestStatusChange()
-            } label: {
-                Group {
-                    if viewModel.isUpdatingStatus {
-                        ProgressView()
-                    } else {
-                        Text(viewModel.statusActionTitle)
-                            .font(.manropeSemiBold(17))
-                    }
-                }
-                .foregroundStyle(.red)
-                .frame(maxWidth: .infinity)
-                .frame(height: 56)
-                .background(Color.red.opacity(0.1))
-                .clipShape(RoundedRectangle(cornerRadius: 16))
-            }
-            .buttonStyle(.plain)
-            .disabled(viewModel.isUpdatingStatus)
-            .accessibilityIdentifier("teacher_status_button")
-        } else {
-            PrimaryButton(
-                title: viewModel.statusActionTitle,
-                isLoading: viewModel.isUpdatingStatus
-            ) {
-                viewModel.requestStatusChange()
-            }
-            .accessibilityIdentifier("teacher_status_button")
+        StatusActionButton(
+            title: viewModel.statusActionTitle,
+            isActive: teacher.isActive,
+            isLoading: viewModel.isUpdatingStatus
+        ) {
+            viewModel.requestStatusChange()
         }
+        .accessibilityIdentifier("teacher_status_button")
     }
 
     // MARK: - Groups
