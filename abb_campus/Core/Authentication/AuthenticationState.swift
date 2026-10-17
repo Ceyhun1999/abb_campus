@@ -25,11 +25,11 @@ final class AuthenticationState {
     init(
         secureStorage: any SecureStorage,
         authService: any AuthService,
-        tokenStore: TokenStore = TokenStore()
+        tokenStore: TokenStore? = nil
     ) {
         self.secureStorage = secureStorage
         self.authService = authService
-        self.tokenStore = tokenStore
+        self.tokenStore = tokenStore ?? TokenStore()
     }
 
     var isAuthenticated: Bool {

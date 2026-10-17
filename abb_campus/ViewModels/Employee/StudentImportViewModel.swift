@@ -48,11 +48,11 @@ final class StudentImportViewModel {
     init(
         group: StudyGroup,
         groupService: any GroupService,
-        fileLoader: any FileDataLoader = SecurityScopedFileLoader()
+        fileLoader: (any FileDataLoader)? = nil
     ) {
         self.group = group
         self.groupService = groupService
-        self.fileLoader = fileLoader
+        self.fileLoader = fileLoader ?? SecurityScopedFileLoader()
     }
 
     func dismissError() {
