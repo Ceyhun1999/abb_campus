@@ -13,6 +13,7 @@ struct MonthSwitcher: View {
                 Image(systemName: "chevron.left")
                     .frame(width: 44, height: 44)
             }
+            .disabled(!month.canGoBack)
             .accessibilityLabel("Əvvəlki ay")
             .accessibilityIdentifier("previous_month_button")
 

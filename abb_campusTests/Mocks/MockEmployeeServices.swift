@@ -274,6 +274,8 @@ extension StudyGroup {
         id: Int = 1,
         name: String = "IOS-01",
         teacher: TeacherReference? = nil,
+        startDate: String = "2026-07-01",
+        endDate: String = "2027-01-01",
         isActive: Bool = true
     ) -> StudyGroup {
         StudyGroup(
@@ -282,8 +284,8 @@ extension StudyGroup {
             course: Course(id: 7, name: "iOS Development"),
             teacher: teacher,
             mentors: nil,
-            startDate: "2026-07-01",
-            endDate: "2027-01-01",
+            startDate: startDate,
+            endDate: endDate,
             isActive: isActive,
             studentsCount: 10,
             progress: 50

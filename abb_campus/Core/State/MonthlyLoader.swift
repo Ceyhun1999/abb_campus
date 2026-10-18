@@ -12,8 +12,13 @@ final class MonthlyLoader<Value> {
     @ObservationIgnored private let content = LoadableValue<Value>(keepsValueOnFailure: false)
     @ObservationIgnored private let fetch: (_ month: String) async throws -> Value
 
-    init(today: Date = Date(), fetch: @escaping (_ month: String) async throws -> Value) {
-        self.month = MonthCursor(today: today)
+    init(
+        today: Date = Date(),
+        from start: Date? = nil,
+        until end: Date? = nil,
+        fetch: @escaping (_ month: String) async throws -> Value
+    ) {
+        self.month = MonthCursor(today: today, from: start, until: end)
         self.fetch = fetch
     }
 
@@ -29,6 +34,10 @@ final class MonthlyLoader<Value> {
     }
 
     func goBack() async {
+        guard month.canGoBack else {
+            return
+        }
+
         month.goBack()
         content.showLoading()
         await load()

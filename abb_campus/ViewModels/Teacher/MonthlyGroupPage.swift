@@ -3,6 +3,7 @@ import Observation
 
 /// What the monthly screens (attendance, scores) share: the group, the shown month's data,
 /// and the Excel upload, after which the month reloads.
+/// Months are limited to the group's dates: from its first month to its last (or the current one).
 /// Finished groups still accept uploads: the last month often arrives after the course ends.
 @MainActor
 @Observable
@@ -22,7 +23,12 @@ final class MonthlyGroupPage<Value> {
     ) {
         self.group = group
         self.fileLoader = fileLoader
-        self.report = MonthlyLoader(today: today, fetch: fetch)
+        self.report = MonthlyLoader(
+            today: today,
+            from: group.startDate.flatMap(DateFormatting.date(fromAPI:)),
+            until: group.endDate.flatMap(DateFormatting.date(fromAPI:)),
+            fetch: fetch
+        )
 
         let report = self.report
         importFlow.onFinish = {

@@ -32,6 +32,30 @@ struct TeacherViewModelTests {
         #expect(MonthCursor.title(forAPI: "2026-10") == "Oktyabr 2026")
     }
 
+    @Test("Month cursor stays within the group's months")
+    func monthCursorGroupBounds() {
+        let date = { DateFormatting.date(fromAPI: $0) ?? Date() }
+        var month = MonthCursor(today: date("2026-10-20"), from: date("2026-09-15"), until: date("2027-03-01"))
+        #expect(month.apiValue == "2026-10")
+        #expect(month.canGoForward == false)
+
+        month.goBack()
+        #expect(month.apiValue == "2026-09")
+        #expect(month.canGoBack == false)
+
+        month.goBack()
+        #expect(month.apiValue == "2026-09", "no months before the group starts")
+
+        let finished = MonthCursor(today: date("2026-10-20"), from: date("2026-01-10"), until: date("2026-06-30"))
+        #expect(finished.apiValue == "2026-06", "a finished group opens on its last month")
+        #expect(finished.canGoForward == false)
+
+        let notStarted = MonthCursor(today: date("2026-10-20"), from: date("2026-12-01"), until: date("2027-06-01"))
+        #expect(notStarted.apiValue == "2026-10")
+        #expect(notStarted.canGoBack == false)
+        #expect(notStarted.canGoForward == false)
+    }
+
     // MARK: - Cancel Lesson
 
     @Test("Another reason needs a note before the lesson can be cancelled")
