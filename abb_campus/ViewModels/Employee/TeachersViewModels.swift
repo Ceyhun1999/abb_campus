@@ -100,7 +100,7 @@ final class TeachersListViewModel: DebouncedSearch {
 
 @MainActor
 @Observable
-final class TeacherDetailViewModel {
+final class TeacherDetailViewModel: AccountStatusChanging {
 
     var isStatusConfirmationPresented = false
     private(set) var state: ViewState<Teacher>

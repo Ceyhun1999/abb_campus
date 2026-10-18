@@ -142,7 +142,7 @@ struct TeacherViewModelTests {
         sut.showImport()
 
         #expect(sut.canImport == false)
-        #expect(sut.isImportPresented == false)
+        #expect(sut.importFlow.isPresented == false)
         #expect(sut.emptyMessage == "Qrupun cədvəli hələ yoxdur.")
     }
 

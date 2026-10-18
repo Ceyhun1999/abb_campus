@@ -3,7 +3,7 @@ import Observation
 
 @MainActor
 @Observable
-final class StudentDetailViewModel {
+final class StudentDetailViewModel: AccountStatusChanging {
 
     var isStatusConfirmationPresented = false
     private(set) var state: ViewState<DirectoryStudent>

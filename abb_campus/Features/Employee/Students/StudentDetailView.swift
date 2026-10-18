@@ -41,20 +41,7 @@ struct StudentDetailView: View {
         }
         .background(.appBackground)
         .navigationBarTitleDisplayMode(.inline)
-        .errorAlert(viewModel.actionErrorMessage, onDismiss: viewModel.dismissError)
-        .confirmationDialog(
-            viewModel.statusConfirmationTitle,
-            isPresented: $viewModel.isStatusConfirmationPresented,
-            titleVisibility: .visible
-        ) {
-            Button(viewModel.statusActionTitle, role: .destructive) {
-                Task {
-                    await viewModel.toggleStatus()
-                }
-            }
-
-            Button("Ləğv et", role: .cancel) {}
-        }
+        .accountStatusActions(viewModel)
     }
 
     // MARK: - Header

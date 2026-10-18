@@ -24,8 +24,6 @@ struct GroupAttendanceView: View {
                 PrimaryButton(title: "Excel-dən davamiyyət yüklə") {
                     viewModel.showImport()
                 }
-                .disabled(!viewModel.canImport)
-                .opacity(viewModel.canImport ? 1 : 0.5)
                 .accessibilityIdentifier("import_attendance_button")
 
                 switch report.state {
@@ -126,8 +124,6 @@ struct GroupScoresView: View {
                 PrimaryButton(title: "Excel-dən tapşırıq ballarını yüklə") {
                     viewModel.showImport()
                 }
-                .disabled(!viewModel.canImport)
-                .opacity(viewModel.canImport ? 1 : 0.5)
                 .listRowInsets(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
                 .listRowBackground(Color.clear)
                 .accessibilityIdentifier("import_tasks_button")

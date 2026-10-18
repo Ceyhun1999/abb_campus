@@ -97,9 +97,9 @@ struct GroupScheduleViewModelTests {
 
         sut.showImport()
 
-        #expect(sut.isImportPresented)
-        #expect(sut.importViewModel?.kind == .schedule)
-        #expect(sut.importViewModel?.group.id == 5)
+        #expect(sut.importFlow.isPresented)
+        #expect(sut.importFlow.viewModel?.kind == .schedule)
+        #expect(sut.importFlow.viewModel?.group.id == 5)
     }
 
     @Test("A group without a teacher cannot import a schedule")
@@ -109,8 +109,8 @@ struct GroupScheduleViewModelTests {
         sut.showImport()
 
         #expect(sut.importBlockedReason?.hasPrefix("Əvvəlcə qrupa müəllim təyin edin.") == true)
-        #expect(sut.isImportPresented == false)
-        #expect(sut.importViewModel == nil)
+        #expect(sut.importFlow.isPresented == false)
+        #expect(sut.importFlow.viewModel == nil)
     }
 
     @Test("A finished group cannot import a schedule")
@@ -120,7 +120,7 @@ struct GroupScheduleViewModelTests {
         sut.showImport()
 
         #expect(sut.importBlockedReason == "Qrup bitib. Bitmiş qrupa cədvəl idxal etmək olmaz.")
-        #expect(sut.isImportPresented == false)
+        #expect(sut.importFlow.isPresented == false)
     }
 
     @Test("The schedule reloads after the import screen closes")
@@ -131,12 +131,12 @@ struct GroupScheduleViewModelTests {
         sut.showImport()
 
         service.scheduleResult = .success([lesson(1, "2026-10-21", "09:00")])
-        await sut.importPresentationChanged(true)
+        await sut.importFlow.presentationChanged(true)
         #expect(sut.state.value?.isEmpty == true)
 
-        await sut.importPresentationChanged(false)
+        await sut.importFlow.presentationChanged(false)
         #expect(sut.state.value?.count == 1)
-        #expect(sut.importViewModel == nil)
+        #expect(sut.importFlow.viewModel == nil)
     }
 
     @Test("A schedule import uploads the file to the schedule endpoint")

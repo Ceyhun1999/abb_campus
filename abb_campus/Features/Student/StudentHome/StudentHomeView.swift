@@ -40,24 +40,15 @@ struct StudentHomeView: View {
     // MARK: - Header
 
     private var headerView: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(viewModel.greeting)
-                    .font(.manropeBold(22))
-                    .foregroundStyle(.textPrimary)
-                    .accessibilityIdentifier("home_greeting")
-
-                Text(viewModel.subtitle)
-                    .font(.manropeRegular(16))
-                    .foregroundStyle(.textSecondary)
-            }
-
-            Spacer()
-
-            if let user = authenticationState.currentUser {
-                AvatarView(firstName: user.firstName, lastName: user.lastName, size: 56)
-            }
-        }
+        GreetingHeader(
+            greeting: viewModel.greeting,
+            subtitle: viewModel.subtitle,
+            user: authenticationState.currentUser,
+            identifier: "home_greeting",
+            titleSize: 22,
+            subtitleSize: 16,
+            avatarSize: 56
+        )
     }
 
     // MARK: - Statistics
@@ -99,21 +90,7 @@ struct StudentHomeView: View {
                     .font(.manropeBold(20))
                     .foregroundStyle(.textPrimary)
 
-                VStack(spacing: 0) {
-                    ForEach(announcements) { announcement in
-                        NavigationLink(value: announcement) {
-                            AnnouncementRow(announcement: announcement)
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 12)
-                        }
-                        .buttonStyle(.plain)
-
-                        if announcement.id != announcements.last?.id {
-                            InfoDivider()
-                        }
-                    }
-                }
-                .cardStyle()
+                AnnouncementsCard(announcements: announcements)
             }
         }
     }

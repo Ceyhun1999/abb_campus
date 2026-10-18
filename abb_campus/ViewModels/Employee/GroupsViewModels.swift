@@ -143,11 +143,11 @@ struct GroupDetail: Equatable {
 @Observable
 final class GroupDetailViewModel {
 
-    var isImportPresented = false
     var isEditPresented = false
     var isSchedulePresented = false
     private let content = LoadableValue<GroupDetail>(keepsValueOnFailure: false)
     private(set) var editViewModel: GroupFormViewModel?
+    let importFlow = ImportFlow()
 
     let group: StudyGroup
     private let groupService: any GroupService
@@ -157,6 +157,10 @@ final class GroupDetailViewModel {
         self.group = group
         self.groupService = groupService
         self.teacherService = teacherService
+
+        importFlow.onFinish = { [weak self] in
+            await self?.load()
+        }
     }
 
     var title: String {
@@ -176,8 +180,9 @@ final class GroupDetailViewModel {
         }
     }
 
+    /// Opens the student import; the students reload when it closes.
     func showImport() {
-        isImportPresented = true
+        importFlow.start(GroupImportViewModel(group: group, groupService: groupService))
     }
 
     // MARK: - Schedule
@@ -189,15 +194,6 @@ final class GroupDetailViewModel {
 
     func showSchedule() {
         isSchedulePresented = true
-    }
-
-    /// Reloads the students after returning from the import screen.
-    func importPresentationChanged(_ isPresented: Bool) async {
-        guard !isPresented else {
-            return
-        }
-
-        await load()
     }
 
     // MARK: - Edit

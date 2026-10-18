@@ -82,21 +82,8 @@ struct StudentsListView: View {
     private var courseMenu: some View {
         @Bindable var viewModel = viewModel
 
-        return Menu {
-            Picker("Kurs", selection: $viewModel.courseFilterId) {
-                Text("Bütün kurslar").tag(Int?.none)
-
-                ForEach(viewModel.courses) { course in
-                    Text(course.name).tag(Optional(course.id))
-                }
-            }
-        } label: {
-            Image(systemName: viewModel.courseFilterId == nil
-                  ? "line.3.horizontal.decrease.circle"
-                  : "line.3.horizontal.decrease.circle.fill")
-        }
-        .accessibilityLabel("Kurs filtri")
-        .accessibilityIdentifier("student_course_filter")
+        return CourseFilterMenu(selection: $viewModel.courseFilterId, courses: viewModel.courses)
+            .accessibilityIdentifier("student_course_filter")
     }
 }
 

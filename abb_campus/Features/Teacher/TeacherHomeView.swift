@@ -45,24 +45,12 @@ struct TeacherHomeView: View {
     // MARK: - Header
 
     private var headerView: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(viewModel.greeting)
-                    .font(.manropeBold(24))
-                    .foregroundStyle(.textPrimary)
-                    .accessibilityIdentifier("teacher_greeting")
-
-                Text("Qruplarınız və növbəti dərsləriniz")
-                    .font(.manropeRegular(15))
-                    .foregroundStyle(.textSecondary)
-            }
-
-            Spacer()
-
-            if let user = authenticationState.currentUser {
-                AvatarView(firstName: user.firstName, lastName: user.lastName, size: 52)
-            }
-        }
+        GreetingHeader(
+            greeting: viewModel.greeting,
+            subtitle: "Qruplarınız və növbəti dərsləriniz",
+            user: authenticationState.currentUser,
+            identifier: "teacher_greeting"
+        )
     }
 
     // MARK: - Next Lessons

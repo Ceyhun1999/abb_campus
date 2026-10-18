@@ -6,10 +6,9 @@ import Observation
 final class GroupScheduleViewModel {
 
     var period: SchedulePeriod = .upcoming
-    var isImportPresented = false
     private let content = LoadableValue<[ScheduleLesson]>(keepsValueOnFailure: true)
-    private(set) var importViewModel: GroupImportViewModel?
     let lessonActions: LessonActions
+    let importFlow = ImportFlow()
 
     let group: StudyGroup
     private let scheduleSource: any GroupScheduleSource
@@ -32,6 +31,10 @@ final class GroupScheduleViewModel {
 
         lessonActions.onChange = { [weak self] lesson in
             self?.apply(lesson)
+        }
+
+        importFlow.onFinish = { [weak self] in
+            await self?.load()
         }
     }
 
@@ -91,17 +94,6 @@ final class GroupScheduleViewModel {
             return
         }
 
-        importViewModel = GroupImportViewModel(group: group, kind: .schedule, groupService: scheduleImporter)
-        isImportPresented = true
-    }
-
-    /// Reloads the schedule after returning from the import screen.
-    func importPresentationChanged(_ isPresented: Bool) async {
-        guard !isPresented else {
-            return
-        }
-
-        importViewModel = nil
-        await load()
+        importFlow.start(GroupImportViewModel(group: group, kind: .schedule, groupService: scheduleImporter))
     }
 }

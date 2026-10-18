@@ -16,52 +16,23 @@ struct GroupScheduleView: View {
                 importSection
             }
 
-            Picker("Dövr", selection: $viewModel.period) {
-                ForEach(SchedulePeriod.allCases) { period in
-                    Text(period.title).tag(period)
-                }
-            }
-            .pickerStyle(.segmented)
-            .padding(.horizontal, AppLayout.horizontalPadding)
-
-            AsyncContentView(
+            SchedulePeriodList(
+                period: $viewModel.period,
                 state: viewModel.state,
-                isEmpty: { _ in viewModel.sections.isEmpty },
-                emptyTitle: "Dərs yoxdur",
+                sections: viewModel.sections,
                 emptyMessage: viewModel.emptyMessage,
-                emptyIcon: "calendar",
-                retry: viewModel.load
-            ) { _ in
-                List(viewModel.sections) { section in
-                    Section(section.title) {
-                        ForEach(section.lessons) { lesson in
-                            LessonRow(lesson: lesson)
-                                .lessonActionMenu(for: lesson, actions: viewModel.lessonActions)
-                        }
-                    }
-                }
-                .listStyle(.insetGrouped)
-                .refreshable {
-                    await viewModel.load()
-                }
-                .accessibilityIdentifier("group_schedule_list")
-            }
+                lessonActions: viewModel.lessonActions,
+                listIdentifier: "group_schedule_list",
+                spacing: 12,
+                load: viewModel.load
+            )
         }
         .padding(.top, 8)
-        .background(Color(.systemGroupedBackground))
+        .background(Color.groupedBackground)
         .lessonActions(viewModel.lessonActions)
+        .importFlow(viewModel.importFlow)
         .navigationTitle("Dərs cədvəli")
         .navigationBarTitleDisplayMode(.inline)
-        .navigationDestination(isPresented: $viewModel.isImportPresented) {
-            if let importViewModel = viewModel.importViewModel {
-                GroupImportView(viewModel: importViewModel)
-            }
-        }
-        .onChange(of: viewModel.isImportPresented) { _, isPresented in
-            Task {
-                await viewModel.importPresentationChanged(isPresented)
-            }
-        }
         .task {
             await viewModel.load()
         }

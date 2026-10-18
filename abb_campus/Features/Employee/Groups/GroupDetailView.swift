@@ -75,19 +75,7 @@ struct GroupDetailView: View {
                 )
             )
         }
-        .navigationDestination(isPresented: $viewModel.isImportPresented) {
-            GroupImportView(
-                viewModel: GroupImportViewModel(
-                    group: viewModel.group,
-                    groupService: dependencies.groupService
-                )
-            )
-        }
-        .onChange(of: viewModel.isImportPresented) { _, isPresented in
-            Task {
-                await viewModel.importPresentationChanged(isPresented)
-            }
-        }
+        .importFlow(viewModel.importFlow)
         .task {
             await viewModel.load()
         }
@@ -125,9 +113,9 @@ struct GroupDetailView: View {
                     .padding(.trailing, 16)
             }
             InfoDivider()
-            InfoRow(icon: "person", title: "Müəllim", value: group.teacher.map(staffName) ?? "Təyin edilməyib")
+            InfoRow(icon: "person", title: "Müəllim", value: group.teacherText)
             InfoDivider()
-            InfoRow(icon: "person.2", title: "Mentorlar", value: mentorNames(group))
+            InfoRow(icon: "person.2", title: "Mentorlar", value: group.mentorsText)
 
             if !group.inactiveStaff.isEmpty {
                 InfoDivider()
@@ -141,28 +129,10 @@ struct GroupDetailView: View {
                 .accessibilityIdentifier("inactive_staff_warning")
             }
             InfoDivider()
-            InfoRow(icon: "calendar", title: "Müddət", value: period(group))
+            InfoRow(icon: "calendar", title: "Müddət", value: group.periodText)
             InfoDivider()
             InfoRow(icon: "person.3", title: "Tələbə sayı", value: "\(group.studentsCount ?? 0)")
         }
-    }
-
-    // MARK: - Formatting
-
-    private func mentorNames(_ group: StudyGroup) -> String {
-        let names = group.mentors?.map(staffName) ?? []
-        return names.isEmpty ? "Təyin edilməyib" : names.joined(separator: "\n")
-    }
-
-    private func staffName(_ person: StudyGroup.TeacherReference) -> String {
-        person.isInactive ? "\(person.fullName) (deaktiv)" : person.fullName
-    }
-
-    private func period(_ group: StudyGroup) -> String {
-        let start = DateFormatting.displayDate(from: group.startDate) ?? "—"
-        let end = DateFormatting.displayDate(from: group.endDate) ?? "…"
-
-        return "\(start) – \(end)"
     }
 
     // MARK: - Students

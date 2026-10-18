@@ -39,24 +39,12 @@ struct EmployeeHomeView: View {
     // MARK: - Header
 
     private var headerView: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(viewModel.greeting)
-                    .font(.manropeBold(24))
-                    .foregroundStyle(.textPrimary)
-                    .accessibilityIdentifier("employee_greeting")
-
-                Text("Bugünkü icmalı nəzərdən keçirin")
-                    .font(.manropeRegular(15))
-                    .foregroundStyle(.textSecondary)
-            }
-
-            Spacer()
-
-            if let user = authenticationState.currentUser {
-                AvatarView(firstName: user.firstName, lastName: user.lastName, size: 52)
-            }
-        }
+        GreetingHeader(
+            greeting: viewModel.greeting,
+            subtitle: "Bugünkü icmalı nəzərdən keçirin",
+            user: authenticationState.currentUser,
+            identifier: "employee_greeting"
+        )
     }
 
     // MARK: - Statistics
@@ -124,21 +112,7 @@ struct EmployeeHomeView: View {
                     .font(.manropeRegular(15))
                     .foregroundStyle(.textSecondary)
             } else {
-                VStack(spacing: 0) {
-                    ForEach(announcements) { announcement in
-                        NavigationLink(value: announcement) {
-                            AnnouncementRow(announcement: announcement)
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 12)
-                        }
-                        .buttonStyle(.plain)
-
-                        if announcement.id != announcements.last?.id {
-                            InfoDivider()
-                        }
-                    }
-                }
-                .cardStyle()
+                AnnouncementsCard(announcements: announcements)
             }
         }
     }

@@ -24,7 +24,7 @@ struct GroupCardRow: View {
                     }
                 }
 
-                Text(subtitle)
+                Text(group.cardSubtitle)
                     .font(.manropeRegular(13))
                     .foregroundStyle(.textSecondary)
                     .lineLimit(1)
@@ -38,19 +38,5 @@ struct GroupCardRow: View {
         }
         .padding(14)
         .cardStyle(cornerRadius: 18)
-    }
-
-    private var subtitle: String {
-        var parts: [String] = []
-
-        if let count = group.studentsCount {
-            parts.append("Tələbə sayı: \(count)")
-        }
-
-        if let course = group.course?.name {
-            parts.append(course)
-        }
-
-        return parts.joined(separator: " · ")
     }
 }

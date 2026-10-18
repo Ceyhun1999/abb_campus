@@ -32,7 +32,7 @@ struct GroupExamsView: View {
                 await viewModel.load()
             }
         }
-        .background(Color(.systemGroupedBackground))
+        .background(Color.groupedBackground)
         .navigationTitle("İmtahanlar")
         .navigationBarTitleDisplayMode(.inline)
         .lessonActions(viewModel.lessonActions)

@@ -159,10 +159,12 @@ struct EmployeeListViewModelTests {
 
         service.studentsResult = .success([GroupStudent(id: 1, firstName: "Ali", lastName: "Rzayev", email: "ali@abb.local")])
         sut.showImport()
-        await sut.importPresentationChanged(true)
+        #expect(sut.importFlow.isPresented)
+        #expect(sut.importFlow.viewModel?.kind == .students)
+        await sut.importFlow.presentationChanged(true)
         #expect(sut.state.value?.students.isEmpty == true)
 
-        await sut.importPresentationChanged(false)
+        await sut.importFlow.presentationChanged(false)
         #expect(sut.state.value?.students.count == 1)
     }
 

@@ -7,12 +7,8 @@ import Observation
 @Observable
 final class GroupAttendanceViewModel {
 
-    let report: MonthlyLoader<GroupAttendanceSummary>
-    let importFlow = ImportFlow()
-
-    let group: StudyGroup
+    let page: MonthlyGroupPage<GroupAttendanceSummary>
     private let teachingService: any TeachingService
-    private let fileLoader: (any FileDataLoader)?
 
     init(
         group: StudyGroup,
@@ -20,21 +16,18 @@ final class GroupAttendanceViewModel {
         fileLoader: (any FileDataLoader)? = nil,
         today: Date = Date()
     ) {
-        self.group = group
         self.teachingService = teachingService
-        self.fileLoader = fileLoader
-        self.report = MonthlyLoader(today: today) { month in
+        self.page = MonthlyGroupPage(group: group, fileLoader: fileLoader, today: today) { month in
             try await teachingService.fetchAttendanceSummary(groupId: group.id, month: month)
-        }
-
-        importFlow.onFinish = { [weak self] in
-            await self?.report.load()
         }
     }
 
-    /// The last month often arrives after the course ends, so finished groups still accept uploads.
-    var canImport: Bool {
-        true
+    var report: MonthlyLoader<GroupAttendanceSummary> {
+        page.report
+    }
+
+    var importFlow: ImportFlow {
+        page.importFlow
     }
 
     /// "12 dərs günü" for the shown month.
@@ -43,16 +36,12 @@ final class GroupAttendanceViewModel {
     }
 
     func showImport() {
-        guard canImport else {
-            return
-        }
-
-        let groupId = group.id
+        let groupId = page.group.id
         let service = teachingService
 
-        importFlow.start(GroupImportViewModel(group: group, kind: .attendance, fileLoader: fileLoader) { fileName, data in
+        page.startImport(.attendance) { fileName, data in
             try await service.importAttendance(groupId: groupId, fileName: fileName, fileData: data)
-        })
+        }
     }
 }
 
@@ -62,12 +51,8 @@ final class GroupAttendanceViewModel {
 @Observable
 final class GroupScoresViewModel {
 
-    let report: MonthlyLoader<[GroupAssessment]>
-    let importFlow = ImportFlow()
-
-    let group: StudyGroup
+    let page: MonthlyGroupPage<[GroupAssessment]>
     private let teachingService: any TeachingService
-    private let fileLoader: (any FileDataLoader)?
 
     init(
         group: StudyGroup,
@@ -75,21 +60,18 @@ final class GroupScoresViewModel {
         fileLoader: (any FileDataLoader)? = nil,
         today: Date = Date()
     ) {
-        self.group = group
         self.teachingService = teachingService
-        self.fileLoader = fileLoader
-        self.report = MonthlyLoader(today: today) { month in
+        self.page = MonthlyGroupPage(group: group, fileLoader: fileLoader, today: today) { month in
             try await teachingService.fetchAssessments(groupId: group.id, month: month)
-        }
-
-        importFlow.onFinish = { [weak self] in
-            await self?.report.load()
         }
     }
 
-    /// The last month often arrives after the course ends, so finished groups still accept uploads.
-    var canImport: Bool {
-        true
+    var report: MonthlyLoader<[GroupAssessment]> {
+        page.report
+    }
+
+    var importFlow: ImportFlow {
+        page.importFlow
     }
 
     func tasks(_ assessments: [GroupAssessment]) -> [GroupAssessment] {
@@ -109,27 +91,14 @@ final class GroupScoresViewModel {
         return "Orta bal: \(ScoreFormatting.text(average)) / \(assessment.maxScore)"
     }
 
+    /// Uploads the task scores of the month on screen.
     func showImport() {
-        guard canImport else {
-            return
-        }
-
-        let groupId = group.id
-        let month = report.month.apiValue
+        let groupId = page.group.id
+        let month = report.month
         let service = teachingService
 
-        importFlow.start(GroupImportViewModel(group: group, kind: .taskScores(month: report.month.title), fileLoader: fileLoader) { fileName, data in
-            try await service.importTaskScores(groupId: groupId, month: month, fileName: fileName, fileData: data)
-        })
-    }
-}
-
-// MARK: - Score Formatting
-
-enum ScoreFormatting {
-
-    /// 90 → "90", 75.5 → "75.5"
-    static func text(_ score: Double) -> String {
-        score.rounded() == score ? String(Int(score)) : String(format: "%.1f", score)
+        page.startImport(.taskScores(month: month.title)) { fileName, data in
+            try await service.importTaskScores(groupId: groupId, month: month.apiValue, fileName: fileName, fileData: data)
+        }
     }
 }
