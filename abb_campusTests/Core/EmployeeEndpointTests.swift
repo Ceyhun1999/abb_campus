@@ -7,24 +7,32 @@ struct EmployeeEndpointTests {
 
     // MARK: - Students
 
-    @Test("Students request has search and status query items")
+    @Test("Students request has search and course query items")
     func studentsRequest() throws {
-        let request = try EmployeeEndpoint.students(search: "Nihad", status: .active, courseId: 4, page: 1).makeRequest()
+        let request = try EmployeeEndpoint.students(search: "Nihad", courseId: 4, page: 1).makeRequest()
         let components = try #require(request.url.flatMap { URLComponents(url: $0, resolvingAgainstBaseURL: false) })
 
         #expect(components.path == "/api/students")
         #expect(components.queryItems?.contains(URLQueryItem(name: "search", value: "Nihad")) == true)
-        #expect(components.queryItems?.contains(URLQueryItem(name: "status", value: "active")) == true)
+        #expect(components.queryItems?.contains(URLQueryItem(name: "courseId", value: "4")) == true)
         #expect(request.httpMethod == "GET")
     }
 
-    @Test("Empty search and 'all' filter are not sent")
+    @Test("Empty search and no course are not sent")
     func studentsRequestWithoutFilters() throws {
-        let request = try EmployeeEndpoint.students(search: "", status: .all, courseId: nil, page: 1).makeRequest()
+        let request = try EmployeeEndpoint.students(search: "", courseId: nil, page: 1).makeRequest()
         let query = request.url?.query ?? ""
 
         #expect(!query.contains("search"))
-        #expect(!query.contains("status"))
+        #expect(!query.contains("courseId"))
+    }
+
+    @Test("Deleting a student is a DELETE to the student")
+    func deleteStudentRequest() throws {
+        let request = try EmployeeEndpoint.deleteStudent(id: 11).makeRequest()
+
+        #expect(request.httpMethod == "DELETE")
+        #expect(request.url?.path == "/api/students/11")
     }
 
     @Test("Status change is a PATCH with a JSON body")

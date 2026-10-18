@@ -69,24 +69,22 @@ struct EmployeeConcurrencyTests {
         #expect(sut.state.value?.isActive == false)
     }
 
-    @Test("Student: a slow load that finishes after deactivation does not bring back 'Aktiv'")
-    func studentStatusNotOverwritten() async {
+    @Test("Student: a slow load that finishes after the deletion is ignored")
+    func studentLoadAfterDeletionIgnored() async {
         let service = ControlledStudentDirectoryService()
-        let sut = StudentDetailViewModel(student: .stub(id: 11, isActive: true), studentService: service)
+        let sut = StudentDetailViewModel(student: .stub(id: 11), studentService: service)
+        let shown = sut.state.value
 
         let load = Task { await sut.load() }
         await service.studentCalls.waitForCalls(1)
 
-        let toggle = Task { await sut.toggleStatus() }
-        await service.studentCalls.waitForCalls(2)
-        service.studentCalls.resume(1, with: .success(.stub(id: 11, isActive: false)))
-        await toggle.value
-        #expect(sut.state.value?.isActive == false)
+        await sut.delete()
+        #expect(sut.isDeleted)
 
-        service.studentCalls.resume(0, with: .success(.stub(id: 11, isActive: true)))
+        service.studentCalls.resume(0, with: .success(.stub(id: 11, isActive: false)))
         await load.value
 
-        #expect(sut.state.value?.isActive == false)
+        #expect(sut.state.value == shown)
     }
 
     // MARK: - Test E: cancellation is not an error

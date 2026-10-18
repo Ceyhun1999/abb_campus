@@ -3,11 +3,13 @@ import Observation
 
 @MainActor
 @Observable
-final class StudentDetailViewModel: AccountStatusChanging {
+final class StudentDetailViewModel {
 
-    var isStatusConfirmationPresented = false
+    var isDeleteConfirmationPresented = false
     private(set) var state: ViewState<DirectoryStudent>
-    private(set) var isUpdatingStatus = false
+    private(set) var isDeleting = false
+    /// Set once the student is deleted; the screen then closes.
+    private(set) var isDeleted = false
     private(set) var actionErrorMessage: String?
 
     private var latestRequest = LatestRequest()
@@ -27,16 +29,9 @@ final class StudentDetailViewModel: AccountStatusChanging {
         actionErrorMessage = nil
     }
 
-    // MARK: - Titles
-
-    var statusActionTitle: String {
-        state.value?.isActive == true ? "Deaktiv et" : "Aktiv et"
-    }
-
-    var statusConfirmationTitle: String {
-        state.value?.isActive == true
-            ? "Tələbə hesabı deaktiv edilsin? Tələbə tətbiqə daxil ola bilməyəcək."
-            : "Tələbə hesabı yenidən aktiv edilsin?"
+    var deleteConfirmationTitle: String {
+        let name = state.value?.fullName ?? "Tələbə"
+        return "\(name) tamamilə silinsin? Qrupdan çıxarılacaq, qiymətləri, davamiyyəti və balları da silinəcək. Bu əməliyyat geri qaytarılmır."
     }
 
     // MARK: - Load
@@ -58,36 +53,29 @@ final class StudentDetailViewModel: AccountStatusChanging {
         }
     }
 
-    // MARK: - Status
+    // MARK: - Delete
 
-    func requestStatusChange() {
-        isStatusConfirmationPresented = true
+    func requestDelete() {
+        isDeleteConfirmationPresented = true
     }
 
-    func toggleStatus() async {
-        guard !isUpdatingStatus, let student = state.value else {
+    func delete() async {
+        guard !isDeleting, !isDeleted else {
             return
         }
 
         actionErrorMessage = nil
-        isUpdatingStatus = true
+        isDeleting = true
 
         defer {
-            isUpdatingStatus = false
+            isDeleting = false
         }
 
         do {
-            try await studentService.setStatus(
-                userId: student.id,
-                isActive: !student.isActive
-            )
-
-            let request = latestRequest.start()
-            let updated = try await studentService.fetchStudent(id: student.id)
-
-            if latestRequest.isCurrent(request) {
-                state = .loaded(updated)
-            }
+            try await studentService.deleteStudent(id: studentId)
+            // A load still on its way must not show the deleted student again.
+            _ = latestRequest.start()
+            isDeleted = true
         } catch {
             actionErrorMessage = error.localizedDescription
         }

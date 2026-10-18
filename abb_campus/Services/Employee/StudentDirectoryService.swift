@@ -1,9 +1,10 @@
 import Foundation
 
 protocol StudentDirectoryService {
-    func fetchStudents(search: String, status: StudentStatusFilter, courseId: Int?, page: Int) async throws -> Page<DirectoryStudent>
+    func fetchStudents(search: String, courseId: Int?, page: Int) async throws -> Page<DirectoryStudent>
     func fetchStudent(id: Int) async throws -> DirectoryStudent
-    func setStatus(userId: Int, isActive: Bool) async throws
+    /// Removes the student completely: account, group, grades, attendance and scores.
+    func deleteStudent(id: Int) async throws
 }
 
 final class DefaultStudentDirectoryService: StudentDirectoryService {
@@ -14,9 +15,9 @@ final class DefaultStudentDirectoryService: StudentDirectoryService {
         self.networkService = networkService
     }
 
-    func fetchStudents(search: String, status: StudentStatusFilter, courseId: Int?, page: Int) async throws -> Page<DirectoryStudent> {
+    func fetchStudents(search: String, courseId: Int?, page: Int) async throws -> Page<DirectoryStudent> {
         let response: PaginatedResponse<DirectoryStudent> = try await networkService.request(
-            EmployeeEndpoint.students(search: search, status: status, courseId: courseId, page: page)
+            EmployeeEndpoint.students(search: search, courseId: courseId, page: page)
         )
 
         return response.page
@@ -30,9 +31,9 @@ final class DefaultStudentDirectoryService: StudentDirectoryService {
         return response.data
     }
 
-    func setStatus(userId: Int, isActive: Bool) async throws {
+    func deleteStudent(id: Int) async throws {
         let _: MessageResponse = try await networkService.request(
-            EmployeeEndpoint.setUserStatus(userId: userId, isActive: isActive)
+            EmployeeEndpoint.deleteStudent(id: id)
         )
     }
 }

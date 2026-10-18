@@ -45,18 +45,44 @@ struct EmployeeListViewModelTests {
 
     // MARK: - Students
 
-    @Test("Search text is trimmed and the status filter is sent")
+    @Test("Search text is trimmed and the course filter is sent")
     func studentsQuery() async {
         let service = MockStudentDirectoryService()
         let sut = StudentsListViewModel(studentService: service, groupService: MockGroupService())
         sut.searchText = "  Nihad "
-        sut.statusFilter = .inactive
+        sut.courseFilterId = 7
 
         await sut.load()
 
         #expect(service.lastSearch == "Nihad")
-        #expect(service.lastStatus == .inactive)
+        #expect(service.lastCourseId == 7)
         #expect(sut.state.value?.count == 1)
+    }
+
+    @Test("Without students, the list says how to add them")
+    func studentsEmptyWithoutFilter() async {
+        let service = MockStudentDirectoryService()
+        service.studentsResult = .success([])
+        let sut = StudentsListViewModel(studentService: service, groupService: MockGroupService())
+
+        await sut.load()
+
+        #expect(sut.emptyMessage == "Hələ tələbə yoxdur. Tələbələri qrupa Excel faylından idxal edin.")
+    }
+
+    @Test("Returning to the list reloads it, so a deleted student disappears")
+    func studentsReloadAfterReturn() async {
+        let service = MockStudentDirectoryService()
+        let sut = StudentsListViewModel(studentService: service, groupService: MockGroupService())
+
+        await sut.reloadIfShown()
+        #expect(sut.state.value == nil)
+
+        await sut.load()
+        service.studentsResult = .success([])
+        await sut.reloadIfShown()
+
+        #expect(sut.state.value?.isEmpty == true)
     }
 
     @Test("Empty search result produces an empty list with a helpful message")
@@ -88,7 +114,7 @@ struct EmployeeListViewModelTests {
         let sut = StudentsListViewModel(studentService: MockStudentDirectoryService(), groupService: MockGroupService())
         let initial = sut.query
 
-        sut.statusFilter = .active
+        sut.courseFilterId = 7
         #expect(sut.query != initial)
 
         let afterFilter = sut.query
@@ -98,31 +124,33 @@ struct EmployeeListViewModelTests {
 
     // MARK: - Student detail
 
-    @Test("Deactivating a student sends the inverted status and refreshes")
-    func toggleStatusSuccess() async {
+    @Test("Deleting a student asks first, then deletes and closes the screen")
+    func deleteStudent() async {
         let service = MockStudentDirectoryService()
-        service.studentResult = .success(.stub(isActive: false))
-        let sut = StudentDetailViewModel(student: .stub(isActive: true), studentService: service)
+        let sut = StudentDetailViewModel(student: .stub(id: 11), studentService: service)
 
-        #expect(sut.statusActionTitle == "Deaktiv et")
-        await sut.toggleStatus()
+        sut.requestDelete()
+        #expect(sut.isDeleteConfirmationPresented)
+        #expect(sut.deleteConfirmationTitle.contains("geri qaytarılmır"))
 
-        #expect(service.statusChanges.first?.isActive == false)
-        #expect(sut.state.value?.isActive == false)
-        #expect(sut.statusActionTitle == "Aktiv et")
-        #expect(sut.isUpdatingStatus == false)
+        await sut.delete()
+
+        #expect(service.deletedIds == [11])
+        #expect(sut.isDeleted)
+        #expect(sut.isDeleting == false)
     }
 
-    @Test("Status change error keeps the current student")
-    func toggleStatusFailure() async {
+    @Test("A failed deletion keeps the student and shows the error")
+    func deleteStudentFailure() async {
         let service = MockStudentDirectoryService()
-        service.setStatusError = NetworkError.serverError(statusCode: 403, message: "İcazə yoxdur.")
-        let sut = StudentDetailViewModel(student: .stub(isActive: true), studentService: service)
+        service.deleteError = NetworkError.serverError(statusCode: 403, message: "İcazə yoxdur.")
+        let sut = StudentDetailViewModel(student: .stub(id: 11), studentService: service)
 
-        await sut.toggleStatus()
+        await sut.delete()
 
         #expect(sut.actionErrorMessage == "İcazə yoxdur.")
-        #expect(sut.state.value?.isActive == true)
+        #expect(sut.isDeleted == false)
+        #expect(service.deletedIds.isEmpty)
     }
 
     // MARK: - Groups

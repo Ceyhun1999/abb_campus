@@ -2,8 +2,9 @@ import Foundation
 
 enum EmployeeEndpoint {
     case dashboard
-    case students(search: String, status: StudentStatusFilter, courseId: Int?, page: Int)
+    case students(search: String, courseId: Int?, page: Int)
     case student(id: Int)
+    case deleteStudent(id: Int)
     case setUserStatus(userId: Int, isActive: Bool)
     case teachers(search: String, position: TeacherPositionFilter, specialty: String?, page: Int?)
     case teacher(id: Int)
@@ -50,7 +51,7 @@ extension EmployeeEndpoint: Endpoint {
         case .students:
             return "/api/students"
 
-        case .student(let id):
+        case .student(let id), .deleteStudent(let id):
             return "/api/students/\(id)"
 
         case .setUserStatus(let userId, _):
@@ -98,7 +99,7 @@ extension EmployeeEndpoint: Endpoint {
         case .setUserStatus, .updateGroup, .updateAnnouncement:
             return .patch
 
-        case .deleteAnnouncement:
+        case .deleteAnnouncement, .deleteStudent:
             return .delete
 
         case .createGroup, .importStudents, .importSchedule, .createAnnouncement:
@@ -125,10 +126,9 @@ extension EmployeeEndpoint: Endpoint {
 
     var queryItems: [URLQueryItem]? {
         switch self {
-        case .students(let search, let status, let courseId, let page):
+        case .students(let search, let courseId, let page):
             return Self.pageItems(page) + [
                 search.isEmpty ? nil : URLQueryItem(name: "search", value: search),
-                status.queryValue.map { URLQueryItem(name: "status", value: $0) },
                 courseId.map { URLQueryItem(name: "courseId", value: String($0)) }
             ].compactMap { $0 }
 

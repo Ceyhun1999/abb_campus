@@ -10,24 +10,25 @@ final class EmployeeUITests: XCTestCase {
         app = .launchedForUITesting()
     }
 
-    func testEmployeeSeesDashboardAndFiltersStudents() {
+    func testEmployeeDeletesAStudent() {
         signInAsEmployee()
 
         XCTAssertTrue(app.descendants(matching: .any)["academy_card"].waitForExistence(timeout: uiTimeout))
 
-        let activeStudent = app.buttons["student_row_11"]
-        let inactiveStudent = app.buttons["student_row_13"]
-        XCTAssertTrue(app.tap(app.tabBars.buttons["Tələbələr"], until: activeStudent))
-        XCTAssertTrue(inactiveStudent.exists)
-
-        app.segmentedControls.buttons["Deaktiv"].tap()
-        XCTAssertTrue(activeStudent.waitForDisappearance())
-        XCTAssertTrue(inactiveStudent.exists)
+        let student = app.buttons["student_row_13"]
+        XCTAssertTrue(app.tap(app.tabBars.buttons["Tələbələr"], until: student))
+        XCTAssertFalse(app.segmentedControls["student_status_filter"].exists, "no status filter any more")
 
         let name = app.staticTexts["student_detail_name"]
-        XCTAssertTrue(app.tap(inactiveStudent, until: name))
+        XCTAssertTrue(app.tap(student, until: name))
         XCTAssertEqual(name.label, "Rəşad İsmayılov")
-        XCTAssertTrue(app.buttons["student_status_button"].exists)
+
+        let confirm = app.buttons["confirm_delete_student"].firstMatch
+        XCTAssertTrue(app.tap(app.buttons["delete_student_button"], until: confirm))
+        confirm.tap()
+
+        XCTAssertTrue(app.buttons["student_row_11"].waitForExistence(timeout: uiTimeout), "back on the list")
+        XCTAssertTrue(student.waitForDisappearance(), "the deleted student is gone")
     }
 
     func testEmployeeOpensGroupAndImportScreen() {

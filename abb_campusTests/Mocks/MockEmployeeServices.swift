@@ -16,17 +16,15 @@ final class MockStudentDirectoryService: StudentDirectoryService {
 
     var studentsResult: Result<[DirectoryStudent], Error> = .success([.stub()])
     var studentResult: Result<DirectoryStudent, Error> = .success(.stub())
-    var setStatusError: Error?
+    var deleteError: Error?
 
     private(set) var lastSearch: String?
-    private(set) var lastStatus: StudentStatusFilter?
     private(set) var lastCourseId: Int?
-    private(set) var statusChanges: [(userId: Int, isActive: Bool)] = []
+    private(set) var deletedIds: [Int] = []
 
-    func fetchStudents(search: String, status: StudentStatusFilter, courseId: Int?, page: Int) async throws -> Page<DirectoryStudent> {
+    func fetchStudents(search: String, courseId: Int?, page: Int) async throws -> Page<DirectoryStudent> {
         lastCourseId = courseId
         lastSearch = search
-        lastStatus = status
         return Page(items: try studentsResult.get(), currentPage: page, lastPage: 1)
     }
 
@@ -34,12 +32,12 @@ final class MockStudentDirectoryService: StudentDirectoryService {
         try studentResult.get()
     }
 
-    func setStatus(userId: Int, isActive: Bool) async throws {
-        statusChanges.append((userId, isActive))
-
-        if let setStatusError {
-            throw setStatusError
+    func deleteStudent(id: Int) async throws {
+        if let deleteError {
+            throw deleteError
         }
+
+        deletedIds.append(id)
     }
 }
 

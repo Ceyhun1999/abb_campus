@@ -2,6 +2,7 @@ import SwiftUI
 
 struct StudentDetailView: View {
 
+    @Environment(\.dismiss) private var dismiss
     @State private var viewModel: StudentDetailViewModel
 
     init(viewModel: StudentDetailViewModel) {
@@ -30,7 +31,7 @@ struct StudentDetailView: View {
                         )
                     }
 
-                    statusButton(student)
+                    deleteButton
                 }
                 .padding(.horizontal, AppLayout.horizontalPadding)
                 .padding(.vertical, 20)
@@ -41,7 +42,26 @@ struct StudentDetailView: View {
         }
         .background(.appBackground)
         .navigationBarTitleDisplayMode(.inline)
-        .accountStatusActions(viewModel)
+        .errorAlert(viewModel.actionErrorMessage, onDismiss: viewModel.dismissError)
+        .confirmationDialog(
+            viewModel.deleteConfirmationTitle,
+            isPresented: $viewModel.isDeleteConfirmationPresented,
+            titleVisibility: .visible
+        ) {
+            Button("Tələbəni sil", role: .destructive) {
+                Task {
+                    await viewModel.delete()
+                }
+            }
+            .accessibilityIdentifier("confirm_delete_student")
+
+            Button("Ləğv et", role: .cancel) {}
+        }
+        .onChange(of: viewModel.isDeleted) { _, isDeleted in
+            if isDeleted {
+                dismiss()
+            }
+        }
     }
 
     // MARK: - Header
@@ -67,25 +87,16 @@ struct StudentDetailView: View {
         HStack(spacing: 12) {
             SummaryCard(icon: "square.grid.2x2.fill", title: "Qrup", value: student.group?.name ?? "—")
 
-            SummaryCard(
-                icon: student.isActive ? "checkmark.circle.fill" : "xmark.circle.fill",
-                title: "Status",
-                value: student.isActive ? "Aktiv" : "Deaktiv",
-                tint: student.isActive ? .green : .red
-            )
+            SummaryCard(icon: "book.fill", title: "Kurs", value: student.group?.courseName ?? "—", tint: .indigo)
         }
     }
 
-    // MARK: - Status
+    // MARK: - Delete
 
-    private func statusButton(_ student: DirectoryStudent) -> some View {
-        StatusActionButton(
-            title: viewModel.statusActionTitle,
-            isActive: student.isActive,
-            isLoading: viewModel.isUpdatingStatus
-        ) {
-            viewModel.requestStatusChange()
+    private var deleteButton: some View {
+        StatusActionButton(title: "Tələbəni sil", isActive: true, isLoading: viewModel.isDeleting) {
+            viewModel.requestDelete()
         }
-        .accessibilityIdentifier("student_status_button")
+        .accessibilityIdentifier("delete_student_button")
     }
 }

@@ -29,23 +29,3 @@ struct DirectoryStudent: Decodable, Identifiable, Hashable {
         return [group.name, group.courseName].compactMap { $0 }.joined(separator: " · ")
     }
 }
-
-enum StudentStatusFilter: String, CaseIterable, Identifiable {
-    case all
-    case active
-    case inactive
-
-    var id: String { rawValue }
-
-    var title: String {
-        switch self {
-        case .all: return "Hamısı"
-        case .active: return "Aktiv"
-        case .inactive: return "Deaktiv"
-        }
-    }
-
-    var queryValue: String? {
-        self == .all ? nil : rawValue
-    }
-}

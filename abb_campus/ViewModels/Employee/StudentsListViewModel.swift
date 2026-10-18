@@ -6,13 +6,6 @@ import Observation
 final class StudentsListViewModel: DebouncedSearch {
 
     var searchText = ""
-    var statusFilter: StudentStatusFilter = .all {
-        didSet {
-            if statusFilter != oldValue {
-                list.showLoading()
-            }
-        }
-    }
     var courseFilterId: Int? {
         didSet {
             if courseFilterId != oldValue {
@@ -54,7 +47,7 @@ final class StudentsListViewModel: DebouncedSearch {
     // MARK: - Query
 
     var query: String {
-        "\(statusFilter.rawValue)|\(courseFilterId.map(String.init) ?? "")|\(trimmedSearch)"
+        "\(courseFilterId.map(String.init) ?? "")|\(trimmedSearch)"
     }
 
     var courseFilterName: String? {
@@ -70,9 +63,13 @@ final class StudentsListViewModel: DebouncedSearch {
     }
 
     var emptyMessage: String {
-        trimmedSearch.isEmpty
-            ? "Bu filtrə uyğun tələbə yoxdur."
-            : "\"\(trimmedSearch)\" üzrə nəticə tapılmadı."
+        if !trimmedSearch.isEmpty {
+            return "\"\(trimmedSearch)\" üzrə nəticə tapılmadı."
+        }
+
+        return courseFilterId == nil
+            ? "Hələ tələbə yoxdur. Tələbələri qrupa Excel faylından idxal edin."
+            : "Bu kursda tələbə yoxdur."
     }
 
     // MARK: - Search
@@ -80,17 +77,25 @@ final class StudentsListViewModel: DebouncedSearch {
     func load() async {
         let requestedQuery = query
         let search = trimmedSearch
-        let status = statusFilter
         let courseId = courseFilterId
         let service = studentService
 
         let loaded = await list.load { page in
-            try await service.fetchStudents(search: search, status: status, courseId: courseId, page: page)
+            try await service.fetchStudents(search: search, courseId: courseId, page: page)
         }
 
         if loaded {
             loadedQuery = requestedQuery
         }
+    }
+
+    /// After returning from a student, so a deleted student leaves the list.
+    func reloadIfShown() async {
+        guard state.value != nil else {
+            return
+        }
+
+        await load()
     }
 
     private var trimmedSearch: String {

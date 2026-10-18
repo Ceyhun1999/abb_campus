@@ -12,16 +12,6 @@ struct StudentsListView: View {
         @Bindable var viewModel = viewModel
 
         VStack(spacing: 0) {
-            Picker("Status", selection: $viewModel.statusFilter) {
-                ForEach(StudentStatusFilter.allCases) { filter in
-                    Text(filter.title).tag(filter)
-                }
-            }
-            .pickerStyle(.segmented)
-            .padding(.horizontal, AppLayout.horizontalPadding)
-            .padding(.bottom, 8)
-            .accessibilityIdentifier("student_status_filter")
-
             if let courseName = viewModel.courseFilterName {
                 FilterChip(title: courseName) {
                     viewModel.courseFilterId = nil
@@ -72,6 +62,11 @@ struct StudentsListView: View {
         .task {
             await viewModel.loadCourses()
         }
+        .onAppear {
+            Task {
+                await viewModel.reloadIfShown()
+            }
+        }
         .task(id: viewModel.query) {
             await viewModel.queryChanged()
         }
@@ -109,11 +104,6 @@ private struct StudentRow: View {
             }
 
             Spacer()
-
-            Circle()
-                .fill(student.isActive ? Color.green : Color.red)
-                .frame(width: 9, height: 9)
-                .accessibilityLabel(student.isActive ? "Aktiv" : "Deaktiv")
         }
         .padding(.vertical, 4)
     }

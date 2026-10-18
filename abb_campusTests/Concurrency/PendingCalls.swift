@@ -63,7 +63,7 @@ final class ControlledTeacherService: TeacherService {
 final class ControlledStudentDirectoryService: StudentDirectoryService {
     let studentCalls = PendingCalls<DirectoryStudent>()
 
-    func fetchStudents(search: String, status: StudentStatusFilter, courseId: Int?, page: Int) async throws -> Page<DirectoryStudent> {
+    func fetchStudents(search: String, courseId: Int?, page: Int) async throws -> Page<DirectoryStudent> {
         Page(items: [], currentPage: page, lastPage: 1)
     }
 
@@ -71,7 +71,7 @@ final class ControlledStudentDirectoryService: StudentDirectoryService {
         try await studentCalls.next()
     }
 
-    func setStatus(userId: Int, isActive: Bool) async throws {}
+    func deleteStudent(id: Int) async throws {}
 }
 
 @MainActor

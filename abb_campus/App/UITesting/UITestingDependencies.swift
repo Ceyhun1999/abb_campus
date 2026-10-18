@@ -163,20 +163,15 @@ final class UITestingDirectory: EmployeeDashboardService, StudentDirectoryServic
         )
     }
 
-    func fetchStudents(search: String, status: StudentStatusFilter, courseId: Int?, page: Int) async throws -> Page<DirectoryStudent> {
+    func fetchStudents(search: String, courseId: Int?, page: Int) async throws -> Page<DirectoryStudent> {
         let items = students.filter { student in
             let studentCourseId = groups.first { $0.id == student.group?.id }?.course?.id
             let matchesCourse = courseId == nil || studentCourseId == courseId
-            let matchesStatus = switch status {
-            case .all: true
-            case .active: student.isActive
-            case .inactive: !student.isActive
-            }
             let matchesSearch = search.isEmpty
                 || student.fullName.localizedCaseInsensitiveContains(search)
                 || (student.group?.name.localizedCaseInsensitiveContains(search) ?? false)
 
-            return matchesStatus && matchesSearch && matchesCourse
+            return matchesSearch && matchesCourse
         }
 
         return Page(items: items, currentPage: page, lastPage: 1)
@@ -191,17 +186,11 @@ final class UITestingDirectory: EmployeeDashboardService, StudentDirectoryServic
     }
 
     func setStatus(userId: Int, isActive: Bool) async throws {
-        guard let index = students.firstIndex(where: { $0.id == userId }) else {
-            teachers = teachers.map { $0.id == userId ? $0.withStatus(isActive) : $0 }
-            return
-        }
+        teachers = teachers.map { $0.id == userId ? $0.withStatus(isActive) : $0 }
+    }
 
-        let student = students[index]
-        students[index] = DirectoryStudent(
-            id: student.id, firstName: student.firstName, lastName: student.lastName,
-            email: student.email, phone: student.phone, isActive: isActive,
-            group: student.group, createdAt: student.createdAt
-        )
+    func deleteStudent(id: Int) async throws {
+        students.removeAll { $0.id == id }
     }
 
     func fetchTeachers(search: String, position: TeacherPositionFilter, specialty: String?) async throws -> [Teacher] {
