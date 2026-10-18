@@ -31,3 +31,6 @@ playground.xcworkspace
 # Temporary files
 *.tmp
 *.swp
+# Personal notes (kept locally, not published)
+docs/DEMO.md
+docs/REQUIREMENTS.md

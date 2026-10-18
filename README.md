@@ -9,8 +9,6 @@ Employees (academy staff) manage students, groups, teachers and announcements, a
 
 The app works with a Laravel REST API (`https://campus.jeywastudio.com/api`).
 
-The Demo Day plan, demo accounts and answers to "why this architecture, what did you test" are in [`docs/DEMO.md`](docs/DEMO.md). The project requirements are in [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md).
-
 ## Screenshots
 
 ### Employee
