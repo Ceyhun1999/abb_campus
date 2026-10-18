@@ -10,14 +10,6 @@ private struct StudentDestinations: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .navigationDestination(for: ModuleScore.self) { module in
-                ModuleGradesView(
-                    viewModel: ModuleGradesViewModel(
-                        module: module,
-                        studentService: dependencies.studentService
-                    )
-                )
-            }
             .navigationDestination(for: Announcement.self) { announcement in
                 AnnouncementDetailView(viewModel: AnnouncementDetailViewModel(announcement: announcement))
             }

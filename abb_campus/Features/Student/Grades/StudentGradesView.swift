@@ -1,5 +1,6 @@
 import SwiftUI
 
+/// The scores a teacher has entered for the student, month by month. Nothing is calculated.
 struct StudentGradesView: View {
 
     @State private var viewModel: StudentGradesViewModel
@@ -11,25 +12,17 @@ struct StudentGradesView: View {
     var body: some View {
         AsyncContentView(
             state: viewModel.state,
-            isEmpty: { _ in viewModel.isEmpty },
+            isEmpty: \.isEmpty,
             emptyTitle: "Qiymət yoxdur",
             emptyMessage: "Müəllim hələ bal əlavə etməyib.",
             emptyIcon: "chart.bar",
             retry: viewModel.load
-        ) { overview in
+        ) { assessments in
             ScrollView {
                 VStack(spacing: 16) {
-                    summaryCard(overview)
-
-                    ForEach(overview.modules) { module in
-                        NavigationLink(value: module) {
-                            ModuleScoreRow(module: module)
-                        }
-                        .buttonStyle(.plain)
-                        .accessibilityIdentifier("module_row_\(module.moduleId)")
+                    ForEach(viewModel.monthSections(assessments)) { section in
+                        monthCard(section)
                     }
-
-                    monthlyScores
                 }
                 .padding(.horizontal, AppLayout.horizontalPadding)
                 .padding(.vertical, 16)
@@ -45,102 +38,43 @@ struct StudentGradesView: View {
         }
     }
 
-    // MARK: - Monthly Scores
+    // MARK: - Month
 
-    @ViewBuilder
-    private var monthlyScores: some View {
-        if let error = viewModel.assessmentsError {
-            Text("Aylıq ballar yüklənmədi: \(error)")
-                .font(.manropeRegular(13))
-                .foregroundStyle(.red)
-                .frame(maxWidth: .infinity, alignment: .leading)
-        }
+    private func monthCard(_ section: StudentGradesViewModel.MonthSection) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(section.title)
+                .font(.manropeBold(18))
+                .foregroundStyle(.textPrimary)
+                .accessibilityIdentifier("monthly_scores_\(section.month)")
 
-        ForEach(viewModel.monthSections) { section in
-            VStack(alignment: .leading, spacing: 10) {
-                Text("Aylıq ballar · \(section.title)")
-                    .font(.manropeBold(18))
-                    .foregroundStyle(.textPrimary)
+            VStack(spacing: 0) {
+                ForEach(section.items) { item in
+                    HStack(spacing: 12) {
+                        Image(systemName: item.kind == .exam ? "graduationcap.fill" : "checklist")
+                            .foregroundStyle(item.kind == .exam ? .orange : .blue)
+                            .frame(width: 24)
 
-                VStack(spacing: 0) {
-                    ForEach(section.items) { item in
-                        HStack(spacing: 12) {
-                            Image(systemName: item.kind == .exam ? "graduationcap.fill" : "checklist")
-                                .foregroundStyle(item.kind == .exam ? .orange : .blue)
-                                .frame(width: 24)
+                        Text(item.title)
+                            .font(.manropeSemiBold(15))
+                            .foregroundStyle(.textPrimary)
 
-                            Text(item.title)
-                                .font(.manropeSemiBold(15))
-                                .foregroundStyle(.textPrimary)
+                        Spacer()
 
-                            Spacer()
+                        Text("\(ScoreFormatting.text(item.score)) / \(item.maxScore)")
+                            .font(.manropeBold(15))
+                            .foregroundStyle(.textPrimary)
+                            .accessibilityIdentifier("score_\(item.id)")
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
 
-                            Text("\(ScoreFormatting.text(item.score)) / \(item.maxScore)")
-                                .font(.manropeBold(15))
-                                .foregroundStyle(.textPrimary)
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 12)
-
-                        if item.id != section.items.last?.id {
-                            InfoDivider()
-                        }
+                    if item.id != section.items.last?.id {
+                        InfoDivider()
                     }
                 }
-                .cardStyle()
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .accessibilityIdentifier("monthly_scores_\(section.month)")
+            .cardStyle()
         }
-    }
-
-    // MARK: - Summary
-
-    private func summaryCard(_ overview: GradesOverview) -> some View {
-        HStack(spacing: 12) {
-            SummaryCard(
-                icon: "chart.bar.fill",
-                title: "Orta bal",
-                value: overview.averageScore.formatted(.number.precision(.fractionLength(0...1))),
-                tint: .green
-            )
-
-            SummaryCard(
-                icon: "sum",
-                title: "Ümumi nəticə",
-                value: "\(overview.overallScore.formatted(.number.precision(.fractionLength(0...1))))%"
-            )
-        }
-    }
-}
-
-// MARK: - Module Row
-
-private struct ModuleScoreRow: View {
-
-    let module: ModuleScore
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text(module.moduleName)
-                    .font(.manropeSemiBold(16))
-                    .foregroundStyle(.textPrimary)
-
-                Spacer()
-
-                Text("\(module.totalScore.formatted()) / \(module.maxScore.formatted())")
-                    .font(.manropeBold(16))
-                    .foregroundStyle(.textPrimary)
-
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(.secondary)
-            }
-
-            ProgressBar(color: .gradeGreen, progress: module.progress)
-        }
-        .padding(16)
-        .cardStyle(cornerRadius: 18)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }

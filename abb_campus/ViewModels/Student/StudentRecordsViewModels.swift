@@ -3,6 +3,7 @@ import Observation
 
 // MARK: - Grades
 
+/// The scores a teacher has entered for the student (tasks and exams), as a list by month.
 @MainActor
 @Observable
 final class StudentGradesViewModel {
@@ -15,9 +16,7 @@ final class StudentGradesViewModel {
         var id: String { month }
     }
 
-    private(set) var state: ViewState<GradesOverview> = .idle
-    private(set) var assessments: [StudentAssessment] = []
-    private(set) var assessmentsError: String?
+    private(set) var state: ViewState<[StudentAssessment]> = .idle
 
     private let studentService: any StudentService
 
@@ -30,68 +29,19 @@ final class StudentGradesViewModel {
             state = .loading
         }
 
-        async let monthly = loadAssessments()
-
         do {
-            state = .loaded(try await studentService.fetchGradesOverview())
+            state = .loaded(try await studentService.fetchAssessments())
+        } catch is CancellationError {
         } catch {
             state = .failed(error.localizedDescription)
         }
-
-        await monthly
     }
 
-    // MARK: - Monthly Scores
-
-    /// Task and exam scores grouped by month, newest month first.
-    var monthSections: [MonthSection] {
+    /// Newest month first.
+    func monthSections(_ assessments: [StudentAssessment]) -> [MonthSection] {
         Dictionary(grouping: assessments, by: \.month)
             .sorted { $0.key > $1.key }
             .map { MonthSection(month: $0.key, title: MonthCursor.title(forAPI: $0.key), items: $0.value) }
-    }
-
-    var isEmpty: Bool {
-        state.value?.modules.isEmpty == true && assessments.isEmpty
-    }
-
-    /// The monthly scores are extra: if they fail, the modules still show.
-    private func loadAssessments() async {
-        do {
-            assessments = try await studentService.fetchAssessments()
-            assessmentsError = nil
-        } catch is CancellationError {
-        } catch {
-            assessmentsError = error.localizedDescription
-        }
-    }
-}
-
-// MARK: - Module Grades
-
-@MainActor
-@Observable
-final class ModuleGradesViewModel {
-
-    private(set) var state: ViewState<ModuleGrades> = .idle
-
-    let module: ModuleScore
-    private let studentService: any StudentService
-
-    init(module: ModuleScore, studentService: any StudentService) {
-        self.module = module
-        self.studentService = studentService
-    }
-
-    func load() async {
-        if state.value == nil {
-            state = .loading
-        }
-
-        do {
-            state = .loaded(try await studentService.fetchModuleGrades(moduleId: module.moduleId))
-        } catch {
-            state = .failed(error.localizedDescription)
-        }
     }
 }
 

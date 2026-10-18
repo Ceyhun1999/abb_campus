@@ -29,10 +29,10 @@ The Demo Day plan, demo accounts and answers to "why this architecture, what did
 
 ### Student
 
-| Home | Grades | Module | Schedule | Attendance | Notifications |
+| Home | Grades | Schedule | Attendance | Notifications |
 | --- | --- | --- | --- | --- | --- |
-| <img src="docs/screenshots/10-student-home-light.png" width="140"> | <img src="docs/screenshots/12-student-grades-light.png" width="140"> | <img src="docs/screenshots/13-student-module-light.png" width="140"> | <img src="docs/screenshots/14-student-schedule-light.png" width="140"> | <img src="docs/screenshots/11-student-attendance-light.png" width="140"> | <img src="docs/screenshots/15-student-notifications-light.png" width="140"> |
-| <img src="docs/screenshots/10-student-home-dark.png" width="140"> | <img src="docs/screenshots/12-student-grades-dark.png" width="140"> | <img src="docs/screenshots/13-student-module-dark.png" width="140"> | <img src="docs/screenshots/14-student-schedule-dark.png" width="140"> | <img src="docs/screenshots/11-student-attendance-dark.png" width="140"> | <img src="docs/screenshots/15-student-notifications-dark.png" width="140"> |
+| <img src="docs/screenshots/10-student-home-light.png" width="140"> | <img src="docs/screenshots/12-student-grades-light.png" width="140"> | <img src="docs/screenshots/14-student-schedule-light.png" width="140"> | <img src="docs/screenshots/11-student-attendance-light.png" width="140"> | <img src="docs/screenshots/15-student-notifications-light.png" width="140"> |
+| <img src="docs/screenshots/10-student-home-dark.png" width="140"> | <img src="docs/screenshots/12-student-grades-dark.png" width="140"> | <img src="docs/screenshots/14-student-schedule-dark.png" width="140"> | <img src="docs/screenshots/11-student-attendance-dark.png" width="140"> | <img src="docs/screenshots/15-student-notifications-dark.png" width="140"> |
 
 ### Sign in
 
@@ -47,8 +47,8 @@ The Demo Day plan, demo accounts and answers to "why this architecture, what did
 - **Login.** Validation runs in the view model, server errors come back in Azerbaijani, and the last used email is remembered.
 - **Forgot password.** A sheet with three steps: email → 6-digit code → new password.
 - **Session persistence.** The token is stored in the Keychain and restored on launch through `/auth/me`. Expired tokens are removed.
-- **Student home.** Shows the next lesson from the schedule, the average score, attendance and the latest announcements, all loaded in parallel with `async let`. The attendance card opens the full attendance history.
-- **Grades (student).** Shows the average and overall score, a progress bar for each module, and the category breakdown of a module (Homework, Final, Project…).
+- **Student home.** Shows the next lesson from the schedule, attendance and the latest announcements, all loaded in parallel with `async let`. The attendance card opens the full attendance history.
+- **Grades (student).** A plain list, by month, of the task and exam scores the teacher has entered. Nothing is calculated: no averages, no module totals.
 - **Schedule (student).** Upcoming or past lessons grouped by day, with time and room.
 - **Notifications (student).** Announcements for all students and for the student's own group.
 - **Profile.** Shows the user's details, lets the user choose the appearance (System, Light or Dark), changes the password and signs out (with confirmation) through `/auth/logout`.
@@ -115,9 +115,9 @@ abb_campusUITests/  # UI tests
 
 ## Tests
 
-- **Unit tests** (`abb_campusTests`, 211 tests) cover the auth view models (`LoginViewModel`, `ForgotPasswordViewModel`, `RoleSelectionViewModel`), `ProfileViewModel`, all student view models (home with next-lesson selection, grades, module grades, schedule grouping, attendance, notifications), all employee view models (dashboard, students, teachers and groups lists and details, create and edit group, student and schedule Excel import, group schedule, create, edit and delete announcements), all teacher view models (home, groups, schedule, cancelling and restoring lessons, monthly attendance and task scores with month switching, exams and the exam form), the student's monthly scores, `AuthenticationState`, `ValidationHelper`, paging and request building for `EmployeeEndpoint`, `TeachingEndpoint` and `LessonEndpoint`. They check both success and error cases. Every service is replaced by a mock through its protocol, so the tests never call the real API.
+- **Unit tests** (`abb_campusTests`, 212 tests) cover the auth view models (`LoginViewModel`, `ForgotPasswordViewModel`, `RoleSelectionViewModel`), `ProfileViewModel`, all student view models (home with next-lesson selection, grades by month, schedule grouping, attendance, notifications), all employee view models (dashboard, students, teachers and groups lists and details, create and edit group, student and schedule Excel import, group schedule, create, edit and delete announcements), all teacher view models (home, groups, schedule, cancelling and restoring lessons, monthly attendance and task scores with month switching, exams and the exam form), the student's monthly scores, `AuthenticationState`, `ValidationHelper`, paging and request building for `EmployeeEndpoint`, `TeachingEndpoint` and `LessonEndpoint`. They check both success and error cases. Every service is replaced by a mock through its protocol, so the tests never call the real API.
 - **Concurrency and network tests** check that a slow, older response never overwrites a newer one, that a cancelled refresh keeps the data on screen, and that server errors, timeouts, offline mode and invalid JSON show a clear message. The network tests use a stubbed `URLProtocol` instead of the real server.
-- **UI tests** (`abb_campusUITests`) cover the login flow (role selection, the validation error, the wrong password error, a successful login → home → logout, and opening the forgot password sheet) the student flow (home → attendance, grades → module details, switching between dark and light in the profile, checked on the screen's pixels) and the employee flow (dashboard → students → Inactive filter → student details, group → import screen, and group → schedule → schedule import), the teacher flow (cancelling a lesson with a reason, scheduling an exam, opening the attendance upload), plus two navigation stress tests (20 push/back cycles, rapid tab switching and returning from the background). The app starts with `-ui-testing`, so the tests use stub services.
+- **UI tests** (`abb_campusUITests`) cover the login flow (role selection, the validation error, the wrong password error, a successful login → home → logout, and opening the forgot password sheet) the student flow (home → attendance, grades → the teacher's scores, switching between dark and light in the profile, checked on the screen's pixels) and the employee flow (dashboard → students → Inactive filter → student details, group → import screen, and group → schedule → schedule import), the teacher flow (cancelling a lesson with a reason, scheduling an exam, opening the attendance upload), plus two navigation stress tests (20 push/back cycles, rapid tab switching and returning from the background). The app starts with `-ui-testing`, so the tests use stub services.
 
 Run all tests from the terminal:
 

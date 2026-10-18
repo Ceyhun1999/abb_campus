@@ -54,30 +54,18 @@ struct StudentHomeView: View {
     // MARK: - Statistics
 
     private func statisticsView(_ dashboard: StudentDashboard) -> some View {
-        HStack(spacing: 14) {
+        NavigationLink(value: StudentRoute.attendance) {
             StatCardView(
-                icon: "chart.bar.fill",
-                iconColor: .gradeGreen,
-                title: "Orta bal",
-                value: dashboard.averageScore.formatted(.number.precision(.fractionLength(0...1))),
-                progress: dashboard.averageScore / 100,
-                progressColor: .gradeGreenLight
+                icon: "person.2.fill",
+                iconColor: .attendanceBlue,
+                title: "Davamiyyət",
+                value: "\(Int(dashboard.attendancePercentage.rounded()))%",
+                progress: dashboard.attendancePercentage / 100,
+                progressColor: .attendanceBlue
             )
-            .accessibilityIdentifier("average_score_card")
-
-            NavigationLink(value: StudentRoute.attendance) {
-                StatCardView(
-                    icon: "person.2.fill",
-                    iconColor: .attendanceBlue,
-                    title: "Davamiyyət",
-                    value: "\(Int(dashboard.attendancePercentage.rounded()))%",
-                    progress: dashboard.attendancePercentage / 100,
-                    progressColor: .attendanceBlue
-                )
-            }
-            .buttonStyle(.plain)
-            .accessibilityIdentifier("attendance_card")
         }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier("attendance_card")
     }
 
     // MARK: - Announcements

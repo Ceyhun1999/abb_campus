@@ -1,8 +1,6 @@
 import Foundation
 
 protocol StudentService: Sendable {
-    func fetchGradesOverview() async throws -> GradesOverview
-    func fetchModuleGrades(moduleId: Int) async throws -> ModuleGrades
     func fetchAttendance() async throws -> AttendanceSummary
     func fetchSchedule() async throws -> [ScheduleLesson]
     func fetchAnnouncements() async throws -> [Announcement]
@@ -15,18 +13,6 @@ final class DefaultStudentService: StudentService {
 
     init(networkService: any NetworkService) {
         self.networkService = networkService
-    }
-
-    func fetchGradesOverview() async throws -> GradesOverview {
-        let response: APIResponse<GradesOverview> = try await networkService.request(StudentEndpoint.grades)
-        return response.data
-    }
-
-    func fetchModuleGrades(moduleId: Int) async throws -> ModuleGrades {
-        let response: APIResponse<ModuleGrades> = try await networkService.request(
-            StudentEndpoint.moduleGrades(moduleId: moduleId)
-        )
-        return response.data
     }
 
     func fetchAttendance() async throws -> AttendanceSummary {

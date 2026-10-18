@@ -25,7 +25,7 @@ Bu sənəd Demo Day üçündür: nəyi hansı ardıcıllıqla göstərmək, hans
 
 1. **Giriş (30 san.).** Rol seçimi → tələbə kimi daxil olun. Sessiya Keychain-də saxlanılır: tətbiqi bağlayıb açsanız, yenidən daxil olmaq lazım deyil.
 2. **Tələbə (1,5 dəq.).**
-   - Ana səhifə: növbəti dərs (ləğv olunmuş 21.10 dərsini keçir), orta bal, davamiyyət, son elanlar.
+   - Ana səhifə: növbəti dərs (ləğv olunmuş 21.10 dərsini keçir), davamiyyət, son elanlar. Qiymətlər: yalnız müəllimin yazdığı ballar, ay-ay siyahı.
    - **Cədvəl:** ləğv olunmuş dərs səbəbi ilə və imtahanlar.
    - **Qiymətlər → Aylıq ballar:** oktyabrın tapşırıq və imtahan balları.
    - **Bildirişlər:** qrupa gələn avtomatik bildirişlər (dərs ləğv edildi, yeni imtahan).

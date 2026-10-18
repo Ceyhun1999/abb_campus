@@ -6,21 +6,6 @@ final class MockStudentService: StudentService {
 
     // MARK: - Results
 
-    var gradesResult: Result<GradesOverview, Error> = .success(
-        GradesOverview(
-            modules: [ModuleScore(moduleId: 1, moduleName: "Swift əsasları", totalScore: 86, maxScore: 100)],
-            averageScore: 86,
-            overallScore: 86
-        )
-    )
-    var moduleGradesResult: Result<ModuleGrades, Error> = .success(
-        ModuleGrades(
-            module: .init(id: 1, name: "Swift əsasları"),
-            grades: [.init(category: "Homework", score: 28, maxScore: 35)],
-            totalScore: 28,
-            maxScore: 35
-        )
-    )
     var attendanceResult: Result<AttendanceSummary, Error> = .success(
         AttendanceSummary(records: [], totalDays: 13, presentDays: 10, attendancePercentage: 76.92)
     )
@@ -28,18 +13,7 @@ final class MockStudentService: StudentService {
     var announcementsResult: Result<[Announcement], Error> = .success([.stub()])
     var assessmentsResult: Result<[StudentAssessment], Error> = .success([])
 
-    private(set) var requestedModuleIds: [Int] = []
-
     // MARK: - StudentService
-
-    func fetchGradesOverview() async throws -> GradesOverview {
-        try gradesResult.get()
-    }
-
-    func fetchModuleGrades(moduleId: Int) async throws -> ModuleGrades {
-        requestedModuleIds.append(moduleId)
-        return try moduleGradesResult.get()
-    }
 
     func fetchAttendance() async throws -> AttendanceSummary {
         try attendanceResult.get()

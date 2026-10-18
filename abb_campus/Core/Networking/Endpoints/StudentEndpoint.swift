@@ -1,8 +1,6 @@
 import Foundation
 
 enum StudentEndpoint {
-    case grades
-    case moduleGrades(moduleId: Int)
     case attendance
     case schedule
     case announcements
@@ -13,12 +11,6 @@ extension StudentEndpoint: Endpoint {
 
     var path: String {
         switch self {
-        case .grades:
-            return "/api/student/grades"
-
-        case .moduleGrades(let moduleId):
-            return "/api/student/modules/\(moduleId)/grades"
-
         case .attendance:
             return "/api/student/attendance"
 

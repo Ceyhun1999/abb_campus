@@ -3,7 +3,6 @@ import Observation
 
 struct StudentDashboard: Equatable {
     let nextLesson: ScheduleLesson?
-    let averageScore: Double
     let attendancePercentage: Double
     let recentAnnouncements: [Announcement]
 }
@@ -47,14 +46,12 @@ final class StudentHomeViewModel {
         }
 
         do {
-            async let grades = studentService.fetchGradesOverview()
             async let attendance = studentService.fetchAttendance()
             async let schedule = studentService.fetchSchedule()
             async let announcements = studentService.fetchAnnouncements()
 
             state = .loaded(StudentDashboard(
                 nextLesson: nextLesson(in: try await schedule),
-                averageScore: try await grades.averageScore,
                 attendancePercentage: try await attendance.attendancePercentage,
                 recentAnnouncements: Array(try await announcements.prefix(2))
             ))

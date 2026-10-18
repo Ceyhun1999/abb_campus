@@ -407,35 +407,8 @@ struct TeacherViewModelTests {
 // MARK: - Student
 
 @MainActor
-@Suite("Student: cancelled lessons and monthly scores")
+@Suite("Student: cancelled lessons and exams")
 struct StudentTeacherToolsTests {
-
-    @Test("Monthly scores are grouped by month, newest first")
-    func monthlySections() async {
-        let service = MockStudentService()
-        service.assessmentsResult = .success([
-            StudentAssessment(id: 1, kind: .task, title: "Layout", month: "2026-09", examDate: nil, score: 80, maxScore: 100),
-            StudentAssessment(id: 2, kind: .exam, title: "Final", month: "2026-10", examDate: "2026-10-10", score: 91.5, maxScore: 100)
-        ])
-        let sut = StudentGradesViewModel(studentService: service)
-
-        await sut.load()
-
-        #expect(sut.monthSections.map(\.title) == ["Oktyabr 2026", "Sentyabr 2026"])
-        #expect(sut.assessmentsError == nil)
-    }
-
-    @Test("Modules still show when monthly scores fail")
-    func monthlyScoresFailure() async {
-        let service = MockStudentService()
-        service.assessmentsResult = .failure(NetworkError.noConnection)
-        let sut = StudentGradesViewModel(studentService: service)
-
-        await sut.load()
-
-        #expect(sut.state.value != nil)
-        #expect(sut.assessmentsError == NetworkError.noConnection.localizedDescription)
-    }
 
     @Test("Lesson decodes cancellation and exam fields, with defaults for old responses")
     func decodeLesson() throws {

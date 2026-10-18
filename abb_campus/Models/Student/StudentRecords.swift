@@ -1,47 +1,5 @@
 import Foundation
 
-// MARK: - Grades
-
-struct GradesOverview: Decodable, Equatable {
-    let modules: [ModuleScore]
-    let averageScore: Double
-    let overallScore: Double
-}
-
-struct ModuleScore: Decodable, Identifiable, Hashable {
-    let moduleId: Int
-    let moduleName: String
-    let totalScore: Double
-    let maxScore: Double
-
-    var id: Int { moduleId }
-
-    var progress: Double {
-        maxScore > 0 ? totalScore / maxScore : 0
-    }
-}
-
-struct ModuleGrades: Decodable, Equatable {
-
-    struct ModuleReference: Decodable, Equatable {
-        let id: Int
-        let name: String
-    }
-
-    struct CategoryScore: Decodable, Equatable, Identifiable {
-        let category: String
-        let score: Double
-        let maxScore: Double
-
-        var id: String { category }
-    }
-
-    let module: ModuleReference
-    let grades: [CategoryScore]
-    let totalScore: Double
-    let maxScore: Double
-}
-
 // MARK: - Attendance
 
 enum AttendanceStatus: String, Decodable {

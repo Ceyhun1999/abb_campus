@@ -19,7 +19,7 @@ struct StudentViewModelTests {
 
     // MARK: - Home
 
-    @Test("Home combines grades, attendance, next lesson and announcements")
+    @Test("Home combines attendance, next lesson and announcements")
     func homeSuccess() async throws {
         service.scheduleResult = .success([
             .stub(id: 1, date: "2026-10-09"),
@@ -37,7 +37,6 @@ struct StudentViewModelTests {
 
         let dashboard = try #require(sut.state.value)
         #expect(dashboard.nextLesson?.id == 2)
-        #expect(dashboard.averageScore == 86)
         #expect(dashboard.attendancePercentage == 76.92)
         #expect(dashboard.recentAnnouncements.count == 2)
     }
@@ -81,7 +80,7 @@ struct StudentViewModelTests {
 
     @Test("Student without a group sees the server message")
     func homeWithoutGroup() async throws {
-        service.gradesResult = .failure(NetworkError.serverError(
+        service.scheduleResult = .failure(NetworkError.serverError(
             statusCode: 404,
             message: "Sən hələ heç bir qrupa təyin edilməmisən."
         ))
@@ -140,35 +139,31 @@ struct StudentViewModelTests {
 
     // MARK: - Grades, attendance, notifications
 
-    @Test("Grades overview loads and module progress is calculated")
+    @Test("Grades list the teacher's scores by month, newest month first")
     func grades() async {
+        service.assessmentsResult = .success([
+            StudentAssessment(id: 1, kind: .task, title: "Layout", month: "2026-09", examDate: nil, score: 80, maxScore: 100),
+            StudentAssessment(id: 2, kind: .exam, title: "Final", month: "2026-10", examDate: "2026-10-20", score: 91, maxScore: 100),
+            StudentAssessment(id: 3, kind: .task, title: "Networking", month: "2026-10", examDate: nil, score: 70, maxScore: 100)
+        ])
         let sut = StudentGradesViewModel(studentService: service)
 
         await sut.load()
 
-        #expect(sut.state.value?.modules.first?.progress == 0.86)
+        let sections = sut.monthSections(sut.state.value ?? [])
+        #expect(sections.map(\.month) == ["2026-10", "2026-09"])
+        #expect(sections.first?.items.map(\.id) == [2, 3])
+        #expect(sections.first?.title == "Oktyabr 2026")
     }
 
-    @Test("Module grades are requested for the selected module")
-    func moduleGrades() async {
-        let module = ModuleScore(moduleId: 7, moduleName: "SwiftUI", totalScore: 0, maxScore: 100)
-        let sut = ModuleGradesViewModel(module: module, studentService: service)
+    @Test("Grades error is shown")
+    func gradesFailure() async {
+        service.assessmentsResult = .failure(NetworkError.serverError(statusCode: 500, message: "Server xətası"))
+        let sut = StudentGradesViewModel(studentService: service)
 
         await sut.load()
 
-        #expect(service.requestedModuleIds == [7])
-        #expect(sut.state.value?.grades.count == 1)
-    }
-
-    @Test("Module grades error is shown")
-    func moduleGradesFailure() async {
-        service.moduleGradesResult = .failure(NetworkError.serverError(statusCode: 403, message: "Bu modul sənin kursuna aid deyil."))
-        let module = ModuleScore(moduleId: 9, moduleName: "Java", totalScore: 0, maxScore: 100)
-        let sut = ModuleGradesViewModel(module: module, studentService: service)
-
-        await sut.load()
-
-        #expect(sut.state.errorMessage == "Bu modul sənin kursuna aid deyil.")
+        #expect(sut.state.errorMessage == "Server xətası")
     }
 
     @Test("Attendance summary loads")

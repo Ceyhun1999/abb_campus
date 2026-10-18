@@ -10,7 +10,7 @@ final class StudentUITests: XCTestCase {
         app = .launchedForUITesting()
     }
 
-    func testStudentSeesDashboardAttendanceAndModuleGrades() {
+    func testStudentSeesDashboardAttendanceAndScores() {
         XCTAssertTrue(app.openLogin(role: "student"))
         app.fillCredentials(email: "student@abb.local", password: "Password123!")
         app.buttons["login_button"].tap()
@@ -23,12 +23,10 @@ final class StudentUITests: XCTestCase {
         XCTAssertTrue(app.tap(app.buttons["attendance_card"], until: attendanceSummary))
         XCTAssertEqual(attendanceSummary.label, "2 / 2 dərs")
 
-        let moduleRow = app.buttons["module_row_1"]
-        XCTAssertTrue(app.tap(app.tabBars.buttons["Qiymətlər"], until: moduleRow))
-
-        let totalScore = app.staticTexts["module_total_score"]
-        XCTAssertTrue(app.tap(moduleRow, until: totalScore))
-        XCTAssertEqual(totalScore.label, "64 / 75")
+        let score = app.staticTexts["score_1"]
+        XCTAssertTrue(app.tap(app.tabBars.buttons["Qiymətlər"], until: score))
+        XCTAssertEqual(score.label, "92 / 100")
+        XCTAssertFalse(app.staticTexts["Orta bal"].exists, "no averages, only the teacher's scores")
     }
 
     func testStudentSwitchesBetweenDarkAndLightInProfile() {

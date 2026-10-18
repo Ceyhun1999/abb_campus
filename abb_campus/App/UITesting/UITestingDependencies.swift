@@ -303,29 +303,6 @@ final class UITestingDirectory: EmployeeDashboardService, StudentDirectoryServic
 
 final class UITestingStudentService: StudentService {
 
-    func fetchGradesOverview() async throws -> GradesOverview {
-        GradesOverview(
-            modules: [
-                ModuleScore(moduleId: 1, moduleName: "Swift əsasları", totalScore: 86, maxScore: 100),
-                ModuleScore(moduleId: 2, moduleName: "SwiftUI və UI", totalScore: 78, maxScore: 100)
-            ],
-            averageScore: 82,
-            overallScore: 82
-        )
-    }
-
-    func fetchModuleGrades(moduleId: Int) async throws -> ModuleGrades {
-        ModuleGrades(
-            module: .init(id: moduleId, name: "Swift əsasları"),
-            grades: [
-                .init(category: "Homework", score: 28, maxScore: 35),
-                .init(category: "Project", score: 36, maxScore: 40)
-            ],
-            totalScore: 64,
-            maxScore: 75
-        )
-    }
-
     func fetchAttendance() async throws -> AttendanceSummary {
         AttendanceSummary(
             records: [
