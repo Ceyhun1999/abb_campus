@@ -326,8 +326,14 @@ final class UITestingStudentService: StudentService {
 
     func fetchAssessments() async throws -> [StudentAssessment] {
         [
+            StudentAssessment(id: 4, kind: .exam, title: "SwiftUI modulu imtahanı", month: "2026-10",
+                              examDate: "2026-10-17", score: 88, maxScore: 100),
             StudentAssessment(id: 1, kind: .task, title: "SwiftUI layout", month: "2026-10",
-                              examDate: nil, score: 92, maxScore: 100)
+                              examDate: nil, score: 92, maxScore: 100),
+            StudentAssessment(id: 2, kind: .task, title: "State və Binding", month: "2026-10",
+                              examDate: nil, score: 85, maxScore: 100),
+            StudentAssessment(id: 3, kind: .task, title: "Swift əsasları", month: "2026-09",
+                              examDate: nil, score: 78, maxScore: 100)
         ]
     }
 
