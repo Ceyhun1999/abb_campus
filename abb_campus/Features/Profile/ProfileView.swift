@@ -12,20 +12,10 @@ struct ProfileView: View {
         @Bindable var viewModel = viewModel
 
         NavigationStack {
+            // Fits one screen on most iPhones; on a small one (iPhone SE) it scrolls,
+            // so the buttons are never stuck under the tab bar.
             ScrollView {
-                VStack(spacing: 24) {
-                    headerView
-
-                    infoCard
-
-                    appearanceCard
-
-                    changePasswordButton
-
-                    logoutButton
-                }
-                .padding(.horizontal, AppLayout.horizontalPadding)
-                .padding(.vertical, 20)
+                content
             }
             .background(.appBackground)
             .navigationTitle("Profil")
@@ -51,14 +41,30 @@ struct ProfileView: View {
         }
     }
 
+    private var content: some View {
+        VStack(spacing: 14) {
+            headerView
+
+            infoCard
+
+            appearanceCard
+
+            changePasswordButton
+
+            logoutButton
+        }
+        .padding(.horizontal, AppLayout.horizontalPadding)
+        .padding(.vertical, 8)
+    }
+
     // MARK: - Header
 
     private var headerView: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 8) {
             Text(viewModel.initials)
-                .font(.manropeBold(30))
+                .font(.manropeBold(26))
                 .foregroundStyle(.white)
-                .frame(width: 96, height: 96)
+                .frame(width: 76, height: 76)
                 .background(.brandBlue)
                 .clipShape(Circle())
 
@@ -99,7 +105,7 @@ struct ProfileView: View {
     private var appearanceCard: some View {
         @Bindable var viewModel = viewModel
 
-        return VStack(alignment: .leading, spacing: 12) {
+        return VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 14) {
                 Image(systemName: viewModel.appearanceMode.icon)
                     .font(.system(size: 18))
@@ -119,7 +125,7 @@ struct ProfileView: View {
             .pickerStyle(.segmented)
             .accessibilityIdentifier("appearance_picker")
         }
-        .padding(16)
+        .padding(14)
         .cardStyle(cornerRadius: 16)
     }
 
@@ -146,7 +152,7 @@ struct ProfileView: View {
                     .foregroundStyle(.textSecondary)
             }
             .padding(.horizontal, 16)
-            .frame(height: 56)
+            .frame(height: 52)
             .cardStyle(cornerRadius: 16)
         }
         .buttonStyle(.plain)
@@ -178,7 +184,7 @@ struct ProfileView: View {
             }
             .foregroundStyle(.white)
             .padding(.horizontal, 16)
-            .frame(height: 56)
+            .frame(height: 52)
             .background(.red)
             .clipShape(RoundedRectangle(cornerRadius: 16))
         }
