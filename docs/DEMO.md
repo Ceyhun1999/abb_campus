@@ -5,18 +5,23 @@ Bu sənəd Demo Day üçündür: nəyi hansı ardıcıllıqla göstərmək, hans
 ## 1. Hazırlıq (təqdimatdan əvvəl)
 
 - Tətbiq canlı serverlə işləyir: `https://campus.jeywastudio.com`. İnternet olmalıdır.
-- Canlı baza təmizdir: yalnız aşağıdakı 3 hesab və kurslar var. Demodan əvvəl məlumatı tətbiqin özü ilə daxil edin (~5 dəqiqə):
-  1. **İşçi:** Qruplar → **+** → məsələn, «IOS-01», kurs «Mobile Development iOS», müəllim Rashad Mammadov, başlama tarixi 01.10.2026.
-  2. Qrup → **Excel-dən tələbə idxal et** → `docs/demo/telebeler.xlsx` (6 tələbə, `student@abb.local` daxil).
-  3. Qrup → **Dərs cədvəli → Excel-dən cədvəl idxal et** → `docs/demo/cedvel.xlsx` (05–30.10).
+- Canlı bazada demo məlumatı hazırdır, əlavə heç nə etmək lazım deyil. Hamısı **IOS 2I** qrupundadır (kurs «Mobile Development iOS», 01.10–31.10.2026):
+  - 7 tələbə (`student@abb.local` — Jeyhun Rzayev daxil);
+  - 05–31.10 dərs cədvəli, 21.10 dərsi ləğv olunub;
+  - imtahanlar: 17.10 (keçib, balları var) və 31.10 «Modul 1»;
+  - oktyabr davamiyyəti və tapşırıq balları, qrupa gələn bildirişlər.
+- Baza yenidən təmizlənsə, məlumatı tətbiqin özü ilə ~5 dəqiqəyə daxil etmək olar (fayllar `docs/demo/`-dadır):
+  1. **İşçi:** Qruplar → **+** → ad, kurs «Mobile Development iOS», müəllim, başlama tarixi.
+  2. Qrup → **Excel-dən tələbə idxal et** → `telebeler.xlsx`.
+  3. Qrup → **Dərs cədvəli → Excel-dən cədvəl idxal et** → `cedvel.xlsx`.
   4. **Müəllim:** qrup → Davamiyyət → `davamiyyet.xlsx`; Ballar → `tapsiriq_ballari.xlsx`; İmtahanlar → imtahan təyin edin.
-  5. İstəsəniz bir dərsi ləğv edin və işçi kimi bir-iki elan yazın.
 - Login 5 cəhd/dəqiqə ilə məhdudlaşdırılıb. Şifrəni səhv yazsanız, bir dəqiqə gözləyin.
 
 | Rol | E-poçt | Şifrə |
 |---|---|---|
 | Tələbə | `student@abb.local` | `Password123!` |
-| Müəllim | `teacher@abb.local` | `Password123!` |
+| Müəllim (IOS 2I) | `kamal.eliyev@abb.local` | `Password123!` |
+| Şifrə bərpası üçün real hesab (tələbə) | `ceyhun.rzayeev@gmail.com` | özünüz təyin etdiyiniz şifrə |
 | İşçi | `employee@abb.local` | `abc12345` |
 
 **Ehtiyat plan (internet olmasa):** Xcode → Product → Scheme → Edit Scheme → Run → Arguments → `-ui-testing` əlavə edin. Tətbiq server olmadan, yaddaşdakı demo məlumatı ilə açılır. Bu rejimdə hər üç hesabın şifrəsi `Password123!`-dir.
@@ -26,17 +31,18 @@ Bu sənəd Demo Day üçündür: nəyi hansı ardıcıllıqla göstərmək, hans
 1. **Giriş (30 san.).** Rol seçimi → tələbə kimi daxil olun. Sessiya Keychain-də saxlanılır: tətbiqi bağlayıb açsanız, yenidən daxil olmaq lazım deyil.
 2. **Tələbə (1,5 dəq.).**
    - Ana səhifə: növbəti dərs (ləğv olunmuş 21.10 dərsini keçir), davamiyyət, son elanlar.
+   - İstəsəniz **Şifrəni unutmusunuz?**: `ceyhun.rzayeev@gmail.com` ünvanına 6 rəqəmli kod real məktubla gəlir.
    - **Cədvəl:** ləğv olunmuş dərs səbəbi ilə və imtahanlar.
    - **Qiymətlər:** yalnız müəllimin yazdığı tapşırıq və imtahan balları, ay-ay siyahı. Orta bal hesablanmır.
    - **Bildirişlər:** qrupa gələn avtomatik bildirişlər (dərs ləğv edildi, yeni imtahan).
-3. **Müəllim (2,5 dəq.).**
+3. **Müəllim — `kamal.eliyev@abb.local` (2,5 dəq.).**
    - Ana səhifə: qruplar, tələbələr, növbəti dərslər.
-   - **Qruplar → IOS-01 → Dərs cədvəli:** dərsi sola sürüşdürün → **Ləğv et** → səbəb seçin. Tələbələrə bildiriş gedir. Sonra **Bərpa et**.
+   - **Qruplar → IOS 2I → Dərs cədvəli:** gələcək dərsi sola sürüşdürün → **Ləğv et** → səbəb seçin. Tələbələrə bildiriş gedir. Sonra **Bərpa et**.
    - **Davamiyyət:** ay üzrə hər tələbənin faizi; «Excel-dən davamiyyət yüklə».
    - **Ballar** və **İmtahanlar:** imtahan təyin edin. O, dərhal tələbənin cədvəlində və bildirişlərində görünür.
 4. **İşçi (2 dəq.).**
    - Ana səhifə və siyahılar: axtarış, filtr, səhifələmə.
-   - **Qruplar → IOS-01 → Dərs cədvəli → Excel-dən cədvəl idxal et** → `cedvel_sehvli.xlsx`: səhvlər sətir-sətir göstərilir, cədvəl dəyişmir. (Səhvsiz fayl bu qrupun cədvəlini yeniləyər. Göstərmək istəsəniz, `cedvel.xlsx` yalnız 05–30.10 aralığını əvəz edir.)
+   - **Qruplar → IOS 2I → Dərs cədvəli → Excel-dən cədvəl idxal et** → `cedvel_sehvli.xlsx`: səhvlər sətir-sətir göstərilir, cədvəl dəyişmir. (Səhvsiz fayl bu qrupun cədvəlini yeniləyər. Göstərmək istəsəniz, `cedvel.xlsx` yalnız 05–30.10 aralığını əvəz edir.)
    - **Elanlar:** prioritet, auditoriya, linklər; redaktə və silmə.
 5. **Dark mode (15 san.).** Profil → **Görünüş**: «Qaranlıq» və «İşıqlı» bütün tətbiqi dərhal dəyişir, «Sistem» telefonun ayarına qayıdır. Seçim yadda qalır.
 6. **GitHub (30 san.).** Actions-da son yaşıl run, README-dəki şəkillər, mənalı commitlər.
