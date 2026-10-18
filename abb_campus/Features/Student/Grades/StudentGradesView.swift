@@ -13,7 +13,7 @@ struct StudentGradesView: View {
             state: viewModel.state,
             isEmpty: { _ in viewModel.isEmpty },
             emptyTitle: "Qiymət yoxdur",
-            emptyMessage: "Kursunuzda hələ modul yoxdur.",
+            emptyMessage: "Müəllim hələ bal əlavə etməyib.",
             emptyIcon: "chart.bar",
             retry: viewModel.load
         ) { overview in
