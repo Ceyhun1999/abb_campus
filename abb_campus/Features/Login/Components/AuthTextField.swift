@@ -34,7 +34,7 @@ struct AuthTextField: View {
         .frame(height: 58)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(Color(.secondarySystemBackground))
+                .fill(Color.fieldBackground)
         )
         .overlay {
             RoundedRectangle(cornerRadius: 16)

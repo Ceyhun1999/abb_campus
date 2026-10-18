@@ -12,7 +12,7 @@ struct RoleSelectionView: View {
         @Bindable var viewModel = viewModel
 
         ZStack {
-            Color(.systemBackground)
+            Color.screenBackground
                 .ignoresSafeArea()
 
             BackgroundDecorView(style: .welcome)

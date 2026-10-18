@@ -30,7 +30,7 @@ struct SearchField: View {
         }
         .padding(.horizontal, 12)
         .frame(height: 44)
-        .background(Color(.tertiarySystemFill), in: Capsule())
+        .background(Color.subtleFill, in: Capsule())
         .opacity(isEnabled ? 1 : 0.5)
     }
 }

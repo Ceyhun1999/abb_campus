@@ -154,7 +154,7 @@ struct GroupFormView: View {
                                 .foregroundStyle(.textPrimary)
                                 .padding(.horizontal, 11)
                                 .padding(.vertical, 6)
-                                .background(Color(.tertiarySystemFill), in: Capsule())
+                                .background(Color.subtleFill, in: Capsule())
                         } else {
                             Text("Tarix seçin")
                         }
