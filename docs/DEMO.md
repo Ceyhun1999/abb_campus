@@ -62,7 +62,7 @@ Bu sənəd Demo Day üçündür: nəyi hansı ardıcıllıqla göstərmək, hans
 
 | Növ | Say | Nə yoxlanılır |
 |---|---|---|
-| Unit testlər (Swift Testing) | 200+ | Bütün ViewModel-lər: uğur və xəta halları, validasiya, səhifələmə, axtarış, importlar, ləğv/bərpa, ay keçidləri, imtahan forması |
+| Unit testlər (Swift Testing) | 211 | Bütün ViewModel-lər: uğur və xəta halları, validasiya, səhifələmə, axtarış, importlar, ləğv/bərpa, ay keçidləri, imtahan forması |
 | Konkurentlik testləri | daxildir | Gec gələn köhnə cavab yenisini əzmir; ləğv olunmuş yeniləmə ekranı boşaltmır (`PendingCalls` ilə determinik, `sleep` yoxdur) |
 | Şəbəkə xətaları | daxildir | 500 (JSON və HTML), 429, timeout, internet yoxdur, səhv JSON, ləğv, təkrar cəhd (`URLProtocol` stub) |
 | UI testlər (XCUITest) | 15 | Giriş axını, tələbə, işçi və müəllim ssenariləri, profildə dark/light keçidi (ekran pikselləri ilə yoxlanılır), naviqasiya stress testi (20 dəfə aç/bağla, tab dəyişmə, fon rejimi) |
