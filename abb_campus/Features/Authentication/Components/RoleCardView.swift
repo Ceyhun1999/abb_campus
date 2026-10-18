@@ -2,13 +2,16 @@ import SwiftUI
 
 struct RoleCardView: View {
 
+    /// Every role card has this height, whatever the length of its subtitle.
+    static let height: CGFloat = 92
+
     let icon: String
     let title: String
     let subtitle: String
 
     var body: some View {
-        HStack(spacing: 18) {
-            IconCircleView(systemName: icon)
+        HStack(spacing: 16) {
+            IconCircleView(systemName: icon, diameter: 60, iconSize: 24)
 
             textContent
 
@@ -18,23 +21,25 @@ struct RoleCardView: View {
                 .font(.system(size: 20, weight: .semibold))
                 .foregroundStyle(.secondary)
         }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 18)
-        .frame(maxWidth: .infinity, minHeight: 112)
+        .padding(.horizontal, 18)
+        .frame(maxWidth: .infinity)
+        .frame(height: Self.height)
         .cardStyle(cornerRadius: 22)
     }
 
     private var textContent: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 4) {
             Text(title)
-                .font(.manropeSemiBold(23))
+                .font(.manropeSemiBold(21))
                 .foregroundStyle(.primary)
+                .lineLimit(1)
 
             Text(subtitle)
-                .font(.manropeRegular(17))
+                .font(.manropeRegular(15))
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.leading)
-                .fixedSize(horizontal: false, vertical: true)
+                .lineLimit(2)
+                .minimumScaleFactor(0.85)
         }
     }
 }

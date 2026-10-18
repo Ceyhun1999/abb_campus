@@ -42,32 +42,39 @@ private struct LoginContentView: View {
 
             BackgroundDecorView(style: .login)
 
-            ScrollView {
-                VStack(spacing: 0) {
-                    headerView
+            // Fits the screen without scrolling; it scrolls only when the keyboard
+            // or a very large text size leaves too little room.
+            GeometryReader { geometry in
+                ScrollView {
+                    VStack(spacing: 0) {
+                        headerView
 
-                    loginFieldsView
-                        .padding(.top, 36)
+                        loginFieldsView
+                            .padding(.top, 22)
 
-                    forgotPasswordButton
-                        .padding(.top, 14)
+                        forgotPasswordButton
+                            .padding(.top, 12)
 
-                    PrimaryButton(
-                        title: "Daxil ol",
-                        isLoading: viewModel.isLoading
-                    ) {
-                        login()
+                        PrimaryButton(
+                            title: "Daxil ol",
+                            isLoading: viewModel.isLoading
+                        ) {
+                            login()
+                        }
+                        .accessibilityIdentifier("login_button")
+                        .padding(.top, 16)
+
+                        Spacer(minLength: 14)
+
+                        termsView
                     }
-                    .accessibilityIdentifier("login_button")
-                    .padding(.top, 28)
-
-                    termsView
-                        .padding(.top, 40)
+                    .padding(.horizontal, AppLayout.horizontalPadding)
+                    .padding(.bottom, 12)
+                    .frame(minHeight: geometry.size.height)
                 }
-                .padding(.horizontal, AppLayout.horizontalPadding)
-                .padding(.bottom, 20)
+                .scrollBounceBehavior(.basedOnSize)
+                .scrollDismissesKeyboard(.interactively)
             }
-            .scrollDismissesKeyboard(.interactively)
         }
         .errorAlert(viewModel.errorMessage, onDismiss: viewModel.dismissError)
         .sheet(isPresented: $viewModel.isForgotPasswordPresented) {
@@ -92,28 +99,28 @@ private struct LoginContentView: View {
 
     private var headerView: some View {
         VStack(spacing: 0) {
-            AppLogoView()
-                .padding(.top, 32)
+            AppLogoView(height: 52)
+                .padding(.top, 8)
 
             IconCircleView(
                 systemName: viewModel.selectedRole?.icon ?? "person.fill",
-                diameter: 116,
-                iconSize: 46
+                diameter: 76,
+                iconSize: 32
             )
-            .padding(.top, 30)
+            .padding(.top, 14)
 
             Text(viewModel.selectedRole?.loginTitle ?? "")
-                .font(.manropeBold(34))
+                .font(.manropeBold(32))
                 .tracking(-0.5)
                 .minimumScaleFactor(0.7)
                 .lineLimit(1)
-                .padding(.top, 22)
+                .padding(.top, 12)
                 .accessibilityIdentifier("login_title")
 
             Text("Hesabınıza daxil olun")
-                .font(.manropeRegular(18))
+                .font(.manropeRegular(17))
                 .foregroundStyle(.secondary)
-                .padding(.top, 6)
+                .padding(.top, 4)
         }
     }
 

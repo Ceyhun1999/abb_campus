@@ -17,17 +17,22 @@ struct RoleSelectionView: View {
 
             BackgroundDecorView(style: .welcome)
 
-            ScrollView {
-                VStack(spacing: 0) {
-                    headerView
+            // Fits the screen without scrolling; it scrolls only when the content cannot fit,
+            // for example with a very large text size.
+            GeometryReader { geometry in
+                ScrollView {
+                    VStack(spacing: 0) {
+                        headerView
 
-                    roleCardsView
+                        roleCardsView
+
+                        Spacer(minLength: 16)
+
+                        footerView
+                    }
+                    .frame(minHeight: geometry.size.height)
                 }
-                .padding(.bottom, 24)
-            }
-            .scrollBounceBehavior(.basedOnSize)
-            .safeAreaInset(edge: .bottom) {
-                footerView
+                .scrollBounceBehavior(.basedOnSize)
             }
         }
         .navigationDestination(isPresented: $viewModel.isLoginPresented) {
@@ -39,25 +44,25 @@ struct RoleSelectionView: View {
 
     private var headerView: some View {
         VStack(spacing: 0) {
-            AppLogoView()
-                .padding(.top, 40)
+            AppLogoView(height: 64)
+                .padding(.top, 24)
 
             Text("Xoş gəlmisiniz")
-                .font(.manropeBold(42))
+                .font(.manropeBold(40))
                 .tracking(-0.8)
                 .minimumScaleFactor(0.7)
                 .lineLimit(1)
-                .padding(.top, 32)
+                .padding(.top, 20)
 
             Text("Rolu seçin")
-                .font(.manropeBold(25))
-                .padding(.top, 20)
+                .font(.manropeBold(24))
+                .padding(.top, 12)
 
             Text("Davam etmək üçün hesab növünüzü seçin")
                 .font(.manropeRegular(16))
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
-                .padding(.top, 6)
+                .padding(.top, 4)
         }
         .padding(.horizontal, AppLayout.horizontalPadding)
     }
@@ -65,7 +70,7 @@ struct RoleSelectionView: View {
     // MARK: - Role Cards
 
     private var roleCardsView: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 12) {
             ForEach(viewModel.roles) { role in
                 Button {
                     viewModel.selectRole(role)
@@ -81,7 +86,7 @@ struct RoleSelectionView: View {
             }
         }
         .padding(.horizontal, AppLayout.horizontalPadding)
-        .padding(.top, 30)
+        .padding(.top, 24)
     }
 
     // MARK: - Footer
