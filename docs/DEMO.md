@@ -5,13 +5,12 @@ Bu sənəd Demo Day üçündür: nəyi hansı ardıcıllıqla göstərmək, hans
 ## 1. Hazırlıq (təqdimatdan əvvəl)
 
 - Tətbiq canlı serverlə işləyir: `https://campus.jeywastudio.com`. İnternet olmalıdır.
-- Canlı bazada demo qrupu hazırdır: **IOS-01** (Mobile Development iOS).
-  - Müəllim: Rashad Mammadov (`teacher@abb.local`), mentor: Fidan Kərimova.
-  - 6 tələbə, o cümlədən `student@abb.local`.
-  - 05.10–20.11 cədvəli: 21 dərs, B.e./Ç./C. 19:00–21:00.
-  - 05–16 oktyabr üçün davamiyyət, oktyabrın 3 tapşırığının balları.
-  - «Modul 1 imtahanı» (17.10) balları ilə və 23.11-ə təyin edilmiş «Modul 2 imtahanı».
-  - 21.10 dərsi «Müəllim xəstədir» səbəbi ilə ləğv edilib.
+- Canlı baza təmizdir: yalnız aşağıdakı 3 hesab və kurslar var. Demodan əvvəl məlumatı tətbiqin özü ilə daxil edin (~5 dəqiqə):
+  1. **İşçi:** Qruplar → **+** → məsələn, «IOS-01», kurs «Mobile Development iOS», müəllim Rashad Mammadov, başlama tarixi 01.10.2026.
+  2. Qrup → **Excel-dən tələbə idxal et** → `docs/demo/telebeler.xlsx` (6 tələbə, `student@abb.local` daxil).
+  3. Qrup → **Dərs cədvəli → Excel-dən cədvəl idxal et** → `docs/demo/cedvel.xlsx` (05–30.10).
+  4. **Müəllim:** qrup → Davamiyyət → `davamiyyet.xlsx`; Ballar → `tapsiriq_ballari.xlsx`; İmtahanlar → imtahan təyin edin.
+  5. İstəsəniz bir dərsi ləğv edin və işçi kimi bir-iki elan yazın.
 - Login 5 cəhd/dəqiqə ilə məhdudlaşdırılıb. Şifrəni səhv yazsanız, bir dəqiqə gözləyin.
 
 | Rol | E-poçt | Şifrə |
