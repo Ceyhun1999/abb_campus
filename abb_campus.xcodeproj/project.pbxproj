@@ -29,22 +29,9 @@
 		C0FFEE000000000000000002 /* abb_campusUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = abb_campusUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		98ED15A0305C6B8B00718AC0 /* Exceptions for "abb_campus" folder in "abb_campus" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				"abb-campus-Info.plist",
-			);
-			target = 98ED157F305C4FCE00718AC0 /* abb_campus */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		98ED1582305C4FCE00718AC0 /* abb_campus */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				98ED15A0305C6B8B00718AC0 /* Exceptions for "abb_campus" folder in "abb_campus" target */,
-			);
 			path = abb_campus;
 			sourceTree = "<group>";
 		};
@@ -408,6 +395,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = WU5Y6G68J9;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "abb-campus-Info.plist";
@@ -441,6 +429,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = WU5Y6G68J9;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "abb-campus-Info.plist";
