@@ -21,13 +21,16 @@ final class ForgotPasswordViewModel {
     private(set) var isLoading = false
     private(set) var errorMessage: String?
 
+    private let role: UserRole
     private let passwordResetService: any PasswordResetService
 
     init(
         email: String = "",
+        role: UserRole,
         passwordResetService: any PasswordResetService
     ) {
         self.email = email
+        self.role = role
         self.passwordResetService = passwordResetService
     }
 
@@ -82,7 +85,8 @@ final class ForgotPasswordViewModel {
 
         await perform(nextStep: .code) { [self] in
             try await passwordResetService.requestCode(
-                email: trimmedEmail
+                email: trimmedEmail,
+                role: role
             )
         }
     }
@@ -96,6 +100,7 @@ final class ForgotPasswordViewModel {
         await perform(nextStep: .newPassword) { [self] in
             try await passwordResetService.verifyCode(
                 email: trimmedEmail,
+                role: role,
                 code: code
             )
         }
@@ -115,6 +120,7 @@ final class ForgotPasswordViewModel {
         await perform(nextStep: .completed) { [self] in
             try await passwordResetService.resetPassword(
                 email: trimmedEmail,
+                role: role,
                 code: code,
                 password: newPassword
             )

@@ -10,9 +10,13 @@ struct ForgotPasswordViewModelTests {
 
     // MARK: - Helpers
 
-    private func makeSUT(email: String = "student@abb.local") -> ForgotPasswordViewModel {
+    private func makeSUT(
+        email: String = "student@abb.local",
+        role: UserRole = .student
+    ) -> ForgotPasswordViewModel {
         ForgotPasswordViewModel(
             email: email,
+            role: role,
             passwordResetService: service
         )
     }
@@ -39,6 +43,20 @@ struct ForgotPasswordViewModelTests {
         #expect(service.requestedEmails == ["student@abb.local"])
         #expect(service.verifiedCodes == ["123456"])
         #expect(service.resetPasswords == ["NewPassword1"])
+    }
+
+    @Test("Every step sends the role chosen before login")
+    func sendsSelectedRole() async {
+        let sut = makeSUT(email: "teacher@abb.local", role: .teacher)
+
+        await sut.submit()
+        sut.code = "123456"
+        await sut.submit()
+        sut.newPassword = "NewPassword1"
+        sut.passwordConfirmation = "NewPassword1"
+        await sut.submit()
+
+        #expect(service.roles == [.teacher, .teacher, .teacher])
     }
 
     @Test("Invalid email does not request a code")

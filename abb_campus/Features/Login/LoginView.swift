@@ -78,12 +78,15 @@ private struct LoginContentView: View {
         }
         .errorAlert(viewModel.errorMessage, onDismiss: viewModel.dismissError)
         .sheet(isPresented: $viewModel.isForgotPasswordPresented) {
-            ForgotPasswordView(
-                viewModel: ForgotPasswordViewModel(
-                    email: viewModel.email,
-                    passwordResetService: dependencies.passwordResetService
+            if let role = viewModel.selectedRole {
+                ForgotPasswordView(
+                    viewModel: ForgotPasswordViewModel(
+                        email: viewModel.email,
+                        role: role,
+                        passwordResetService: dependencies.passwordResetService
+                    )
                 )
-            )
+            }
         }
     }
 

@@ -346,9 +346,9 @@ final class UITestingStudentService: StudentService {
 }
 
 final class UITestingPasswordResetService: PasswordResetService {
-    func requestCode(email: String) async throws {}
-    func verifyCode(email: String, code: String) async throws {}
-    func resetPassword(email: String, code: String, password: String) async throws {}
+    func requestCode(email: String, role: UserRole) async throws {}
+    func verifyCode(email: String, role: UserRole, code: String) async throws {}
+    func resetPassword(email: String, role: UserRole, code: String, password: String) async throws {}
 }
 
 final class InMemorySecureStorage: SecureStorage {

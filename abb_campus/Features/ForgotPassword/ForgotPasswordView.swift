@@ -196,6 +196,7 @@ private extension ForgotPasswordViewModel.Step {
 #Preview {
     ForgotPasswordView(
         viewModel: ForgotPasswordViewModel(
+            role: .student,
             passwordResetService: DefaultPasswordResetService()
         )
     )
