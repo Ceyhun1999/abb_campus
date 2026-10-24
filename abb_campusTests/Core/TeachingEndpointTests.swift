@@ -15,6 +15,15 @@ struct TeachingEndpointTests {
         #expect(scores.url?.path == "/api/groups/3/assessments")
     }
 
+    @Test("Teachers read their notifications from the shared feed")
+    func announcements() throws {
+        let request = try TeachingEndpoint.announcements.makeRequest()
+
+        #expect(request.httpMethod == "GET")
+        #expect(request.url?.path == "/api/my/announcements")
+        #expect(request.url?.query == "perPage=200")
+    }
+
     @Test("Task scores upload sends the month as a form field")
     func taskScoresUpload() throws {
         let form = MultipartFormData.spreadsheet(fileName: "ballar.xlsx", data: Data("x".utf8), fields: ["month": "2026-10"])

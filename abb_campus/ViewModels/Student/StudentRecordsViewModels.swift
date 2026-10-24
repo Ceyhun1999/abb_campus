@@ -71,30 +71,3 @@ final class AttendanceViewModel {
         }
     }
 }
-
-// MARK: - Notifications
-
-@MainActor
-@Observable
-final class StudentNotificationsViewModel {
-
-    private(set) var state: ViewState<[Announcement]> = .idle
-
-    private let studentService: any StudentService
-
-    init(studentService: any StudentService) {
-        self.studentService = studentService
-    }
-
-    func load() async {
-        if state.value == nil {
-            state = .loading
-        }
-
-        do {
-            state = .loaded(try await studentService.fetchAnnouncements())
-        } catch {
-            state = .failed(error.localizedDescription)
-        }
-    }
-}

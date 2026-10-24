@@ -1,10 +1,10 @@
 import SwiftUI
 
-struct StudentNotificationsView: View {
+struct NotificationsView: View {
 
-    @State private var viewModel: StudentNotificationsViewModel
+    @State private var viewModel: NotificationsViewModel
 
-    init(viewModel: StudentNotificationsViewModel) {
+    init(viewModel: NotificationsViewModel) {
         _viewModel = State(initialValue: viewModel)
     }
 

@@ -46,10 +46,8 @@ struct StudentTabView: View {
             }
 
             NavigationStack {
-                StudentNotificationsView(
-                    viewModel: StudentNotificationsViewModel(
-                        studentService: dependencies.studentService
-                    )
+                NotificationsView(
+                    viewModel: NotificationsViewModel(feed: dependencies.studentService)
                 )
                 .studentDestinations()
             }

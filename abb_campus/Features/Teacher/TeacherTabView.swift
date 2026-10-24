@@ -43,6 +43,16 @@ struct TeacherTabView: View {
                 Label("Cədvəl", systemImage: "calendar")
             }
 
+            NavigationStack {
+                NotificationsView(
+                    viewModel: NotificationsViewModel(feed: dependencies.teachingService)
+                )
+                .teacherDestinations()
+            }
+            .tabItem {
+                Label("Bildirişlər", systemImage: "bell.fill")
+            }
+
             ProfileView(
                 viewModel: ProfileViewModel(authenticationState: authenticationState, appearance: appearance)
             )
@@ -61,6 +71,9 @@ private struct TeacherDestinations: ViewModifier {
 
     func body(content: Content) -> some View {
         content
+            .navigationDestination(for: Announcement.self) { announcement in
+                AnnouncementDetailView(viewModel: AnnouncementDetailViewModel(announcement: announcement))
+            }
             .navigationDestination(for: StudyGroup.self) { group in
                 TeacherGroupDetailView(
                     viewModel: TeacherGroupDetailViewModel(group: group, teachingService: dependencies.teachingService)

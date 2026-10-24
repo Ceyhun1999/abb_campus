@@ -4,6 +4,7 @@ import Foundation
 enum TeachingEndpoint {
     case myGroups
     case mySchedule
+    case announcements
     case groupSchedule(groupId: Int)
     case groupStudents(groupId: Int)
     case attendanceSummary(groupId: Int, month: String)
@@ -25,6 +26,8 @@ extension TeachingEndpoint: Endpoint {
             return "/api/teacher/groups"
         case .mySchedule:
             return "/api/teacher/schedule"
+        case .announcements:
+            return "/api/my/announcements"
         case .groupSchedule(let groupId):
             return "/api/groups/\(groupId)/schedule"
         case .groupStudents(let groupId):
@@ -63,6 +66,8 @@ extension TeachingEndpoint: Endpoint {
             return [URLQueryItem(name: "perPage", value: Self.allItems)]
         case .attendanceSummary(_, let month), .assessments(_, let month):
             return [URLQueryItem(name: "month", value: month)]
+        case .announcements:
+            return [URLQueryItem(name: "perPage", value: "200")]
         default:
             return nil
         }

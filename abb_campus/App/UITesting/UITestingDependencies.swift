@@ -414,6 +414,13 @@ final class UITestingTeaching: TeachingService, LessonService {
         [group]
     }
 
+    func fetchAnnouncements() async throws -> [Announcement] {
+        [
+            Announcement(id: 2, title: "Müəllimlər iclası", message: "Cümə günü saat 18:00-da.",
+                         target: .teachers, priority: .high, createdAt: "2026-10-20T09:00:00+00:00")
+        ]
+    }
+
     func fetchMySchedule() async throws -> [ScheduleLesson] {
         lessons
     }

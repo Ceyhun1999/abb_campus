@@ -1,9 +1,8 @@
 import Foundation
 
-protocol StudentService: Sendable {
+protocol StudentService: AnnouncementFeed {
     func fetchAttendance() async throws -> AttendanceSummary
     func fetchSchedule() async throws -> [ScheduleLesson]
-    func fetchAnnouncements() async throws -> [Announcement]
     func fetchAssessments() async throws -> [StudentAssessment]
 }
 

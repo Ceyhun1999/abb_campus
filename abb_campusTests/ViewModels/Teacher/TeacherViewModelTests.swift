@@ -2,6 +2,15 @@ import Foundation
 import Testing
 @testable import abb_campus
 
+/// Decodes every response from the same JSON, without a server.
+private struct JSONNetworkService: NetworkService {
+    let json: Data
+
+    func request<T: Decodable>(_ endpoint: any Endpoint) async throws -> T {
+        try JSONDecoder().decode(T.self, from: json)
+    }
+}
+
 @MainActor
 @Suite("Teacher: home, schedule, cancel lessons, monthly uploads, exams")
 struct TeacherViewModelTests {
@@ -12,6 +21,48 @@ struct TeacherViewModelTests {
         let state = AuthenticationState(secureStorage: MockSecureStorage(), authService: MockAuthService())
         try state.startSession(user: User(id: 21, firstName: "Kamal", lastName: "Əliyev", email: "t@abb.local", role: .teacher), token: "t")
         return state
+    }
+
+    // MARK: - Notifications
+
+    @Test("A teacher's notifications load from the teaching service")
+    func notifications() async {
+        let teaching = MockTeachingService()
+        teaching.announcementsResult = .success([.stub(id: 1), .stub(id: 2)])
+        let sut = NotificationsViewModel(feed: teaching)
+
+        await sut.load()
+
+        #expect(sut.state.value?.count == 2)
+    }
+
+    @Test("Teachers do not see notices meant for students")
+    func teacherNotificationsSkipStudentNotices() async throws {
+        let json = Data("""
+        {"success": true,
+         "data": [
+           {"id": 1, "title": "Dərs ləğv edildi", "message": "x", "target": "students", "priority": "high"},
+           {"id": 2, "title": "Müəllimlər iclası", "message": "x", "target": "teachers", "priority": "medium"},
+           {"id": 3, "title": "Bayram", "message": "x", "target": "everyone", "priority": "low"}
+         ],
+         "meta": {"currentPage": 1, "lastPage": 1, "perPage": 200, "total": 3}}
+        """.utf8)
+        let service = DefaultTeachingService(networkService: JSONNetworkService(json: json))
+
+        let titles = try await service.fetchAnnouncements().map(\.title)
+
+        #expect(titles == ["Müəllimlər iclası", "Bayram"])
+    }
+
+    @Test("A failed notifications request shows the error")
+    func notificationsFailure() async {
+        let teaching = MockTeachingService()
+        teaching.announcementsResult = .failure(NetworkError.noConnection)
+        let sut = NotificationsViewModel(feed: teaching)
+
+        await sut.load()
+
+        #expect(sut.state == .failed(NetworkError.noConnection.localizedDescription))
     }
 
     // MARK: - Month Cursor

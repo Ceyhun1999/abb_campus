@@ -1,7 +1,7 @@
 import Foundation
 
 /// Data and uploads of the teacher and mentor screens.
-protocol TeachingService: GroupScheduleSource {
+protocol TeachingService: GroupScheduleSource, AnnouncementFeed {
     func fetchMyGroups() async throws -> [StudyGroup]
     func fetchMySchedule() async throws -> [ScheduleLesson]
     func fetchStudents(groupId: Int) async throws -> [GroupStudent]
@@ -19,6 +19,14 @@ final class DefaultTeachingService: TeachingService {
 
     init(networkService: any NetworkService) {
         self.networkService = networkService
+    }
+
+    // MARK: - Announcements
+
+    /// Notices for students (such as a cancelled lesson in a group) are not shown to teachers.
+    func fetchAnnouncements() async throws -> [Announcement] {
+        let response: PaginatedResponse<Announcement> = try await networkService.request(TeachingEndpoint.announcements)
+        return response.data.filter { $0.target != .students }
     }
 
     // MARK: - Groups

@@ -178,7 +178,7 @@ struct StudentViewModelTests {
     @Test("Notifications can be empty")
     func notificationsEmpty() async {
         service.announcementsResult = .success([])
-        let sut = StudentNotificationsViewModel(studentService: service)
+        let sut = NotificationsViewModel(feed: service)
 
         await sut.load()
 

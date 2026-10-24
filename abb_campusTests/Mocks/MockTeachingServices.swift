@@ -13,6 +13,7 @@ final class MockTeachingService: TeachingService {
     var assessmentsResult: Result<[GroupAssessment], Error> = .success([])
     var examResult: Result<ScheduleLesson, Error>?
     var importResult: Result<ImportResult, Error> = .success(ImportResult(imported: 3, skipped: 0, errors: []))
+    var announcementsResult: Result<[Announcement], Error> = .success([.stub()])
 
     private(set) var requestedMonths: [String] = []
     private(set) var scheduledExams: [ExamFormRequest] = []
@@ -22,6 +23,10 @@ final class MockTeachingService: TeachingService {
 
     func fetchMyGroups() async throws -> [StudyGroup] {
         try groupsResult.get()
+    }
+
+    func fetchAnnouncements() async throws -> [Announcement] {
+        try announcementsResult.get()
     }
 
     func fetchMySchedule() async throws -> [ScheduleLesson] {
