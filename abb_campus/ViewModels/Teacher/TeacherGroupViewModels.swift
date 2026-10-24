@@ -49,7 +49,7 @@ final class TeacherGroupDetailViewModel {
 
     var routes: [(route: TeacherGroupRoute, icon: String, title: String, subtitle: String)] {
         [
-            (.schedule(group), "calendar", "Dərs cədvəli", "Dərsi ləğv et və ya bərpa et"),
+            (.schedule(group), "calendar", "Dərs cədvəli", "Dərsi ləğv et"),
             (.attendance(group), "checklist", "Davamiyyət", "Aylıq Excel yüklə"),
             (.scores(group), "star.circle", "Ballar", "Tapşırıq və imtahan balları"),
             (.exams(group), "graduationcap", "İmtahanlar", "Tarix təyin et, balları yüklə")

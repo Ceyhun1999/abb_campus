@@ -471,14 +471,6 @@ final class UITestingTeaching: TeachingService, LessonService {
         }
     }
 
-    func restoreLesson(id: Int) async throws -> ScheduleLesson {
-        try update(id) { lesson in
-            ScheduleLesson(id: lesson.id, title: lesson.title, date: lesson.date, startsAt: lesson.startsAt,
-                           endsAt: lesson.endsAt, room: lesson.room, description: lesson.description,
-                           kind: lesson.kind, groupName: lesson.groupName)
-        }
-    }
-
     private func update(_ id: Int, _ change: (ScheduleLesson) -> ScheduleLesson) throws -> ScheduleLesson {
         guard let index = lessons.firstIndex(where: { $0.id == id }) else {
             throw NetworkError.serverError(statusCode: 404, message: "Dərs tapılmadı.")

@@ -84,14 +84,12 @@ final class CancelLessonViewModel: Identifiable {
 
 // MARK: - Lesson Actions
 
-/// Cancel and restore for any list of lessons. The owner applies the changed lesson in `onChange`.
+/// Cancelling for any list of lessons. The owner applies the changed lesson in `onChange`.
 @MainActor
 @Observable
 final class LessonActions {
 
     var cancelViewModel: CancelLessonViewModel?
-    var lessonToRestore: ScheduleLesson?
-    private(set) var restoringLessonId: Int?
     private(set) var errorMessage: String?
 
     @ObservationIgnored var onChange: ((ScheduleLesson) -> Void)?
@@ -109,10 +107,6 @@ final class LessonActions {
         !lesson.isCancelled && isTodayOrLater(lesson)
     }
 
-    func canRestore(_ lesson: ScheduleLesson) -> Bool {
-        lesson.isCancelled && isTodayOrLater(lesson)
-    }
-
     func startCancel(_ lesson: ScheduleLesson) {
         guard canCancel(lesson) else {
             return
@@ -124,33 +118,6 @@ final class LessonActions {
     func cancelFinished(_ lesson: ScheduleLesson) {
         cancelViewModel = nil
         onChange?(lesson)
-    }
-
-    func askRestore(_ lesson: ScheduleLesson) {
-        guard canRestore(lesson) else {
-            return
-        }
-
-        lessonToRestore = lesson
-    }
-
-    func restore() async {
-        guard let lesson = lessonToRestore, restoringLessonId == nil else {
-            return
-        }
-
-        lessonToRestore = nil
-        restoringLessonId = lesson.id
-
-        defer {
-            restoringLessonId = nil
-        }
-
-        do {
-            onChange?(try await lessonService.restoreLesson(id: lesson.id))
-        } catch {
-            errorMessage = error.localizedDescription
-        }
     }
 
     func dismissError() {

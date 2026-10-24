@@ -8,7 +8,7 @@ struct SchedulePeriodList: View {
     let state: ViewState<[ScheduleLesson]>
     let sections: [ScheduleSection]
     let emptyMessage: String
-    /// Swipe and long-press actions to cancel or restore a lesson; none for students.
+    /// Swipe and long-press actions to cancel a lesson; none for students.
     var lessonActions: LessonActions?
     var listIdentifier = "schedule_list"
     /// Space between the period picker and the list.

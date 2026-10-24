@@ -48,7 +48,6 @@ struct TeachingEndpointTests {
         #expect(request.httpMethod == "POST")
         #expect(request.url?.path == "/api/lessons/8/cancel")
         #expect(json?["reason"] as? String == "teacher_sick")
-        #expect(try LessonEndpoint.restore(lessonId: 8).makeRequest().url?.path == "/api/lessons/8/restore")
     }
 
     @Test("Exam scores go to the exam")

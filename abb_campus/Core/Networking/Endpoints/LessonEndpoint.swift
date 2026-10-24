@@ -1,9 +1,8 @@
 import Foundation
 
-/// Cancelling and restoring lessons: used by employees, teachers and mentors.
+/// Cancelling lessons: used by employees, teachers and mentors.
 enum LessonEndpoint {
     case cancel(lessonId: Int, CancelLessonRequest)
-    case restore(lessonId: Int)
 }
 
 extension LessonEndpoint: Endpoint {
@@ -12,8 +11,6 @@ extension LessonEndpoint: Endpoint {
         switch self {
         case .cancel(let lessonId, _):
             return "/api/lessons/\(lessonId)/cancel"
-        case .restore(let lessonId):
-            return "/api/lessons/\(lessonId)/restore"
         }
     }
 
@@ -26,11 +23,10 @@ extension LessonEndpoint: Endpoint {
     }
 
     var httpBody: (any Encodable)? {
-        if case .cancel(_, let request) = self {
+        switch self {
+        case .cancel(_, let request):
             return request
         }
-
-        return nil
     }
 
     var requiresAuthorization: Bool {

@@ -101,21 +101,19 @@ struct TeacherViewModelTests {
         #expect(sut.isSaving == false)
     }
 
-    @Test("Only lessons from today on can be cancelled or restored")
+    @Test("Only lessons from today on can be cancelled, and a cancelled lesson stays cancelled")
     func lessonActionRules() {
         let sut = LessonActions(lessonService: MockLessonService(), today: { Self.today })
 
         #expect(sut.canCancel(.stub(date: "2026-10-20")))
         #expect(sut.canCancel(.stub(date: "2026-10-19")) == false)
         #expect(sut.canCancel(.stub(date: "2026-10-25", isCancelled: true)) == false)
-        #expect(sut.canRestore(.stub(date: "2026-10-25", isCancelled: true)))
-        #expect(sut.canRestore(.stub(date: "2026-10-01", isCancelled: true)) == false)
 
         sut.startCancel(.stub(date: "2026-10-01"))
         #expect(sut.cancelViewModel == nil)
     }
 
-    @Test("A cancelled or restored lesson replaces the old one in the schedule")
+    @Test("A cancelled lesson replaces the old one in the schedule")
     func scheduleUpdatesAfterActions() async {
         let teaching = MockTeachingService()
         teaching.scheduleResult = .success([.stub(id: 1, date: "2026-10-21", groupName: "IOS-01"), .stub(id: 2, date: "2026-10-22")])
@@ -130,27 +128,7 @@ struct TeacherViewModelTests {
         #expect(sut.state.value?.first?.isCancelled == true)
         #expect(sut.state.value?.first?.groupName == "IOS-01")
         #expect(sut.lessonActions.cancelViewModel == nil)
-
-        sut.lessonActions.askRestore(try! #require(sut.state.value?.first))
-        await sut.lessonActions.restore()
-
-        #expect(sut.state.value?.first?.isCancelled == false)
-        #expect(lessons.restoredIds == [1])
-    }
-
-    @Test("A failed restore keeps the lesson cancelled and shows the error")
-    func restoreFailure() async {
-        let lessons = MockLessonService()
-        lessons.error = NetworkError.noConnection
-        let sut = LessonActions(lessonService: lessons, today: { Self.today })
-        var changed: ScheduleLesson?
-        sut.onChange = { changed = $0 }
-
-        sut.askRestore(.stub(date: "2026-10-25", isCancelled: true))
-        await sut.restore()
-
-        #expect(changed == nil)
-        #expect(sut.errorMessage == NetworkError.noConnection.localizedDescription)
+        #expect(lessons.cancelled.map(\.id) == [1])
     }
 
     @Test("A teacher sees the group schedule without the employee import")

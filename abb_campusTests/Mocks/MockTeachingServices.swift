@@ -78,7 +78,6 @@ final class MockLessonService: LessonService {
 
     var error: Error?
     private(set) var cancelled: [(id: Int, reason: CancelReason, note: String?)] = []
-    private(set) var restoredIds: [Int] = []
 
     func cancelLesson(id: Int, reason: CancelReason, note: String?) async throws -> ScheduleLesson {
         if let error {
@@ -87,14 +86,5 @@ final class MockLessonService: LessonService {
 
         cancelled.append((id, reason, note))
         return .stub(id: id, isCancelled: true, cancelReason: reason, cancelNote: note)
-    }
-
-    func restoreLesson(id: Int) async throws -> ScheduleLesson {
-        if let error {
-            throw error
-        }
-
-        restoredIds.append(id)
-        return .stub(id: id)
     }
 }
