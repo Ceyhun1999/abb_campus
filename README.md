@@ -157,3 +157,7 @@ To try the Excel imports, drag the files from [`docs/demo`](docs/demo) onto the 
 ## Backend
 
 The app talks to a Laravel 12 REST API. For the employee screens these endpoints were added: `GET /employee/dashboard`, `GET /students`, `GET /students/{id}`, `GET /teachers`, `GET /teachers/{id}`, `PATCH /users/{id}/status`, creating and editing groups, student and schedule Excel import (`POST /groups/{id}/students/import`, `GET /groups/{id}/schedule`, `POST /groups/{id}/schedule/import`), and creating, editing and deleting announcements. Lists support search, filters and paging. For teachers and mentors: `POST /lessons/{id}/cancel` (also for employees), `POST /groups/{id}/attendance/import`, `GET /groups/{id}/attendance/summary`, `POST /groups/{id}/tasks/import`, `GET /groups/{id}/assessments`, `POST /groups/{id}/exams` and `POST /exams/{id}/scores/import`; students get `GET /student/assessments`, and notices for their own group in `GET /my/announcements`. While building the student screens, three existing backend bugs were fixed: attendance was always 0%, ungraded modules lowered the average, and the group students list returned a 500 error. Everything is covered by PHPUnit feature tests (134 tests). Logins (5 a minute), password resets (6 a minute) and API requests (120 a minute per user) are rate limited.
+
+## Author
+
+Built by [Ceyhun Rzayev](https://github.com/Ceyhun1999) as the final project of the ABBTech iOS programming course.
